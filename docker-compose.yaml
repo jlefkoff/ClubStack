@@ -1,4 +1,4 @@
-name: project-app-team-repo
+name: clubstack-prod
 
 services:
   app:
