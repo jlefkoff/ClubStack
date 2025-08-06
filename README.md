@@ -1,8 +1,8 @@
-# Summer 2 2025 CS 3200 Project Template
+# ClubStack
 
-This is a template repo CS 3200 Summer 2 2025 Course Project. 
+ClubStack is a web application designed to help users manage their club memberships, events, gear rental, and merch sales. It provides a user-friendly interface for both club members and administrators to interact with the system.
 
-It includes most of the infrastructure setup (containers), sample databases, and example UI pages. Explore it fully and ask questions!
+This is based on the template repo for the CS 3200 Summer 2 2025 Course Project. 
 
 ## Prerequisites
 
