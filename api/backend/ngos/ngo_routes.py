@@ -171,8 +171,7 @@ def update_ngo(ngo_id):
             return jsonify({"error": "No valid fields to update"}), 400
 
         params.append(ngo_id)
-        query = f"UPDATE WorldNGOs SET {
-            ', '.join(update_fields)} WHERE NGO_ID = %s"
+        query = f"UPDATE WorldNGOs SET {', '.join(update_fields)} WHERE NGO_ID = %s"
 
         cursor.execute(query, params)
         db.get_db().commit()
