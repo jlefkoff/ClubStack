@@ -1,7 +1,7 @@
-import streamlit as st
 import requests
-from streamlit_extras.app_logo import add_logo
+import streamlit as st
 from modules.nav import SideBarLinks
+from streamlit_extras.app_logo import add_logo
 
 # Initialize sidebar
 SideBarLinks()
@@ -47,7 +47,8 @@ else:
                     with st.expander(
                         f"{project['Project_Name']} ({project['Focus_Area']})"
                     ):
-                        budget = float(project["Budget"]) if project["Budget"] else 0.0
+                        budget = float(
+                            project["Budget"]) if project["Budget"] else 0.0
                         st.write(f"**Budget:** ${budget:,.2f}")
                         st.write(f"**Start Date:** {project['Start_Date']}")
                         st.write(f"**End Date:** {project['End_Date']}")
@@ -72,8 +73,10 @@ else:
             st.error("NGO not found")
         else:
             st.error(
-                f"Error fetching NGO data: {response.json().get('error', 'Unknown error')}"
-            )
+                f"Error fetching NGO data: {
+                    response.json().get(
+                        'error',
+                        'Unknown error')}")
 
     except requests.exceptions.RequestException as e:
         st.error(f"Error connecting to the API: {str(e)}")

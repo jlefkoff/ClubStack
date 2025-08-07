@@ -1,16 +1,10 @@
-from flask import (
-    Blueprint,
-    request,
-    jsonify,
-    make_response,
-    current_app,
-    redirect,
-    url_for,
-)
 import json
+
 from backend.db_connection import db
-from backend.simple.playlist import sample_playlist_data
 from backend.ml_models import model01
+from backend.simple.playlist import sample_playlist_data
+from flask import (Blueprint, current_app, jsonify, make_response, redirect,
+                   request, url_for)
 
 # This blueprint handles some basic routes that you can use for testing
 simple_routes = Blueprint("simple_routes", __name__)
@@ -80,7 +74,7 @@ def get_prediction(var_01, var_02):
         # Call prediction function from model01
         prediction = model01.predict(var_01, var_02)
         current_app.logger.info(f"prediction value returned is {prediction}")
-        
+
         response_data = {
             "prediction": prediction,
             "input_variables": {"var01": var_01, "var02": var_02},

@@ -1,18 +1,18 @@
-from flask import Blueprint, jsonify, request
 from backend.db_connection import db
+from flask import Blueprint, current_app, jsonify, request
 from mysql.connector import Error
-from flask import current_app
 
 # Create a Blueprint for NGO routes
 ngos = Blueprint("ngos", __name__)
 
 
 # Get all NGOs with optional filtering by country, focus area, and founding year
-# Example: /ngo/ngos?country=United%20States&focus_area=Environmental%20Conservation
+# Example:
+# /ngo/ngos?country=United%20States&focus_area=Environmental%20Conservation
 @ngos.route("/ngos", methods=["GET"])
 def get_all_ngos():
     try:
-        current_app.logger.info('Starting get_all_ngos request')
+        current_app.logger.info("Starting get_all_ngos request")
         cursor = db.get_db().cursor()
 
         # Note: Query parameters are added after the main part of the URL.
@@ -25,7 +25,8 @@ def get_all_ngos():
         focus_area = request.args.get("focus_area")
         founding_year = request.args.get("founding_year")
 
-        current_app.logger.debug(f'Query parameters - country: {country}, focus_area: {focus_area}, founding_year: {founding_year}')
+        current_app.logger.debug(
+            f"Query parameters - country: {country}, focus_area: {focus_area}, founding_year: {founding_year}")
 
         # Prepare the Base query
         query = "SELECT * FROM WorldNGOs WHERE 1=1"
@@ -42,15 +43,16 @@ def get_all_ngos():
             query += " AND Founding_Year = %s"
             params.append(founding_year)
 
-        current_app.logger.debug(f'Executing query: {query} with params: {params}')
+        current_app.logger.debug(
+            f"Executing query: {query} with params: {params}")
         cursor.execute(query, params)
         ngos = cursor.fetchall()
         cursor.close()
 
-        current_app.logger.info(f'Successfully retrieved {len(ngos)} NGOs')
+        current_app.logger.info(f"Successfully retrieved {len(ngos)} NGOs")
         return jsonify(ngos), 200
     except Error as e:
-        current_app.logger.error(f'Database error in get_all_ngos: {str(e)}')
+        current_app.logger.error(f"Database error in get_all_ngos: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 
@@ -75,7 +77,8 @@ def get_ngo(ngo_id):
         cursor.execute("SELECT * FROM Donors WHERE NGO_ID = %s", (ngo_id,))
         donors = cursor.fetchall()
 
-        # Combine data from multiple related queries into one object to return (after jsonify)
+        # Combine data from multiple related queries into one object to return
+        # (after jsonify)
         ngo["projects"] = projects
         ngo["donors"] = donors
 
@@ -94,10 +97,16 @@ def create_ngo():
         data = request.get_json()
 
         # Validate required fields
-        required_fields = ["Name", "Country", "Founding_Year", "Focus_Area", "Website"]
+        required_fields = [
+            "Name",
+            "Country",
+            "Founding_Year",
+            "Focus_Area",
+            "Website"]
         for field in required_fields:
             if field not in data:
-                return jsonify({"error": f"Missing required field: {field}"}), 400
+                return jsonify(
+                    {"error": f"Missing required field: {field}"}), 400
 
         cursor = db.get_db().cursor()
 
@@ -146,7 +155,12 @@ def update_ngo(ngo_id):
         # Build update query dynamically based on provided fields
         update_fields = []
         params = []
-        allowed_fields = ["Name", "Country", "Founding_Year", "Focus_Area", "Website"]
+        allowed_fields = [
+            "Name",
+            "Country",
+            "Founding_Year",
+            "Focus_Area",
+            "Website"]
 
         for field in allowed_fields:
             if field in data:
@@ -157,7 +171,8 @@ def update_ngo(ngo_id):
             return jsonify({"error": "No valid fields to update"}), 400
 
         params.append(ngo_id)
-        query = f"UPDATE WorldNGOs SET {', '.join(update_fields)} WHERE NGO_ID = %s"
+        query = f"UPDATE WorldNGOs SET {
+            ', '.join(update_fields)} WHERE NGO_ID = %s"
 
         cursor.execute(query, params)
         db.get_db().commit()

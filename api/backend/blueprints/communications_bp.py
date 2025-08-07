@@ -1,13 +1,15 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, jsonify, request
 
-communications_bp = Blueprint('communications', __name__)
+communications_bp = Blueprint("communications", __name__)
+
 
 # POST /communications - Send mass communication
-@communications_bp.route('/', methods=['POST'])
+@communications_bp.route("/", methods=["POST"])
 def send_mass_communication():
-  return jsonify({'message': 'Mass communication sent (stub)'}), 201
+    return jsonify({"message": "Mass communication sent (stub)"}), 201
+
 
 # GET /communications - View messages received
-@communications_bp.route('/', methods=['GET'])
+@communications_bp.route("/", methods=["GET"])
 def view_messages_received():
-  return jsonify({'messages': 'List of received messages (stub)'}), 200
+    return jsonify({"messages": "List of received messages (stub)"}), 200
