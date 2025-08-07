@@ -56,7 +56,7 @@ def affirmation():
 # ------------------------------------------------------------
 # Demonstrates how to redirect from one route to another.
 @simple_routes.route("/message")
-def mesage():
+def message():
     return redirect(url_for(affirmation))
 
 

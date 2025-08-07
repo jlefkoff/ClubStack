@@ -7,6 +7,17 @@ from logging.handlers import RotatingFileHandler
 from backend.db_connection import db
 from backend.simple.simple_routes import simple_routes
 from backend.ngos.ngo_routes import ngos
+from backend.blueprints import allergies_bp
+from backend.blueprints import budget_bp
+from backend.blueprints import communications_bp
+from backend.blueprints import elections_bp
+from backend.blueprints import events_bp
+from backend.blueprints import feedback_bp
+from backend.blueprints import gear_bp
+from backend.blueprints import members_bp
+from backend.blueprints import permissions_bp
+from backend.blueprints import reimbursements_bp
+from backend.blueprints import merch_bp
 
 def create_app():
     app = Flask(__name__)
@@ -47,6 +58,17 @@ def create_app():
     app.logger.info("create_app(): registering blueprints with Flask app object.")
     app.register_blueprint(simple_routes)
     app.register_blueprint(ngos, url_prefix="/ngo")
+    app.register_blueprint(allergies_bp.allergies_bp, url_prefix="/allergies")
+    app.register_blueprint(budget_bp.budget_bp, url_prefix="/budget")
+    app.register_blueprint(communications_bp.communications_bp, url_prefix="/communications")
+    app.register_blueprint(elections_bp.elections_bp, url_prefix="/elections")
+    app.register_blueprint(events_bp.events_bp, url_prefix="/events")
+    app.register_blueprint(feedback_bp.feedback_bp, url_prefix="/feedback")
+    app.register_blueprint(gear_bp.gear_bp, url_prefix="/gear")
+    app.register_blueprint(members_bp.members_bp, url_prefix="/members")
+    app.register_blueprint(merch_bp.merch_bp, url_prefix="/merch")
+    app.register_blueprint(permissions_bp.permissions_bp, url_prefix="/permissions")
+    app.register_blueprint(reimbursements_bp.reimbursements_bp, url_prefix="/reimbursements")
 
     # Don't forget to return the app object
     return app
