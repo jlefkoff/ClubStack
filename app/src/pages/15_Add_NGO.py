@@ -1,7 +1,7 @@
-import streamlit as st
 import requests
-from streamlit_extras.app_logo import add_logo
+import streamlit as st
 from modules.nav import SideBarLinks
+from streamlit_extras.app_logo import add_logo
 
 # Initialize sidebar
 SideBarLinks()
@@ -51,8 +51,10 @@ with st.form("add_ngo_form"):
                     st.rerun()
                 else:
                     st.error(
-                        f"Failed to add NGO: {response.json().get('error', 'Unknown error')}"
-                    )
+                        f"Failed to add NGO: {
+                            response.json().get(
+                                'error',
+                                'Unknown error')}")
 
             except requests.exceptions.RequestException as e:
                 st.error(f"Error connecting to the API: {str(e)}")

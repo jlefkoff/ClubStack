@@ -1,38 +1,45 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, jsonify, request
 
-events_bp = Blueprint('events', __name__)
+events_bp = Blueprint("events", __name__)
+
 
 # GET /events - List all events
-@events_bp.route('/', methods=['GET'])
+@events_bp.route("/", methods=["GET"])
 def get_events():
-  return jsonify([]), 200
+    return jsonify([]), 200
+
 
 # GET /events/<id> - Get specific event
-@events_bp.route('/<int:event_id>', methods=['GET'])
+@events_bp.route("/<int:event_id>", methods=["GET"])
 def get_event(event_id):
-  return jsonify({'id': event_id, 'name': 'Stub Event'}), 200
+    return jsonify({"id": event_id, "name": "Stub Event"}), 200
+
 
 # POST /events - Create new event
-@events_bp.route('/', methods=['POST'])
+@events_bp.route("/", methods=["POST"])
 def post_event():
-  return jsonify({'message': 'Event created (stub)'}), 201
+    return jsonify({"message": "Event created (stub)"}), 201
+
 
 # PUT /events/<id> - Update event
-@events_bp.route('/<int:event_id>', methods=['PUT'])
+@events_bp.route("/<int:event_id>", methods=["PUT"])
 def put_event(event_id):
-  return jsonify({'message': f'Event {event_id} updated (stub)'}), 200
+    return jsonify({"message": f"Event {event_id} updated (stub)"}), 200
+
 
 # GET /events/<id>/roster - Get event roster
-@events_bp.route('/<int:event_id>/roster', methods=['GET'])
+@events_bp.route("/<int:event_id>/roster", methods=["GET"])
 def get_event_roster(event_id):
-  return jsonify({'event_id': event_id, 'roster': []}), 200
+    return jsonify({"event_id": event_id, "roster": []}), 200
+
 
 # GET /events/report - Events report
-@events_bp.route('/report', methods=['GET'])
+@events_bp.route("/report", methods=["GET"])
 def events_report():
-  return jsonify({'report': 'Events report (stub)'}), 200
+    return jsonify({"report": "Events report (stub)"}), 200
+
 
 # POST /rsvp - RSVP to an event
-@events_bp.route('/rsvp', methods=['POST'])
+@events_bp.route("/rsvp", methods=["POST"])
 def post_rsvp():
-  return jsonify({'message': 'RSVP recorded (stub)'}), 201
+    return jsonify({"message": "RSVP recorded (stub)"}), 201
