@@ -14,91 +14,31 @@ SideBarLinks()
 # add the logo
 #add_logo("assets/logo.png", height=400)
 # set up the page
-st.markdown("# Mapping Demo")
-st.sidebar.header("Mapping Demo")
-st.write(
-    """This Mapping Demo is from the Streamlit Documentation. It shows how to use
-[`st.pydeck_chart`](https://docs.streamlit.io/library/api-reference/charts/st.pydeck_chart)
-to display geospatial data.""")
-
-
-@st.cache_data
-def from_data_file(filename):
-    url = (
-        "http://raw.githubusercontent.com/streamlit/"
-        "example-data/master/hello/v1/%s" % filename
-    )
-    return pd.read_json(url)
-
-
-try:
-    ALL_LAYERS = {
-        "Bike Rentals": pdk.Layer(
-            "HexagonLayer",
-            data=from_data_file("bike_rental_stats.json"),
-            get_position=["lon", "lat"],
-            radius=200,
-            elevation_scale=4,
-            elevation_range=[0, 1000],
-            extruded=True,
-        ),
-        "Bart Stop Exits": pdk.Layer(
-            "ScatterplotLayer",
-            data=from_data_file("bart_stop_stats.json"),
-            get_position=["lon", "lat"],
-            get_color=[200, 30, 0, 160],
-            get_radius="[exits]",
-            radius_scale=0.05,
-        ),
-        "Bart Stop Names": pdk.Layer(
-            "TextLayer",
-            data=from_data_file("bart_stop_stats.json"),
-            get_position=["lon", "lat"],
-            get_text="name",
-            get_color=[0, 0, 0, 200],
-            get_size=15,
-            get_alignment_baseline="'bottom'",
-        ),
-        "Outbound Flow": pdk.Layer(
-            "ArcLayer",
-            data=from_data_file("bart_path_stats.json"),
-            get_source_position=["lon", "lat"],
-            get_target_position=["lon2", "lat2"],
-            get_source_color=[200, 30, 0, 160],
-            get_target_color=[200, 30, 0, 160],
-            auto_highlight=True,
-            width_scale=0.0001,
-            get_width="outbound",
-            width_min_pixels=3,
-            width_max_pixels=30,
-        ),
-    }
-    st.sidebar.markdown("### Map Layers")
-    selected_layers = [
-        layer
-        for layer_name, layer in ALL_LAYERS.items()
-        if st.sidebar.checkbox(layer_name, True)
+    # Sample merch items
+merch_items = [
+        {"name": "T-Shirt", "price": 20},
+        {"name": "Hoodie", "price": 40},
+        {"name": "Cap", "price": 15},
     ]
-    if selected_layers:
-        st.pydeck_chart(
-            pdk.Deck(
-                map_style="mapbox://styles/mapbox/light-v9",
-                initial_view_state={
-                    "latitude": 37.76,
-                    "longitude": -122.4,
-                    "zoom": 11,
-                    "pitch": 50,
-                },
-                layers=selected_layers,
-            )
-        )
-    else:
-        st.error("Please choose at least one layer above.")
-except URLError as e:
-    st.error(
-        """
-        **This demo requires internet access.**
-        Connection error: %s
-    """
-        % e.reason
-    )
+
+    # Display merch items
+for item in merch_items:
+        st.write(f"{item['name']} - ${item['price']}")
+        if st.button(f"Buy {item['name']}"):
+            st.success(f"You bought a {item['name']}!")
+
+    # Check session state for user 'jacob'
+if st.session_state.get('username') == 'jacob':
+        st.markdown("### Manage Merch Items")
+        new_item_name = st.text_input("Item Name")
+        new_item_price = st.number_input("Item Price", min_value=0)
+
+        if st.button("Add Item"):
+            if new_item_name and new_item_price:
+                merch_items.append({"name": new_item_name, "price": new_item_price})
+                st.success(f"Added {new_item_name} - ${new_item_price}!")
+
+        item_to_remove = st.selectbox("Select item to remove", [item['name'] for item in merch_items])
+        if st.button("Remove Item"):
+            merch_items = [item for item in merch_items if item['name'] != item_to_remove]
+            st.success(f"Removed {item_to_remove}!")
