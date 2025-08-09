@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 
-elections_bp = Blueprint("elections", __name__) 
+elections_bp = Blueprint("elections", __name__)
 
 
 # POST /election - Create election
