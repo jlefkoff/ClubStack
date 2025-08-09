@@ -12,8 +12,7 @@ logger = logging.getLogger(__name__)
 SideBarLinks()
 
 # add the logo
-add_logo("assets/logo.png", height=400)
-
+#add_logo("assets/logo.png", height=400)
 # set up the page
 st.markdown("# Mapping Demo")
 st.sidebar.header("Mapping Demo")
