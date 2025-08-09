@@ -19,15 +19,14 @@ def AboutPageNav():
 def PolStratAdvHomeNav():
     st.sidebar.page_link(
         "pages/00_Member_Home.py",
-        label="Political Strategist Home",
-        icon="👤")
+        label="Home Page")
 
 
 def WorldBankVizNav():
     st.sidebar.page_link(
         "pages/01_World_Bank_Viz.py",
-        label="World Bank Visualization",
-        icon="🏦")
+        label="Your Profile",
+        icon="👤")
 
 
 def MapDemoNav():
