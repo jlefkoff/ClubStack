@@ -16,10 +16,10 @@ st.write("")
 st.write("### What would you like to do today?")
 
 if st.button(
-    "Predict Value Based on Regression Model",
+    "Submit a reimbursement",
     type="primary",
         use_container_width=True):
-    st.switch_page("pages/11_Prediction.py")
+    st.switch_page("pages/31_Reimbursed.py")
 
 if st.button(
     "View the Simple API Demo",
