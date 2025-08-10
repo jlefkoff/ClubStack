@@ -21,7 +21,20 @@ from datetime import datetime
 fake = Faker()
 
 def generate_fake_data():
-    """Generate comprehensive fake data for ClubStack database"""
+    """Generate compreh        print(f"📊 Generated data includes:")
+        print(f"   • 100 fake members with addresses and contact info")
+        print(f"   • 15 additional allergies with user assignments") 
+        print(f"   • 16 pages and 12 permission levels with page-permission mappings")
+        print(f"   • 50 diverse events with realistic details")
+        print(f"   • Event signups and waitlists")
+        print(f"   • 150+ feedback entries")
+        print(f"   • Communications and recipients")
+        print(f"   • Budget data for multiple years") 
+        print(f"   • 12 vendor profiles")
+        print(f"   • 30 reimbursement requests")
+        print(f"   • 10 additional purchase orders")
+        print(f"   • 100 rental gear items")
+        print(f"   • 40 merchandise items")ta for ClubStack database"""
     
     print("🎭 Generating fake data for ClubStack database...")
     
@@ -127,40 +140,98 @@ def generate_fake_data():
     
     sql_statements.append("")
     
-    # 4. PERMISSIONS & MEMBER PERMISSIONS
+    # 4. PAGES
+    print("📄 Generating pages...")
+    sql_statements.append("-- 📄 PAGES")
+    
+    page_slugs = [
+        'home', 'profile', 'events', 'members', 'gear', 'communications', 
+        'treasury', 'budget', 'reimbursements', 'safety', 'inventory',
+        'social', 'admin', 'elections', 'feedback', 'reports'
+    ]
+    
+    page_id = 1
+    page_ids = []
+    for slug in page_slugs:
+        sql = f"INSERT INTO Page (ID, Slug) VALUES ({page_id}, '{slug}');"
+        sql_statements.append(sql)
+        page_ids.append(page_id)
+        page_id += 1
+    
+    sql_statements.append("")
+    
+    # 5. PERMISSIONS
     print("🔐 Generating permissions...")
     sql_statements.append("-- 🔐 PERMISSIONS")
     
     new_permissions = [
-        (5, 'Member', 'PROFILE,EVENTS,GEAR,COMMUNICATIONS'),
-        (20, 'VP Comm', 'PROFILE,COMMUNICATIONS,MEMBERS'),
-        (21, 'Safety Officer', 'PROFILE,EVENTS,SAFETY'),
-        (22, 'Gear Manager', 'PROFILE,GEAR,INVENTORY'),
-        (23, 'Social Chair', 'PROFILE,EVENTS,SOCIAL'),
-        (24, 'Alumni', 'PROFILE,EVENTS_READ_ONLY'),
-        (25, 'Inactive Member', 'PROFILE_READ_ONLY'),
-        (26, 'Trip Leader', 'PROFILE,EVENTS,MEMBERS,SAFETY'),
-        (27, 'New Member', 'PROFILE,EVENTS_LIMITED')
+        (5, 'Member'),
+        (20, 'VP Comm'),
+        (21, 'Safety Officer'),
+        (22, 'Gear Manager'),
+        (23, 'Social Chair'),
+        (24, 'Alumni'),
+        (25, 'Inactive Member'),
+        (26, 'Trip Leader'),
+        (27, 'New Member'),
+        (28, 'President'),
+        (29, 'VP Trips'),
+        (30, 'Treasurer')
     ]
     
-    for perm_id, title, access in new_permissions:
-        sql = f"INSERT INTO Permission (ID, Title, PageAccess) VALUES ({perm_id}, '{title}', '{access}');"
+    permission_ids = []
+    for perm_id, title in new_permissions:
+        sql = f"INSERT INTO Permission (ID, Title) VALUES ({perm_id}, '{title}');"
         sql_statements.append(sql)
+        permission_ids.append(perm_id)
     
     sql_statements.append("")
-    sql_statements.append("-- 🔐 MEMBER PERMISSIONS")
+    
+    # 6. PAGE PERMISSIONS (Junction Table)
+    print("🔗 Generating page permissions...")
+    sql_statements.append("-- 🔗 PAGE PERMISSIONS")
+    
+    # Define which permissions can access which pages
+    permission_page_mapping = {
+        5: [1, 2, 3, 5, 6, 14],  # Member: home, profile, events, gear, communications, feedback
+        20: [1, 2, 3, 4, 6, 13, 15],  # VP Comm: + members, admin, reports
+        21: [1, 2, 3, 4, 10, 15],  # Safety Officer: + members, safety, reports
+        22: [1, 2, 5, 11, 15],  # Gear Manager: + inventory, reports
+        23: [1, 2, 3, 4, 12],  # Social Chair: + members, social
+        24: [1, 2, 3, 6],  # Alumni: limited access
+        25: [2],  # Inactive Member: profile only
+        26: [1, 2, 3, 4, 5, 10, 15],  # Trip Leader: + members, gear, safety, reports
+        27: [1, 2, 3, 14],  # New Member: + feedback
+        28: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],  # President: all pages
+        29: [1, 2, 3, 4, 7, 8, 10, 15],  # VP Trips: + treasury, budget, safety, reports
+        30: [1, 2, 7, 8, 9, 15]  # Treasurer: + treasury, budget, reimbursements, reports
+    }
+    
+    for perm_id, allowed_pages in permission_page_mapping.items():
+        for page_id in allowed_pages:
+            sql = f"INSERT INTO PagePermissions (PageID, PermissionID) VALUES ({page_id}, {perm_id});"
+            sql_statements.append(sql)
+    
+    sql_statements.append("")
+    
+    # 7. MEMBER PERMISSIONS
+    print("👤 Generating member permissions...")
+    sql_statements.append("-- MEMBER PERMISSIONS")
     
     # Assign permissions to members
     permission_weights = {
-        5: 0.70,   # Member (70%)
+        5: 0.65,   # Member (65%)
         20: 0.03,  # VP Comm (3%)
         21: 0.05,  # Safety Officer (5%)
         22: 0.02,  # Gear Manager (2%)
         23: 0.03,  # Social Chair (3%)
-        24: 0.05,  # Alumni (5%)
+        24: 0.08,  # Alumni (8%)
         25: 0.02,  # Inactive (2%)
         26: 0.08,  # Trip Leader (8%)
-        27: 0.02   # New Member (2%)
+        27: 0.03,  # New Member (3%)
+        28: 0.005, # President (0.5%)
+        29: 0.005, # VP Trips (0.5%)
+        30: 0.01   # Treasurer (1%)
     }
     
     for member_id in member_ids:
@@ -180,7 +251,7 @@ def generate_fake_data():
     
     sql_statements.append("")
     
-    # 5. EVENTS
+    # 8. EVENTS
     print("🎪 Generating events...")
     sql_statements.append("-- 🎪 EVENTS")
     
@@ -231,7 +302,7 @@ def generate_fake_data():
     
     sql_statements.append("")
     
-    # 6. EVENT ROSTER (signups)
+    # 9. EVENT ROSTER (signups)
     print("📋 Generating event signups...")
     sql_statements.append("-- 📋 EVENT ROSTER")
     
@@ -255,7 +326,7 @@ def generate_fake_data():
             roster_id += 1
     sql_statements.append("")
     
-    # 7. FEEDBACK
+    # 10. FEEDBACK
     print("💬 Generating feedback...")
     sql_statements.append("-- 💬 FEEDBACK")
     
@@ -291,7 +362,7 @@ def generate_fake_data():
     
     sql_statements.append("")
     
-    # 8. COMMUNICATIONS
+    # 11. COMMUNICATIONS
     print("📧 Generating communications...")
     sql_statements.append("-- 📧 COMMUNICATIONS")
     
@@ -334,7 +405,7 @@ def generate_fake_data():
     
     sql_statements.append("")
     
-    # 9. BUDGETS & ACCOUNTS
+    # 12. BUDGETS & ACCOUNTS
     print("💰 Generating budget data...")
     sql_statements.append("-- 💰 BUDGETS")
     
@@ -377,7 +448,7 @@ def generate_fake_data():
     
     sql_statements.append("")
     
-    # 10. VENDORS
+    # 13. VENDORS
     print("🏪 Generating vendors...")
     sql_statements.append("-- 🏪 VENDORS")
     
@@ -400,7 +471,7 @@ def generate_fake_data():
     
     sql_statements.append("")
     
-    # 11. REIMBURSEMENTS
+    # 14. REIMBURSEMENTS
     print("💳 Generating reimbursements...")
     sql_statements.append("-- 💳 REIMBURSEMENTS")
     
@@ -419,7 +490,7 @@ def generate_fake_data():
     
     sql_statements.append("")
     
-    # 11.5. PURCHASE ORDERS (needed for RentalItem and MerchItem foreign keys)
+    # 14.5. PURCHASE ORDERS (needed for RentalItem and MerchItem foreign keys)
     print("🛒 Generating purchase orders...")
     sql_statements.append("-- 🛒 PURCHASE ORDERS")
     
@@ -437,7 +508,7 @@ def generate_fake_data():
     
     sql_statements.append("")
     
-    # 12. GEAR ITEMS
+    # 15. GEAR ITEMS
     print("🎒 Generating rental gear...")
     sql_statements.append("-- 🎒 RENTAL ITEMS")
     
@@ -478,7 +549,7 @@ def generate_fake_data():
     
     sql_statements.append("")
     
-    # 13. MERCHANDISE
+    # 16. MERCHANDISE
     print("🛍️ Generating merchandise...")
     sql_statements.append("-- 🛍️ MERCHANDISE")
     

@@ -17,7 +17,11 @@ def assign_permissions(member_id):
 # GET /permissions/<member_id> - Get permissions of member
 @permissions_bp.route("/<int:member_id>", methods=["GET"])
 def get_member_permissions(member_id):
-    return jsonify({"member_id": member_id, "permissions": []}), 200
+    query = f"""
+    SELECT M.FirstName, M.LastName, P.Title FROM Permission P JOIN MemberPermissions MP ON P.ID = MP.Permission
+    JOIN Member M ON MP.Member = M.ID WHERE M.ID = {member_id};
+    """
+    return execute_query(query)
 
 
 # POST /permissions - Create permission

@@ -4,7 +4,7 @@ USE ClubStack;
 
 -- General Membership
 CREATE TABLE Member (
-    ID INT PRIMARY KEY,
+    ID INT PRIMARY KEY AUTO_INCREMENT,
     FirstName VARCHAR(255) NOT NULL,
     LastName VARCHAR(255) NOT NULL,
     PreferredName VARCHAR(255),
@@ -19,7 +19,7 @@ CREATE TABLE Member (
 );
 
 CREATE TABLE Address (
-    ID INT PRIMARY KEY,
+    ID INT PRIMARY KEY AUTO_INCREMENT,
     Member INT,
     Nickname VARCHAR(255),
     Line1 VARCHAR(255),
@@ -43,9 +43,22 @@ CREATE TABLE AllergyUsers (
 );
 
 CREATE TABLE Permission (
-    ID INT PRIMARY KEY,
+    ID INT PRIMARY KEY AUTO_INCREMENT,
     Title VARCHAR(255) NOT NULL,
-    PageAccess TEXT -- TODO: decide how this works
+    PageAccess TEXT
+);
+
+CREATE TABLE Page (
+    ID INT PRIMARY KEY AUTO_INCREMENT,
+    Slug VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE PagePermissions (
+    PageID INT,
+    PermissionID INT,
+    PRIMARY KEY (PageID, PermissionID),
+    FOREIGN KEY (PageID) REFERENCES Page(ID),
+    FOREIGN KEY (PermissionID) REFERENCES Permission(ID)
 );
 
 CREATE TABLE MemberPermissions (
@@ -57,8 +70,8 @@ CREATE TABLE MemberPermissions (
 );
 
 CREATE TABLE Feedback (
-    ID INT PRIMARY KEY,
-    Member INT NOT NULL, -- Submitter
+    ID INT PRIMARY KEY AUTO_INCREMENT,
+    Member INT NOT NULL,
     Rating INT NOT NULL,
     Description TEXT,
     Anonymous BOOLEAN,
@@ -67,7 +80,7 @@ CREATE TABLE Feedback (
 
 -- Events
 CREATE TABLE Event (
-    ID INT PRIMARY KEY,
+    ID INT PRIMARY KEY AUTO_INCREMENT,
     Author INT,
     PartySize INT,
     MaxSize INT,
@@ -84,7 +97,7 @@ CREATE TABLE Event (
 );
 
 CREATE TABLE RSVP (
-    ID INT PRIMARY KEY,
+    ID INT PRIMARY KEY AUTO_INCREMENT,
     Event INT NOT NULL,
     CanBringCar BOOLEAN NOT NULL DEFAULT FALSE,
     AvailStart DATETIME NOT NULL,
@@ -93,7 +106,7 @@ CREATE TABLE RSVP (
 );
 
 CREATE TABLE EventRoster (
-    ID INT PRIMARY KEY,
+    ID INT PRIMARY KEY AUTO_INCREMENT,
     Event INT NOT NULL,
     Member INT NOT NULL,
     DateRegistered DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -104,7 +117,7 @@ CREATE TABLE EventRoster (
 
 -- Comms
 CREATE TABLE Communication (
-    ID INT PRIMARY KEY,
+    ID INT PRIMARY KEY AUTO_INCREMENT,
     Subject VARCHAR(255) NOT NULL,
     Content TEXT NOT NULL,
     DateSent DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -120,20 +133,20 @@ CREATE TABLE CommunicationRecipients (
 
 -- Voting
 CREATE TABLE Term (
-    ID INT PRIMARY KEY,
+    ID INT PRIMARY KEY AUTO_INCREMENT,
     StartDate DATE NOT NULL,
     EndDate DATE NOT NULL,
     Name VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE Position (
-    ID INT PRIMARY KEY,
+    ID INT PRIMARY KEY AUTO_INCREMENT,
     Title VARCHAR(255),
     BallotOrder INT
 );
 
 CREATE TABLE Nomination (
-    ID INT PRIMARY KEY,
+    ID INT PRIMARY KEY AUTO_INCREMENT,
     Nominator INT,
     Nominee INT,
     `Position` INT,
@@ -144,7 +157,7 @@ CREATE TABLE Nomination (
 );
 
 CREATE TABLE Election (
-    ID INT PRIMARY KEY,
+    ID INT PRIMARY KEY AUTO_INCREMENT,
     Date DATE NOT NULL,
     Term INT,
     NominateBy DATE NOT NULL,
@@ -160,7 +173,7 @@ CREATE TABLE ElectionPositions (
 );
 
 CREATE TABLE Ballot (
-    ID INT PRIMARY KEY,
+    ID INT PRIMARY KEY AUTO_INCREMENT,
     `Position` INT,
     Election INT,
     CreatedAt DATETIME NOT NULL,
@@ -169,7 +182,7 @@ CREATE TABLE Ballot (
 );
 
 CREATE TABLE Winner (
-    ID INT PRIMARY KEY,
+    ID INT PRIMARY KEY AUTO_INCREMENT,
     Member INT,
     `Position` INT,
     FOREIGN KEY (Member) REFERENCES Member(ID),
@@ -178,7 +191,7 @@ CREATE TABLE Winner (
 
 -- Treasury
 CREATE TABLE Budget (
-    ID INT PRIMARY KEY,
+    ID INT PRIMARY KEY AUTO_INCREMENT,
     ApprovedBy INT,
     Author INT,
     FiscalYear INT,
@@ -188,7 +201,7 @@ CREATE TABLE Budget (
 );
 
 CREATE TABLE BudgetAccount (
-    ID INT PRIMARY KEY,
+    ID INT PRIMARY KEY AUTO_INCREMENT,
     Budget INT,
     AcctCode VARCHAR(255),
     AcctTitle VARCHAR(255),
@@ -196,7 +209,7 @@ CREATE TABLE BudgetAccount (
 );
 
 CREATE TABLE Reimbursement (
-    ID INT PRIMARY KEY,
+    ID INT PRIMARY KEY AUTO_INCREMENT,
     MemberID INT,
     Total DECIMAL(10,2),
     Type VARCHAR(255),
@@ -205,7 +218,7 @@ CREATE TABLE Reimbursement (
 );
 
 CREATE TABLE ReimbursementItem (
-    ID INT PRIMARY KEY,
+    ID INT PRIMARY KEY AUTO_INCREMENT,
     Reimbursement INT,
     Description TEXT,
     ReceiptImage TEXT,
@@ -216,14 +229,14 @@ CREATE TABLE ReimbursementItem (
 );
 
 CREATE TABLE Vendor (
-    ID INT PRIMARY KEY,
+    ID INT PRIMARY KEY AUTO_INCREMENT,
     Address VARCHAR(255),
     Website VARCHAR(255),
     Contact VARCHAR(255)
 );
 
 CREATE TABLE PurchaseOrder (
-    ID INT PRIMARY KEY,
+    ID INT PRIMARY KEY AUTO_INCREMENT,
     Vendor INT,
     Reimbursement INT,
     OrderDate DATE,
@@ -233,7 +246,7 @@ CREATE TABLE PurchaseOrder (
 
 -- Gear/Merch Management
 CREATE TABLE RentalItem (
-    ID INT PRIMARY KEY,
+    ID INT PRIMARY KEY AUTO_INCREMENT,
     PurchaseOrder INT,
     Name VARCHAR(255),
     Price DECIMAL(10,2),
@@ -247,7 +260,7 @@ CREATE TABLE RentalItem (
 );
 
 CREATE TABLE MerchItem (
-    ID INT PRIMARY KEY,
+    ID INT PRIMARY KEY AUTO_INCREMENT,
     PurchaseOrder INT,
     Price DECIMAL(10,2),
     Quantity INT,
@@ -258,7 +271,7 @@ CREATE TABLE MerchItem (
 );
 
 CREATE TABLE MerchSale (
-    ID INT PRIMARY KEY,
+    ID INT PRIMARY KEY AUTO_INCREMENT,
     SaleDate DATE NOT NULL DEFAULT (CURRENT_DATE),
     Cash DECIMAL(10,2)
 );
@@ -272,7 +285,7 @@ CREATE TABLE MerchSaleItems (
 );
 
 CREATE TABLE GearReservation (
-    ID INT PRIMARY KEY,
+    ID INT PRIMARY KEY AUTO_INCREMENT,
     Member INT,
     CheckOutDate DATE,
     ReturnDate DATE,
