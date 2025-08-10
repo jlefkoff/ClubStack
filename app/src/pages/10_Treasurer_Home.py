@@ -15,11 +15,12 @@ st.write("")
 st.write("")
 st.write("### What would you like to do today?")
 
+
 if st.button(
-    "Submit a reimbursement",
+    "Manage Reimbursements",
     type="primary",
         use_container_width=True):
-    st.switch_page("pages/31_Reimbursed.py")
+    st.switch_page("pages/33_Manage_Reimbursements.py")
 
 if st.button(
     "View the Simple API Demo",

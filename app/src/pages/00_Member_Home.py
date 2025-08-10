@@ -16,10 +16,11 @@ st.write("")
 st.write("### What would you like to do today?")
 
 if st.button(
-    "View World Bank Data Visualization",
+    "Member Profile",
     type="primary",
         use_container_width=True):
-    st.switch_page("pages/01_World_Bank_Viz.py")
+    st.switch_page("pages/09_Member_Profile.py")
+
 
 if st.button(
     "Submit a reimbursement",

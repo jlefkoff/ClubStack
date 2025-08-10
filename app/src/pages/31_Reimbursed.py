@@ -22,6 +22,7 @@ if is_member:
         st.subheader("Enter Reimbursement Details")
         
         # Input fields for reimbursement request
+        reimbursment_member_id = st.number_input("MemberID", min_value=0)
         reimbursement_amount = st.number_input("Amount", min_value=0.0, format="%.2f")
         reimbursement_reason = st.text_area("Reason for Reimbursement")
         reimbursement_date = st.date_input("Date of Expense", value=datetime.now())
@@ -36,7 +37,7 @@ if is_member:
             else:
                 # Creating a dictionary to store the reimbursement request
                 reimbursement_request = {
-                    "member_id": st.session_state.get('member_id', 'Not Assigned'),
+                    "member_id": reimbursment_member_id,
                     "first_name": st.session_state.get('first_name', 'Guest'),
                     "last_name": st.session_state.get('last_name', 'User'),
                     "amount": reimbursement_amount,
