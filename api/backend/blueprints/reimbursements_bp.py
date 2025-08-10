@@ -1,12 +1,17 @@
 from flask import Blueprint, jsonify, request
 
+from backend.utils.db_utils import execute_query
+
 reimbursements_bp = Blueprint("reimbursements", __name__)
 
 
 # GET /reimbursements - Reimbursement Overview
 @reimbursements_bp.route("/", methods=["GET"])
 def reimbursement_overview():
-    return jsonify({"message": "Reimbursement overview (stub)"}), 200
+    query = """
+    SELECT * FROM Reimbursement;
+    """
+    return execute_query(query)
 
 
 # POST /reimbursements - Submit reimbursement
@@ -18,8 +23,12 @@ def submit_reimbursement():
 # GET /reimbursements/<int:id> - Get a specific reimbursement
 @reimbursements_bp.route("/<int:id>", methods=["GET"])
 def get_reimbursement(id):
-    return jsonify(
-        {"reimbursement_id": id, "data": "Reimbursement data (stub)"}), 200
+    query = f"""
+    SELECT * FROM Reimbursement JOIN ReimbursementItem
+      ON Reimbursement.ID = ReimbursementItem.Reimbursement
+      WHERE Reimbursement.ID = {id};
+    """
+    return execute_query(query)
 
 
 # PUT /reimbursements/<int:id> - Update a reimbursement status
