@@ -35,7 +35,7 @@ st.write(f"### Hi, {st.session_state['first_name']}.")
 #     "Available Spots": [15, 10, 50, 20],
 #     "Total Spots": [20, 15, 100, 25]
 # }
-# event_df = pd.DataFrame(event_data)
+# event_df = pd.DataFrame(data)
 
 # # Display events list
 # st.dataframe(event_df)
@@ -103,3 +103,51 @@ report_df = pd.DataFrame(event_report)
 
 st.bar_chart(report_df.set_index("Event Name"))
 
+
+
+
+if st.session_state.get("first_name", "").lower() == "jacob":
+    if st.button("Create Event"):
+        # You can trigger your update logic here,
+        # e.g., navigate to an edit page or open a form
+        with st.form("create_event_form"):
+            # Create inputs for each editable field — customize as needed
+            author = st.text_input("ID", "")
+            name = st.text_input("Name", "")
+            description = st.text_area("Description", value=event_info.get("Description", ""))
+            event_loc = st.text_input("Event Location", value=event_info.get("EventLoc", ""))
+            event_type = st.text_input("Event Type", value=event_info.get("EventType", ""))
+            lead_org = st.text_input("Lead Organization", value=event_info.get("LeadOrg", ""))
+            max_size = st.number_input("Max Size", value=event_info.get("MaxSize", 1), min_value=1)
+            party_size = st.number_input("Party Size", value=event_info.get("PartySize", 0), min_value=0, max_value=max_size)
+            meet_loc = st.text_input("Meeting Location", value=event_info.get("MeetLoc", ""))
+            rec_items = st.text_area("Recommended Items", value=event_info.get("RecItems", ""))
+
+            submitted = st.form_submit_button("Save Changes")
+            cancel = st.form_submit_button("Cancel")
+
+        if submitted:
+            # Prepare payload with updated fields
+            payload = {
+                "Name": name,
+                "Description": description,
+                "EventLoc": event_loc,
+                "EventType": event_type,
+                "LeadOrg": lead_org,
+                "MaxSize": max_size,
+                "PartySize": party_size,
+                "MeetLoc": meet_loc,
+                "RecItems": rec_items,
+            }
+            try:
+                response = requests.put(f"http://api:4000/events/{event_id}", json=payload)
+                response.raise_for_status()
+                st.success("Event updated successfully!")
+                st.session_state.edit_mode = False
+                st.experimental_rerun()
+            except Exception as e:
+                st.error(f"Failed to update event: {e}")
+
+        if cancel:
+            st.session_state.edit_mode = False
+            st.experimental_rerun()
