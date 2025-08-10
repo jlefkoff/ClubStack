@@ -105,11 +105,12 @@ else:
             st.progress(pct, text=f"{row['spent_fmt']} / {row['cap_fmt']} ({int(pct*100)}%)")
         with right:
             st.page_link(
-                "pages/budget_id.py?id=" + str(row["id"]),
+                "pages/budget_id.py",          # file path only — no ?id=
                 label="Open",
                 icon="📂",
-                use_container_width=True
-            )
+                use_container_width=True,
+                args={"id": int(row["id"])}    # <-- passes ?id=<value> to the target page
+                )
         st.divider()
 
 # ---------- Create Budget (inline; still no API) ----------

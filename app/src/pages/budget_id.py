@@ -5,17 +5,21 @@ import streamlit as st
 SideBarLinks()
 st.set_page_config(page_title="Budget Details", page_icon="📂")
 
-# --- Read the id from query parameters ---
-try:
-    budget_id = st.query_params.get("id")  # Streamlit >= 1.33
-except AttributeError:
+# --- Read budget ID from link args ---
+# For Streamlit >= 1.33
+budget_id = st.query_params.get("id")
+
+# Fallback for older versions
+if budget_id is None:
     budget_id = st.experimental_get_query_params().get("id", [None])[0]
 
+# Validate presence
 if not budget_id:
     st.error("No budget ID provided.")
     st.page_link("pages/budget_overview.py", label="← Back to Budgets", icon="↩️")
     st.stop()
 
+# Validate integer
 try:
     budget_id = int(budget_id)
 except ValueError:
@@ -23,20 +27,20 @@ except ValueError:
     st.page_link("pages/budget_overview.py", label="← Back to Budgets", icon="↩️")
     st.stop()
 
-# --- Ensure budgets list exists ---
+# --- Ensure budgets exist in session ---
 if "budgets" not in st.session_state or not st.session_state.budgets:
     st.error("No budgets available in session.")
     st.page_link("pages/budget_overview.py", label="← Back to Budgets", icon="↩️")
     st.stop()
 
-# --- Find this budget ---
+# --- Find the budget ---
 budget = next((b for b in st.session_state.budgets if b["id"] == budget_id), None)
 if not budget:
     st.error(f"Budget #{budget_id} not found.")
     st.page_link("pages/budget_overview.py", label="← Back to Budgets", icon="↩️")
     st.stop()
 
-# --- Display budget details ---
+# --- Display details ---
 st.page_link("pages/budget_overview.py", label="← Back to Budgets", icon="↩️")
 st.header(f"📂 {budget['name']}")
 st.caption(f"Owner: {budget['owner']}  •  Period: {budget['start_date']} → {budget['end_date']}")
