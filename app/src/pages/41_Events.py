@@ -8,67 +8,64 @@ import numpy as np
 import matplotlib.pyplot as plt
 import logging
 
-# display all relevant sidebar links
+
+logger = logging.getLogger(__name__)
+
+# Sidebar navigation
 SideBarLinks()
 
+# Page header
+st.header("Browse Events")
 
-st.header("Current Events")
-
-#name of user
+# Personalized greeting
 st.write(f"### Hi, {st.session_state['first_name']}.")
 
-# all actions associated with events
-page = st.sidebar.radio("Choose action", [
-    "List All Events", 
-    "Event Details", 
-    "Event Roster", 
-    "Participation Stats", 
-    "RSVP to Event"
-])
+# Sample event data
+event_data = {
+    "Event ID": [1, 2, 3, 4],
+    "Event Name": ["Hiking Trip", "Cooking Workshop", "Charity Run", "Photography Walk"],
+    "Date": ["2025-08-20", "2025-08-25", "2025-09-01", "2025-09-10"],
+    "Location": ["Blue Ridge Park", "Community Center", "City Stadium", "Old Town"],
+    "Available Spots": [15, 10, 50, 20],
+    "Total Spots": [20, 15, 100, 25]
+}
+event_df = pd.DataFrame(event_data)
 
-# list all events from the api 
-if page == "List All Events":
-    events = events_bp.list_events()
-    if events:
-        st.table(pd.DataFrame(events))
+# Display events list
+st.dataframe(event_df)
+
+# RSVP to an event
+st.subheader("RSVP for an Event")
+selected_event = st.selectbox("Select Event to RSVP", event_df["Event Name"])
+spots_available = event_df.loc[event_df["Event Name"] == selected_event, "Available Spots"].values[0]
+rsvp_count = st.number_input("Number of Participants", min_value=1, max_value=spots_available)
+
+if st.button("RSVP"):
+    if rsvp_count <= spots_available:
+        st.success(f"You have successfully RSVP'd {rsvp_count} spot(s) for '{selected_event}'.")
     else:
-        st.info("No events found.")
+        st.error("Not enough spots available for this event.")
 
-# retrieve event details from a specific event ID
-elif page == "Event Details":
-    event_id = st.number_input("Enter Event ID", step=1, min_value=1)
-    if st.button("Get Details"):
-        event = events_bp.get_event(event_id)
-        if event:
-            st.json(event)
-        else:
-            st.error("Event not found.")
+# View event details
+st.subheader("View Event Details")
+detail_event = st.selectbox("Select Event to View Details", event_df["Event Name"])
+event_details = event_df[event_df["Event Name"] == detail_event]
+st.table(event_details)
 
-# display roster for a specific event ID
-elif page == "Event Roster":
-    event_id = st.number_input("Enter Event ID", step=1, min_value=1, key="roster_id")
-    if st.button("View Roster"):
-        roster = events_bp.get_roster(event_id)
-        if roster:
-            st.table(pd.DataFrame(roster))
-        else:
-            st.warning("No participants yet.")
+# View event roster (sample non-live data)
+st.subheader("View Event Roster")
+sample_roster = {
+    "Participant Name": ["Alice", "Bob", "Charlie", "Diana"],
+    "RSVP Count": [1, 2, 1, 3]
+}
+roster_df = pd.DataFrame(sample_roster)
+st.dataframe(roster_df)
 
-# show graph of participation of events
-elif page == "Participation Stats":
-    report = events_bp.get_report()
-    df = pd.DataFrame(report)
-    if not df.empty:
-        st.table(df)
-        fig = px.bar(df, x="name", y="participants", title="Participation Stats")
-        st.plotly_chart(fig)
-    else:
-        st.info("No participation data yet.")
-
-# rsvp to an event 
-elif page == "RSVP to Event":
-    event_id = st.number_input("Enter Event ID", step=1, min_value=1, key="rsvp_id")
-    name = st.text_input("Your Name")
-    if st.button("RSVP"):
-        events_bp.rsvp_event(event_id, name)
-        st.success("You have successfully RSVP’d!")
+# Event participation report (sample statistics)
+st.subheader("Event Participation Report")
+event_report = {
+    "Event Name": event_df["Event Name"],
+    "Spots Filled (%)": round((event_df["Total Spots"] - event_df["Available Spots"]) / event_df["Total Spots"] * 100, 2)
+}
+report_df = pd.DataFrame(event_report)
+st.bar_chart(report_df.set_index("Event Name"))
