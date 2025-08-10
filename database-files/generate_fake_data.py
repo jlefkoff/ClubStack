@@ -15,7 +15,7 @@ that you can run against your ClubStack database.
 
 import random
 from faker import Faker
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Initialize Faker
 fake = Faker()
@@ -34,7 +34,8 @@ def generate_fake_data():
         print(f"   • 30 reimbursement requests")
         print(f"   • 10 additional purchase orders")
         print(f"   • 100 rental gear items")
-        print(f"   • 40 merchandise items")ta for ClubStack database"""
+        print(f"   • 40 merchandise items")
+        print(f"   • 75 gear reservations with item assignments")ta for ClubStack database"""
     
     print("🎭 Generating fake data for ClubStack database...")
     
@@ -577,6 +578,51 @@ def generate_fake_data():
         
         sql_statements.append(sql)
         merch_id += 1
+    
+    sql_statements.append("")
+    
+    # 17. GEAR RESERVATIONS
+    print("📅 Generating gear reservations...")
+    sql_statements.append("-- 📅 GEAR RESERVATIONS")
+    
+    reservation_id = 20
+    rental_item_ids = list(range(50, 150))  # Our generated rental item IDs
+    
+    # Generate 75 gear reservations
+    for _ in range(75):
+        member_id = random.choice(member_ids)
+        
+        # Generate realistic checkout periods
+        checkout_date = fake.date_between(start_date='-60d', end_date='+30d')
+        
+        # Most reservations are 1-7 days, some longer weekend trips up to 14 days
+        days_out = random.choices([1, 2, 3, 4, 5, 6, 7, 10, 14], 
+                                 weights=[15, 20, 25, 10, 10, 8, 8, 3, 1])[0]
+        return_date = fake.date_between(start_date=checkout_date, 
+                                       end_date=checkout_date + timedelta(days=days_out))
+        
+        checkout_str = checkout_date.strftime('%Y-%m-%d')
+        return_str = return_date.strftime('%Y-%m-%d')
+        
+        sql = f"INSERT INTO GearReservation (ID, Member, CheckOutDate, ReturnDate) VALUES ({reservation_id}, {member_id}, '{checkout_str}', '{return_str}');"
+        sql_statements.append(sql)
+        reservation_id += 1
+    
+    sql_statements.append("")
+    sql_statements.append("-- 📅 GEAR RESERVATION ITEMS")
+    
+    # Generate reservation items (which specific gear was reserved)
+    reservation_id = 20
+    for _ in range(75):  # For each reservation
+        # Each reservation has 1-5 items (most have 2-3)
+        num_items = random.choices([1, 2, 3, 4, 5], weights=[15, 30, 35, 15, 5])[0]
+        reserved_items = random.sample(rental_item_ids, min(num_items, len(rental_item_ids)))
+        
+        for item_id in reserved_items:
+            sql = f"INSERT INTO GearReservationItems (Reservation, Item) VALUES ({reservation_id}, {item_id});"
+            sql_statements.append(sql)
+        
+        reservation_id += 1
     
     sql_statements.append("")
     sql_statements.append("-- ✅ End of generated fake data")

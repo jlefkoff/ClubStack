@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 
 from backend.utils.db_utils import execute_query
+from backend.db_connection import db
 
 events_bp = Blueprint("events", __name__)
 
@@ -16,10 +17,45 @@ def get_events():
 # GET /events/<id> - Get specific event
 @events_bp.route("/<int:event_id>", methods=["GET"])
 def get_event(event_id):
-    query = f"""
-    SELECT * FROM Event WHERE ID = {event_id};
+  cursor = db.get_db().cursor()
+
+  # Get event details
+  event_query = """
+  SELECT * FROM Event WHERE ID = %s;
+  """
+  cursor.execute(event_query, (event_id,))
+  event_row = cursor.fetchone()
+  if not event_row:
+    return jsonify({"error": "Event not found"}), 404
+
+  # Get roster for the event
+  roster_query = """
+  SELECT ER.DateRegistered, ER.Waitlisted, M.ID as MemberID, M.FirstName, M.LastName
+  FROM EventRoster ER
+  JOIN Member M ON ER.Member = M.ID
+  WHERE ER.Event = %s;
+  """
+  cursor.execute(roster_query, (event_id,))
+  roster = cursor.fetchall()
+
+  # For each member, get allergies
+  for member in roster:
+    member_id = member["MemberID"]
+    allergies_query = """
+    SELECT A.Name
+    FROM Allergy A
+    JOIN AllergyUsers AU ON A.ID = AU.AllergyID
+    WHERE AU.UserID = %s;
     """
-    return execute_query(query)
+    cursor.execute(allergies_query, (member_id,))
+    allergies = cursor.fetchall()
+    allergies_list = [a["Name"] for a in allergies] if allergies else []
+    member["Allergies"] = ", ".join(allergies_list)
+
+  event_data = dict(event_row)
+  event_data["Roster"] = roster
+
+  return jsonify(event_data), 200
 
 
 # POST /events - Create new event
