@@ -3,6 +3,7 @@ from modules.nav import SideBarLinks
 import streamlit as st
 import pandas as pd
 from datetime import date
+from streamlit_extras.switch_page_button import switch_page
 
 SideBarLinks()
 st.header("💰 Budgets")
@@ -96,7 +97,6 @@ else:
 
     st.divider()
     st.subheader("Utilization & Open")
-    # ----- Clickable rows: open budget_id.py?id=<id> -----
     for _, row in df.iterrows():
         left, right = st.columns([6, 2])
         with left:
@@ -104,16 +104,16 @@ else:
             pct = float(row["utilization"])
             st.progress(pct, text=f"{row['spent_fmt']} / {row['cap_fmt']} ({int(pct*100)}%)")
         with right:
-            st.page_link(
-                "pages/budget_id.py",          # file path only — no ?id=
-                label="Open",
-                icon="📂",
-                use_container_width=True,
-                args={"id": int(row["id"])}    # <-- passes ?id=<value> to the target page
-                )
+            if st.button("Open", key=f"open_{row['id']}", use_container_width=True):
+                st.session_state.selected_budget_id = int(row["id"])
+                try:
+                    switch_page("budget_id")  # match the sidebar name for budget_id.py
+                except Exception:
+                    st.success("Saved selection. Click ‘budget_id’ in the sidebar to view.")
+
         st.divider()
 
-# ---------- Create Budget (inline; still no API) ----------
+# ---------- Create Budget ----------
 st.subheader("Create Budget")
 with st.form("create_budget_form", clear_on_submit=True):
     name = st.text_input("Budget name", placeholder="e.g., Summer Canoeing Trips")
