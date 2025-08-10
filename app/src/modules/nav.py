@@ -27,14 +27,21 @@ def WorldBankVizNav():
     st.sidebar.page_link(
         "pages/01_Browse_Gear.py",
         label="Browse Gear",
-        icon="🏦")
+        icon="🏕️")
 
 
 def MapDemoNav():
     st.sidebar.page_link(
         "pages/02_Buy_Merch.py",
         label="Buy Merch",
-        icon="🗺️")
+        icon="💰")
+    
+
+def MyGearNav():
+    st.sidebar.page_link(
+        "pages/My_Gear.py",
+        label="My Gear",
+        icon="⚙️")
 
 
 # ------------------------ Examples for Role of usaid_worker -------------
@@ -101,6 +108,7 @@ def SideBarLinks(show_home=False):
             PolStratAdvHomeNav()
             WorldBankVizNav()
             MapDemoNav()
+            MyGearNav()
 
         if st.session_state["role"] == "treasurer":
             PolStratAdvHomeNav()
@@ -113,6 +121,8 @@ def SideBarLinks(show_home=False):
             ClassificationNav()
             NgoDirectoryNav()
             AddNgoNav()
+            WorldBankVizNav()
+            MapDemoNav()
 
         if st.session_state["role"] == "administrator":
             AdminPageNav()
