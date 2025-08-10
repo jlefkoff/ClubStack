@@ -6,6 +6,7 @@
 import streamlit as st
 
 
+
 # ------------------------ General ------------------------
 def HomeNav():
     st.sidebar.page_link("Home.py", label="Home", icon="🏠")
@@ -21,6 +22,12 @@ def PolStratAdvHomeNav():
         "pages/00_Member_Home.py",
         label="Political Strategist Home",
         icon="👤")
+
+def TreasurerBudgetOverview():
+    st.sidebar.page_link(
+        "pages/budget_overview.py",
+        label="Budget Overview"
+    )
 
 
 def WorldBankVizNav():
@@ -106,6 +113,7 @@ def SideBarLinks(show_home=False):
             PolStratAdvHomeNav()
             WorldBankVizNav()
             MapDemoNav()
+            TreasurerBudgetOverview()
 
         if st.session_state["role"] == "vp":
             PredictionNav()
