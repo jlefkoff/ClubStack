@@ -7,7 +7,12 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import logging
+import requests
 
+
+# data from api
+data = {}
+data = requests.get("http://api:4000/events").json()
 
 logger = logging.getLogger(__name__)
 
@@ -73,23 +78,28 @@ st.write(f"### Hi, {st.session_state['first_name']}.")
 # 
 
 
-# Sample event data
-event_data = {
-    "Event ID": [1, 2, 3, 4],
-    "Event Name": ["Hiking Trip", "Cooking Workshop", "Charity Run", "Photography Walk"],
-    "Date": ["2025-08-20", "2025-08-25", "2025-09-01", "2025-09-10"],
-    "Location": ["Blue Ridge Park", "Community Center", "City Stadium", "Old Town"],
-}
-event_df = pd.DataFrame(event_data)
-
 st.header("Browse Events")
-st.dataframe(event_df)
+st.dataframe(data)
+data_frame = pd.DataFrame(data)
 
 # Select event to view details
-selected_event = st.selectbox("Select an event to view details:", event_df["Event Name"])
+selected_event = st.selectbox("Select an event to view details:", data_frame["Name"])
 
 # Store selected event in session state so next page can use it
 if st.button("Go to Event Details"):
-    event_id = event_df.loc[event_df["Event Name"] == selected_event, "Event ID"].values[0]
+    event_id = data_frame.loc[data_frame["Name"] == selected_event, "ID"].values[0]
     st.session_state["selected_event_id"] = event_id
-    st.switch_page("pages/42_Event_Details.py")  # requires Streamlit >=1.25
+    st.switch_page("pages/42_Event_Details.py")  
+
+# participation stats
+st.subheader("Event Participation Report")
+
+event_report = {
+    "Event Name": data_frame["Name"],
+    "Spots Filled (%)": ((data_frame["PartySize"] / data_frame["MaxSize"]) * 100).round(2)
+}
+
+report_df = pd.DataFrame(event_report)
+
+st.bar_chart(report_df.set_index("Event Name"))
+

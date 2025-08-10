@@ -7,8 +7,15 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import logging
+import requests
+
+
+# data from api
+data = {}
+data = requests.get("http://api:4000/events").json()
 
 logger = logging.getLogger(__name__)
+data_frame = pd.DataFrame(data)
 
 # Sidebar navigation
 SideBarLinks()
@@ -19,14 +26,6 @@ st.header("Browse Events")
 # Personalized greeting
 st.write(f"### Hi, {st.session_state['first_name']}.")
 
-
-# Fake full event dataset (normally you'd fetch this from your API)
-event_data = {
-    1: {"name": "Hiking Trip", "date": "2025-08-20", "location": "Blue Ridge Park"},
-    2: {"name": "Cooking Workshop", "date": "2025-08-25", "location": "Community Center"},
-    3: {"name": "Charity Run", "date": "2025-09-01", "location": "City Stadium"},
-    4: {"name": "Photography Walk", "date": "2025-09-10", "location": "Old Town"},
-}
 
 # Sample roster
 sample_rosters = {
@@ -42,26 +41,29 @@ if "selected_event_id" not in st.session_state:
     st.stop()
 
 event_id = st.session_state["selected_event_id"]
-event_info = event_data[event_id]
+event_info = data_frame[data_frame["ID"] == event_id]
 
-# Display event details
-st.header(f"Event Details — {event_info['name']}")
-st.write(f"**Event ID:** {event_id}")
-st.write(f"**Date:** {event_info['date']}")
-st.write(f"**Location:** {event_info['location']}")
+# displaying event details
+event_info = event_info.iloc[0].to_dict()
 
-# Display roster
-st.subheader("Event Roster")
-roster_df = pd.DataFrame(sample_rosters[event_id])
-st.dataframe(roster_df)
+st.header(f"Event Details — {event_info['Name']}")
 
-# RSVP for event
-if "rsvps" not in st.session_state:
-    st.session_state.rsvps = set()
+for key, value in event_info.items():
+    st.write(f"**{key}:** {value}")
 
-if st.button("RSVP for this Event"):
-    if event_id in st.session_state.rsvps:
-        st.warning("✅ You’ve already RSVP’d for this event.")
+
+# rsvp for event
+if st.button("RSVP to this Event"):
+    current_size = len(st.session_state["event_rosters"][event_id])
+    max_size = event_info["MaxSize"]
+    user_name = st.session_state.get("first_name", "Guest")
+
+    if current_size >= max_size:
+        st.error("Sorry, this event is fully booked.")
+    elif user_name in st.session_state["event_rosters"][event_id]:
+        st.warning("You have already RSVP’d to this event.")
     else:
-        st.session_state.rsvps.add(event_id)
-        st.success(f"🎉 RSVP successful for {event_info['name']}!")
+        st.session_state["event_rosters"][event_id].append(user_name)
+        st.success(f"Thanks {user_name}, you are now RSVP’d!")
+        # Update PartySize locally (optional)
+        event_info["PartySize"] = current_size + 1
