@@ -2,15 +2,12 @@
 from modules.nav import SideBarLinks
 import streamlit as st
 
-# Set tab title/icon before any other Streamlit calls
-st.set_page_config(page_title="Budget Id", page_icon="📂")  # Title here must match "Budget Id" used in switch_page
-
+st.set_page_config(page_title="Budget Details", page_icon="📂")
 SideBarLinks()
 
-# --- Get the selected budget id ---
+# --- Get the selected budget id from session or query params ---
 budget_id = st.session_state.get("selected_budget_id")
 
-# Optional fallback: allow deep-linking via query params later
 if budget_id is None:
     try:
         bid = st.query_params.get("id")  # Streamlit >= 1.33
@@ -22,7 +19,6 @@ if budget_id is None:
         except ValueError:
             budget_id = None
 
-# Validate we have an id
 if budget_id is None:
     st.error("No budget selected.")
     st.stop()

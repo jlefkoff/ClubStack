@@ -3,47 +3,20 @@ from modules.nav import SideBarLinks
 import streamlit as st
 import pandas as pd
 from datetime import date
-from streamlit_extras.switch_page_button import switch_page
 
-# Optional: set tab info (must be before any other st.* calls)
 st.set_page_config(page_title="Budgets", page_icon="💰")
-
 SideBarLinks()
 st.header("💰 Budgets")
 
 # ---------- Session init (mock data; no API) ----------
 if "budgets" not in st.session_state:
     st.session_state.budgets = [
-        {
-            "id": 1,
-            "name": "Fall Backpacking Trips",
-            "owner": "outdoors@neu.edu",
-            "start_date": "2025-09-01",
-            "end_date":   "2025-12-15",
-            "cap": 5000.0,
-            "spent": 2700.0,
-            "status": "Active",
-        },
-        {
-            "id": 2,
-            "name": "Winter Gear Refresh",
-            "owner": "gear@neu.edu",
-            "start_date": "2025-01-05",
-            "end_date":   "2025-03-15",
-            "cap": 3000.0,
-            "spent": 3100.0,
-            "status": "Closed",
-        },
-        {
-            "id": 3,
-            "name": "Spring Climbing Trips",
-            "owner": "climbing@neu.edu",
-            "start_date": "2025-03-01",
-            "end_date":   "2025-05-20",
-            "cap": 4200.0,
-            "spent": 1950.0,
-            "status": "Active",
-        },
+        {"id": 1, "name": "Fall Backpacking Trips", "owner": "outdoors@neu.edu",
+         "start_date": "2025-09-01", "end_date": "2025-12-15", "cap": 5000.0, "spent": 2700.0, "status": "Active"},
+        {"id": 2, "name": "Winter Gear Refresh", "owner": "gear@neu.edu",
+         "start_date": "2025-01-05", "end_date": "2025-03-15", "cap": 3000.0, "spent": 3100.0, "status": "Closed"},
+        {"id": 3, "name": "Spring Climbing Trips", "owner": "climbing@neu.edu",
+         "start_date": "2025-03-01", "end_date": "2025-05-20", "cap": 4200.0, "spent": 1950.0, "status": "Active"},
     ]
 
 def budgets_df():
@@ -83,14 +56,8 @@ if df.empty:
 else:
     show_cols = ["name", "owner", "start_date", "end_date", "cap_fmt", "spent_fmt", "remaining_fmt", "status"]
     col_rename = {
-        "name": "Name",
-        "owner": "Owner",
-        "start_date": "Start",
-        "end_date": "End",
-        "cap_fmt": "Cap",
-        "spent_fmt": "Spent",
-        "remaining_fmt": "Remaining",
-        "status": "Status",
+        "name": "Name", "owner": "Owner", "start_date": "Start", "end_date": "End",
+        "cap_fmt": "Cap", "spent_fmt": "Spent", "remaining_fmt": "Remaining", "status": "Status",
     }
     st.dataframe(
         df[show_cols].rename(columns=col_rename),
@@ -100,6 +67,10 @@ else:
 
     st.divider()
     st.subheader("Utilization & Open")
+
+    # Native switch_page if available
+    can_switch = hasattr(st, "switch_page")
+
     for _, row in df.iterrows():
         left, right = st.columns([6, 2])
         with left:
@@ -108,14 +79,18 @@ else:
             st.progress(pct, text=f"{row['spent_fmt']} / {row['cap_fmt']} ({int(pct*100)}%)")
         with right:
             if st.button("Open", key=f"open_{row['id']}", use_container_width=True):
-                # Save selection and navigate. IMPORTANT: the string must match the page title "Budget Id".
                 st.session_state.selected_budget_id = int(row["id"])
-                try:
-                    switch_page("pages/budget_id.py")  # Auto-title derived from file name 'budget_id.py'
-                except Exception:
-                    # Fallback if switch_page not available—just show a hint
-                    st.success("Saved selection. Open the Budget Id page to view details.")
+                if can_switch:
+                    # ✅ Directly navigate to the detail page file
+                    st.switch_page("pages/budget_id.py")
+                else:
+                    # Fallback: show a link the user can click
+                    st.session_state._show_open_link = True
         st.divider()
+
+    # Fallback link if st.switch_page is not available
+    if not hasattr(st, "switch_page") and st.session_state.get("_show_open_link"):
+        st.link_button("Go to Budget Details", "budget_id")  # relies on default pages routing
 
 # ---------- Create Budget ----------
 st.subheader("Create Budget")
@@ -141,14 +116,9 @@ if submitted:
     else:
         new_id = (max(b["id"] for b in st.session_state.budgets) + 1) if st.session_state.budgets else 1
         st.session_state.budgets.append({
-            "id": new_id,
-            "name": name,
-            "owner": owner or "unknown@neu.edu",
-            "start_date": str(start),
-            "end_date": str(end),
-            "cap": float(cap),
-            "spent": 0.0,
-            "status": status,
+            "id": new_id, "name": name, "owner": owner or "unknown@neu.edu",
+            "start_date": str(start), "end_date": str(end), "cap": float(cap),
+            "spent": 0.0, "status": status,
         })
         st.success(f"Created budget '{name}'.")
         st.rerun()
