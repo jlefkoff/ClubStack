@@ -111,7 +111,7 @@ else:
                 # Save selection and navigate. IMPORTANT: the string must match the page title "Budget Id".
                 st.session_state.selected_budget_id = int(row["id"])
                 try:
-                    switch_page("Budget Id")  # Auto-title derived from file name 'budget_id.py'
+                    switch_page("pages/budget_id.py")  # Auto-title derived from file name 'budget_id.py'
                 except Exception:
                     # Fallback if switch_page not available—just show a hint
                     st.success("Saved selection. Open the Budget Id page to view details.")
