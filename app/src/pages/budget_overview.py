@@ -5,6 +5,9 @@ import pandas as pd
 from datetime import date
 from streamlit_extras.switch_page_button import switch_page
 
+# Optional: set tab info (must be before any other st.* calls)
+st.set_page_config(page_title="Budgets", page_icon="💰")
+
 SideBarLinks()
 st.header("💰 Budgets")
 
@@ -105,12 +108,13 @@ else:
             st.progress(pct, text=f"{row['spent_fmt']} / {row['cap_fmt']} ({int(pct*100)}%)")
         with right:
             if st.button("Open", key=f"open_{row['id']}", use_container_width=True):
+                # Save selection and navigate. IMPORTANT: the string must match the page title "Budget Id".
                 st.session_state.selected_budget_id = int(row["id"])
                 try:
-                    switch_page("budget_id")  # match the sidebar name for budget_id.py
+                    switch_page("Budget Id")  # Auto-title derived from file name 'budget_id.py'
                 except Exception:
-                    st.success("Saved selection. Click ‘budget_id’ in the sidebar to view.")
-
+                    # Fallback if switch_page not available—just show a hint
+                    st.success("Saved selection. Open the Budget Id page to view details.")
         st.divider()
 
 # ---------- Create Budget ----------

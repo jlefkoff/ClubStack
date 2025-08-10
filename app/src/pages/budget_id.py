@@ -3,15 +3,14 @@ from modules.nav import SideBarLinks
 import streamlit as st
 
 # Set tab title/icon before any other Streamlit calls
-st.set_page_config(page_title="Budget Details", page_icon="📂")
+st.set_page_config(page_title="Budget Id", page_icon="📂")  # Title here must match "Budget Id" used in switch_page
 
-# App nav/sidebar
 SideBarLinks()
 
 # --- Get the selected budget id ---
 budget_id = st.session_state.get("selected_budget_id")
 
-# Fallback: allow deep-linking later via query params (optional)
+# Optional fallback: allow deep-linking via query params later
 if budget_id is None:
     try:
         bid = st.query_params.get("id")  # Streamlit >= 1.33
@@ -26,24 +25,20 @@ if budget_id is None:
 # Validate we have an id
 if budget_id is None:
     st.error("No budget selected.")
-    st.page_link("pages/budget_overview.py", label="← Back to Budgets", icon="↩️")
     st.stop()
 
 # --- Ensure budgets exist in session ---
 if "budgets" not in st.session_state or not st.session_state.budgets:
     st.error("No budgets available in this session.")
-    st.page_link("pages/budget_overview.py", label="← Back to Budgets", icon="↩️")
     st.stop()
 
 # --- Find the budget record ---
 budget = next((b for b in st.session_state.budgets if b["id"] == int(budget_id)), None)
 if not budget:
     st.error(f"Budget #{budget_id} not found.")
-    st.page_link("pages/budget_overview.py", label="← Back to Budgets", icon="↩️")
     st.stop()
 
 # --- Header / summary ---
-st.page_link("pages/budget_overview.py", label="← Back to Budgets", icon="↩️")
 st.header(f"📂 {budget['name']}")
 st.caption(f"Owner: {budget['owner']}  •  Period: {budget['start_date']} → {budget['end_date']}")
 
@@ -80,5 +75,4 @@ with st.expander("Danger Zone – Delete Budget"):
         st.session_state.budgets = [b for b in st.session_state.budgets if b["id"] != int(budget_id)]
         st.session_state.selected_budget_id = None
         st.success(f"Budget #{budget_id} deleted.")
-        st.page_link("pages/budget_overview.py", label="Return to Budgets", icon="↩️")
         st.stop()
