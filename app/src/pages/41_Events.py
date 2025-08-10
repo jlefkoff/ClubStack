@@ -92,4 +92,4 @@ selected_event = st.selectbox("Select an event to view details:", event_df["Even
 if st.button("Go to Event Details"):
     event_id = event_df.loc[event_df["Event Name"] == selected_event, "Event ID"].values[0]
     st.session_state["selected_event_id"] = event_id
-    st.switch_page("pages/Event_Details.py")  # requires Streamlit >=1.25
+    st.switch_page("pages/42_Event_Details.py")  # requires Streamlit >=1.25

@@ -36,7 +36,6 @@ def MapDemoNav():
         label="Map Demonstration",
         icon="🗺️")
 
-
 # ------------------------ Examples for Role of usaid_worker -------------
 def ApiTestNav():
     st.sidebar.page_link(
@@ -71,7 +70,8 @@ def AddNgoNav():
 # ------------------------ System Admin Role ------------------------
 def AdminPageNav():
     st.sidebar.page_link(
-        "pages/30_Admin_Home.py",
+        "pages/41_Events.py",
+        # "pages/30_Admin_Home.py",
         label="System Admin",
         icon="🖥️")
 
