@@ -1,5 +1,7 @@
 from flask import Blueprint, jsonify, request
 
+from backend.utils.db_utils import execute_query
+
 members_bp = Blueprint("members", __name__)
 
 
@@ -12,14 +14,18 @@ def post_member():
 # GET /members - View all members
 @members_bp.route("/", methods=["GET"])
 def get_members():
-    return jsonify([]), 200
-
+    query = """
+    SELECT * FROM Member;
+    """
+    return execute_query(query)
 
 # GET /members/<int:member_id> - View specific member
 @members_bp.route("/<int:member_id>", methods=["GET"])
 def get_member(member_id):
-    return jsonify({"id": member_id, "name": "Stub Member"}), 200
-
+    query = f"""
+    SELECT * FROM Member WHERE ID = {member_id};
+    """
+    return execute_query(query)
 
 # PUT /members/<int:member_id>/activate - Activate/Renew member with payment
 @members_bp.route("/<int:member_id>/activate", methods=["PUT"])
