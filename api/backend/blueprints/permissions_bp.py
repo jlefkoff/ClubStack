@@ -1,5 +1,7 @@
 from flask import Blueprint, jsonify, request
 
+from backend.utils.db_utils import execute_query
+
 permissions_bp = Blueprint("permissions", __name__)
 
 
@@ -27,4 +29,7 @@ def create_permission():
 # GET /permissions - List all permissions
 @permissions_bp.route("/", methods=["GET"])
 def list_permissions():
-    return jsonify([]), 200
+    query = """
+    SELECT * FROM Permission;
+    """
+    return execute_query(query)

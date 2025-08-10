@@ -1,18 +1,25 @@
 from flask import Blueprint, jsonify, request
 
+from backend.utils.db_utils import execute_query
+
 events_bp = Blueprint("events", __name__)
 
 
 # GET /events - List all events
 @events_bp.route("/", methods=["GET"])
 def get_events():
-    return jsonify([]), 200
-
+    query = """
+    SELECT * FROM Event;
+    """
+    return execute_query(query)
 
 # GET /events/<id> - Get specific event
 @events_bp.route("/<int:event_id>", methods=["GET"])
 def get_event(event_id):
-    return jsonify({"id": event_id, "name": "Stub Event"}), 200
+    query = f"""
+    SELECT * FROM Event WHERE ID = {event_id};
+    """
+    return execute_query(query)
 
 
 # POST /events - Create new event
