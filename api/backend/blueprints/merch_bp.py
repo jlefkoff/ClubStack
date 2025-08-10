@@ -2,6 +2,7 @@
 # Sample customers blueprint of endpoints
 # Remove this file if you are not using it in your project
 ########################################################
+from backend.utils.db_utils import execute_query
 from backend.db_connection import db
 from flask import Blueprint, current_app, jsonify, make_response, request
 
@@ -13,19 +14,22 @@ merch_bp = Blueprint("merch", __name__)
 
 # ------------------------------------------------------------
 # GET /merch-items - Browse available merch
-@merch_bp.route("/merch-items", methods=["GET"])
+@merch_bp.route("/", methods=["GET"])
 def get_merch_items():
     # Stub: Return empty list or placeholder data
-    return jsonify([]), 200
-
+   query = """
+   SELECT * FROM MerchItem;
+   """
+   return execute_query(query)
 
 # ------------------------------------------------------------
 # GET /merch-items/<id> - Get specific merch item
-@merch_bp.route("/merch-items/<int:item_id>", methods=["GET"])
+@merch_bp.route("/<int:item_id>", methods=["GET"])
 def get_merch_item(item_id):
-    # Stub: Return placeholder item
-    return jsonify({"id": item_id, "name": "Stub Merch Item"}), 200
-
+    query = f"""
+    SELECT * FROM MerchItem WHERE ID = {item_id};
+    """
+    return execute_query(query)
 
 # ------------------------------------------------------------
 # POST /merch-items - Post new merch item
