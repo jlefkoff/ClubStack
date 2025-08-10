@@ -26,7 +26,8 @@ def PolStratAdvHomeNav():
 def TreasurerBudgetOverview():
     st.sidebar.page_link(
         "pages/budget_overview.py",
-        label="Budget Overview"
+        label="Budget Overview",
+        icon = "💰"
     )
 
 
