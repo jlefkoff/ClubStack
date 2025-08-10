@@ -4,11 +4,10 @@ import streamlit as st
 import pandas as pd
 from datetime import date
 
-# --- NAV + HEADER ---
 SideBarLinks()
-st.header("Budgets")
+st.header("💰 Budgets")
 
-# --- SESSION INITIALIZATION (no API; mock/persist in-session) ---
+# ---------- Session init (mock data; no API) ----------
 if "budgets" not in st.session_state:
     st.session_state.budgets = [
         {
@@ -43,42 +42,37 @@ if "budgets" not in st.session_state:
         },
     ]
 
-# Helper to materialize DataFrame with derived columns
 def budgets_df():
     df = pd.DataFrame(st.session_state.budgets).copy()
     if df.empty:
         return df
-    df["remaining"] = (df["cap"] - df["spent"]).round(2)
-    # Avoid division by zero; utilization in [0, 1]
+    df["remaining"]   = (df["cap"] - df["spent"]).round(2)
     df["utilization"] = (df["spent"] / df["cap"]).where(df["cap"] > 0, 0.0).clip(0, 1.0)
-    # Nicely formatted numbers for the table
-    df["cap_fmt"] = df["cap"].map(lambda x: f"${x:,.2f}")
-    df["spent_fmt"] = df["spent"].map(lambda x: f"${x:,.2f}")
+    df["cap_fmt"]       = df["cap"].map(lambda x: f"${x:,.2f}")
+    df["spent_fmt"]     = df["spent"].map(lambda x: f"${x:,.2f}")
     df["remaining_fmt"] = df["remaining"].map(lambda x: f"${x:,.2f}")
     return df
 
 df = budgets_df()
 
-# --- FILTERS ---
-with st.container():
-    c1, c2, c3 = st.columns([2, 2, 1])
-    with c1:
-        owners = ["All"] + (sorted(df["owner"].unique().tolist()) if not df.empty else [])
-        owner_filter = st.selectbox("Owner", owners, index=0)
-    with c2:
-        statuses = ["All"] + (sorted(df["status"].unique().tolist()) if not df.empty else [])
-        status_filter = st.selectbox("Status", statuses, index=0)
-    with c3:
-        st.caption("Create a new budget below ⤵")
+# ---------- Filters ----------
+fc1, fc2, fc3 = st.columns([2, 2, 1])
+with fc1:
+    owners = ["All"] + (sorted(df["owner"].unique().tolist()) if not df.empty else [])
+    owner_filter = st.selectbox("Owner", owners, index=0)
+with fc2:
+    statuses = ["All"] + (sorted(df["status"].unique().tolist()) if not df.empty else [])
+    status_filter = st.selectbox("Status", statuses, index=0)
+with fc3:
+    st.caption("Create a new budget below ⤵")
 
-# Apply filters
 if not df.empty:
     if owner_filter != "All":
         df = df[df["owner"] == owner_filter]
     if status_filter != "All":
         df = df[df["status"] == status_filter]
 
-# --- TABLE ---
+# ---------- Table ----------
 st.subheader("All Budgets")
 if df.empty:
     st.info("No budgets to show yet. Create one below.")
@@ -100,17 +94,26 @@ else:
         hide_index=True,
     )
 
-    # Progress bars for quick visual of utilization
     st.divider()
-    st.subheader("Utilization")
+    st.subheader("Utilization & Open")
+    # ----- Clickable rows: open budget_id.py?id=<id> -----
     for _, row in df.iterrows():
-        pct = float(row["utilization"])
-        st.progress(pct, text=f"{row['name']}: {row['spent_fmt']} / {row['cap_fmt']} ({int(pct*100)}%)")
+        left, right = st.columns([6, 2])
+        with left:
+            st.write(f"**{row['name']}** · {row['owner']} · {row['start_date']} → {row['end_date']}")
+            pct = float(row["utilization"])
+            st.progress(pct, text=f"{row['spent_fmt']} / {row['cap_fmt']} ({int(pct*100)}%)")
+        with right:
+            st.page_link(
+                "pages/budget_id.py?id=" + str(row["id"]),
+                label="Open",
+                icon="📂",
+                use_container_width=True
+            )
+        st.divider()
 
-# --- CREATE BUDGET (inline form; no API) ---
-st.divider()
+# ---------- Create Budget (inline; still no API) ----------
 st.subheader("Create Budget")
-
 with st.form("create_budget_form", clear_on_submit=True):
     name = st.text_input("Budget name", placeholder="e.g., Summer Canoeing Trips")
     owner = st.text_input("Owner (email or name)", value=st.session_state.get("user", {}).get("email", ""))
@@ -124,7 +127,6 @@ with st.form("create_budget_form", clear_on_submit=True):
     submitted = st.form_submit_button("Create")
 
 if submitted:
-    # basic validation
     if not name:
         st.error("Please provide a budget name.")
     elif end < start:
@@ -132,7 +134,6 @@ if submitted:
     elif cap <= 0:
         st.error("Cap must be greater than $0.")
     else:
-        # Create a new in-session record
         new_id = (max(b["id"] for b in st.session_state.budgets) + 1) if st.session_state.budgets else 1
         st.session_state.budgets.append({
             "id": new_id,
