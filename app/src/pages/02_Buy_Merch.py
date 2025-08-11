@@ -36,12 +36,17 @@ def fetch_merch_items():
 merch_items = fetch_merch_items()
 
 
-def buy_item(item_name):
-    response = requests.post(f"{BASE_URL}/sale", json={"item_name": item_name})
-    if response.status_code == 200:
-        st.success(f"You bought a {item_name}!")
-    else:
-        st.error("Failed to process the sale.")
+def buy_item(item_id: int, cash: bool = True):
+    try:
+        response = requests.post(f"{BASE_URL}/merch/merch-sales", json={"cash": cash, "ID": item_id})
+        response.raise_for_status()
+        data = response.json()
+        if data.get("status") == "success":
+            st.success(f"You bought item ID {item_id}!")
+        else:
+            st.error("Failed to process the sale.")
+    except requests.exceptions.RequestException as e:
+        st.error(f"Failed to process the sale: {e}")
 
 
 # Display merch items in a grid
@@ -50,6 +55,6 @@ for index, item in enumerate(merch_items):
     with cols[index % 3]:  # Distribute items across the columns
         st.write(f"**{item['Name']}** - **${item['Price']}")
         if st.button(f"Buy {item['Name']}", key=item["ID"]):
-            buy_item(item["Name"])  # Call the buy_item function as needed
+            buy_item(item["ID"])  # Call the buy_item function as needed
 
 # Function to buy an item and update the database
