@@ -64,13 +64,15 @@ st.subheader("Edit Account")
 
 # ---- edit form (PUT) ----
 with st.form("edit_account_form"):
-    c1, c2, c3 = st.columns(3)
+    c1, c2, c3, c4 = st.columns(4)
     with c1:
         fiscal_year = st.number_input("Fiscal Year", value=int(account.get("FiscalYear", 2000)), min_value=2000, max_value=2100, step=1)
     with c2:
         author_first = st.text_input("Author First Name", value=str(account.get("AuthorFirstName") or ""))
     with c3:
         author_last  = st.text_input("Author Last Name",  value=str(account.get("AuthorLastName") or ""))
+    with c4:
+        account_id = st.number_input("Account ID", value=int(account.get("BudgetID", 0)), min_value = 0, max_value = 4000, step=1)
 
     status = st.selectbox(
         "Status",
@@ -88,6 +90,7 @@ if save:
             "FiscalYear": int(fiscal_year),
             "AuthorFirstName": author_first.strip(),
             "AuthorLastName":  author_last.strip(),
+            "BudgetID": int(account_id),
             "Status": status,
         }
         u = requests.put(f"http://api:4000/budget/{int(account_id)}", json=payload, timeout=10)
