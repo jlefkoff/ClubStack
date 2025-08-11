@@ -18,7 +18,7 @@ if "selected_budget_id" not in st.session_state:
 
 budget_id = int(st.session_state["selected_budget_id"])
 
-# --- Fetch budgets and locate this one (or call a /budget/{id} if you have it) ---
+# --- Fetch budgets and locate this one ---
 try:
     resp = requests.get("http://api:4000/budget", timeout=10)
     resp.raise_for_status()
@@ -39,16 +39,27 @@ if row.empty:
 
 budget = row.iloc[0].to_dict()
 
-# Display basic info
+# --- Key label mapping for display ---
+key_labels = {
+    "BudgetID": "Budget ID",
+    "FiscalYear": "Fiscal Year",
+    "AuthorFirstName": "Author First Name",
+    "AuthorLastName": "Author Last Name",
+    "ApprovedByFirstName": "Approver First Name",
+    "ApprovedByLastName": "Approver Last Name",
+    "Status": "Status",
+}
+
+# Display budget info with nice labels
 st.subheader(f"Budget #{budget_id}")
 for key, value in budget.items():
-    st.write(f"**{key}:** {value}")
+    label = key_labels.get(key, key.replace("_", " ").title())
+    st.write(f"**{label}:** {value if value not in [None, ''] else '—'}")
 
 st.divider()
 st.subheader("Actions")
 
 # ---- Approve budget (PUT) ----
-# Adjust endpoint/payload to match your backend if different.
 if budget.get("Status") != "APPROVED":
     if st.button("✅ Approve Budget", use_container_width=True):
         try:
@@ -71,7 +82,6 @@ with st.expander("Danger Zone – Delete Budget"):
             r = requests.delete(f"http://api:4000/budget/{budget_id}", timeout=10)
             r.raise_for_status()
             st.success(f"Budget #{budget_id} deleted.")
-            # Clear selection so user doesn't land on a dead detail page
             st.session_state.pop("selected_budget_id", None)
         except Exception as e:
             st.error(f"Failed to delete budget: {e}")
