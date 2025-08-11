@@ -234,7 +234,7 @@ def get_budget(id):
     cursor.execute(budget_query, (id,))
     budget_row = cursor.fetchone()
     if not budget_row:
-      return jsonify({"error": "Budget not found"}), 404
+        return jsonify({"error": "Budget not found"}), 404
 
     # Fetch accounts for this budget
     accounts_query = """
@@ -246,29 +246,34 @@ def get_budget(id):
     accounts = cursor.fetchall()
 
     response = {
-      "ID": budget_row["BudgetID"],
-      "FiscalYear": budget_row["FiscalYear"],
-      "Status": budget_row["Status"],
-      "Author": {
-        "ID": budget_row["AuthorID"],
-        "FirstName": budget_row["AuthorFirstName"],
-        "LastName": budget_row["AuthorLastName"],
-      },
-      "ApprovedBy": {
-        "ID": budget_row["ApprovedByID"],
-        "FirstName": budget_row["ApprovedByFirstName"],
-        "LastName": budget_row["ApprovedByLastName"],
-      } if budget_row["ApprovedByID"] else None,
-      "Accounts": [
-        {
-          "ID": acct["ID"],
-          "AcctCode": acct["AcctCode"],
-          "AcctTitle": acct["AcctTitle"],
-        }
-        for acct in accounts
-      ],
+        "ID": budget_row["BudgetID"],
+        "FiscalYear": budget_row["FiscalYear"],
+        "Status": budget_row["Status"],
+        "Author": {
+            "ID": budget_row["AuthorID"],
+            "FirstName": budget_row["AuthorFirstName"],
+            "LastName": budget_row["AuthorLastName"],
+        },
+        "ApprovedBy": (
+            {
+                "ID": budget_row["ApprovedByID"],
+                "FirstName": budget_row["ApprovedByFirstName"],
+                "LastName": budget_row["ApprovedByLastName"],
+            }
+            if budget_row["ApprovedByID"]
+            else None
+        ),
+        "Accounts": [
+            {
+                "ID": acct["ID"],
+                "AcctCode": acct["AcctCode"],
+                "AcctTitle": acct["AcctTitle"],
+            }
+            for acct in accounts
+        ],
     }
     return jsonify(response), 200
+
 
 # GET /budget/<id>/report - Budget + active member analysis
 @budget_bp.route("/<int:id>/report", methods=["GET"])

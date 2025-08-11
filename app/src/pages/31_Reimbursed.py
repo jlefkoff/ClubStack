@@ -9,6 +9,7 @@ st.set_page_config(layout="wide")
 
 # Add sidebar links (assuming the 'SideBarLinks' function is available in your app)
 from modules.nav import SideBarLinks
+
 SideBarLinks()
 
 
@@ -20,14 +21,12 @@ if is_member:
     # Form to input reimbursement details
     with st.form("reimbursement_form"):
         st.subheader("Enter Reimbursement Details")
-        
+
         # Input fields for reimbursement request
-        reimbursment_member_id = st.number_input("MemberID", min_value=0)
         reimbursement_amount = st.number_input("Amount", min_value=0.0, format="%.2f")
         reimbursement_reason = st.text_area("Reason for Reimbursement")
         reimbursement_date = st.date_input("Date of Expense", value=datetime.now())
-        
-        
+
         # Submit button to add the reimbursement request
         submit_button = st.form_submit_button("Submit Reimbursement")
 
@@ -37,26 +36,30 @@ if is_member:
             else:
                 # Creating a dictionary to store the reimbursement request
                 reimbursement_request = {
-                    "member_id": reimbursment_member_id,
-                    "first_name": st.session_state.get('first_name', 'Guest'),
-                    "last_name": st.session_state.get('last_name', 'User'),
+                    "member_id": st.session_state.get("member_id"),
+                    "first_name": st.session_state.get("first_name"),
+                    "last_name": st.session_state.get("last_name"),
                     "amount": reimbursement_amount,
                     "reason": reimbursement_reason,
-                    "date_of_expense": reimbursement_date.strftime('%Y-%m-%d'),
+                    "date_of_expense": reimbursement_date.strftime("%Y-%m-%d"),
                 }
 
                 # Add the reimbursement request to session state (or database)
-                if 'reimbursement_requests' not in st.session_state:
-                    st.session_state['reimbursement_requests'] = []  # Initialize list if not present
+                if "reimbursement_requests" not in st.session_state:
+                    st.session_state["reimbursement_requests"] = (
+                        []
+                    )  # Initialize list if not present
 
-                st.session_state['reimbursement_requests'].append(reimbursement_request)  # Add new reimbursement request to the list
+                st.session_state["reimbursement_requests"].append(
+                    reimbursement_request
+                )  # Add new reimbursement request to the list
 
                 # Show success message
                 st.success("Reimbursement request submitted successfully!")
 
                 # Optionally, display all reimbursement requests (for debugging or confirmation)
                 st.write("### Your Submitted Reimbursement Requests:")
-                st.write(st.session_state['reimbursement_requests'])
+                st.write(st.session_state["reimbursement_requests"])
 
 else:
     st.error("You must be logged in as a member to submit a reimbursement request.")

@@ -36,8 +36,7 @@ def nominate_member():
 # GET /ballott/<member_id> - Get all ballots available to that member
 @elections_bp.route("/ballott/<member_id>", methods=["GET"])
 def get_ballotts_for_member(member_id):
-    return jsonify(
-        {"ballotts": f"List of ballots for member {member_id} (stub)"}), 200
+    return jsonify({"ballotts": f"List of ballots for member {member_id} (stub)"}), 200
 
 
 # GET /ballot/<id> - Get a ballot

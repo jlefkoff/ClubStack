@@ -14,48 +14,49 @@ def get_events():
     """
     return execute_query(query)
 
+
 # GET /events/<id> - Get specific event
 @events_bp.route("/<int:event_id>", methods=["GET"])
 def get_event(event_id):
-  cursor = db.get_db().cursor()
+    cursor = db.get_db().cursor()
 
-  # Get event details
-  event_query = """
+    # Get event details
+    event_query = """
   SELECT * FROM Event WHERE ID = %s;
   """
-  cursor.execute(event_query, (event_id,))
-  event_row = cursor.fetchone()
-  if not event_row:
-    return jsonify({"error": "Event not found"}), 404
+    cursor.execute(event_query, (event_id,))
+    event_row = cursor.fetchone()
+    if not event_row:
+        return jsonify({"error": "Event not found"}), 404
 
-  # Get roster for the event
-  roster_query = """
+    # Get roster for the event
+    roster_query = """
   SELECT ER.DateRegistered, ER.Waitlisted, M.ID as MemberID, M.FirstName, M.LastName
   FROM EventRoster ER
   JOIN Member M ON ER.Member = M.ID
   WHERE ER.Event = %s;
   """
-  cursor.execute(roster_query, (event_id,))
-  roster = cursor.fetchall()
+    cursor.execute(roster_query, (event_id,))
+    roster = cursor.fetchall()
 
-  # For each member, get allergies
-  for member in roster:
-    member_id = member["MemberID"]
-    allergies_query = """
+    # For each member, get allergies
+    for member in roster:
+        member_id = member["MemberID"]
+        allergies_query = """
     SELECT A.Name
     FROM Allergy A
     JOIN AllergyUsers AU ON A.ID = AU.AllergyID
     WHERE AU.UserID = %s;
     """
-    cursor.execute(allergies_query, (member_id,))
-    allergies = cursor.fetchall()
-    allergies_list = [a["Name"] for a in allergies] if allergies else []
-    member["Allergies"] = ", ".join(allergies_list)
+        cursor.execute(allergies_query, (member_id,))
+        allergies = cursor.fetchall()
+        allergies_list = [a["Name"] for a in allergies] if allergies else []
+        member["Allergies"] = ", ".join(allergies_list)
 
-  event_data = dict(event_row)
-  event_data["Roster"] = roster
+    event_data = dict(event_row)
+    event_data["Roster"] = roster
 
-  return jsonify(event_data), 200
+    return jsonify(event_data), 200
 
 
 # POST /events - Create new event

@@ -54,7 +54,8 @@ with st.form("add_ngo_form"):
                         f"Failed to add NGO: {
                             response.json().get(
                                 'error',
-                                'Unknown error')}")
+                                'Unknown error')}"
+                    )
 
             except requests.exceptions.RequestException as e:
                 st.error(f"Error connecting to the API: {str(e)}")
