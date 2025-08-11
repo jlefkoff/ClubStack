@@ -17,10 +17,11 @@ merch_bp = Blueprint("merch", __name__)
 @merch_bp.route("/", methods=["GET"])
 def get_merch_items():
     # Stub: Return empty list or placeholder data
-   query = """
+    query = """
    SELECT * FROM MerchItem;
    """
-   return execute_query(query)
+    return execute_query(query)
+
 
 # ------------------------------------------------------------
 # GET /merch-items/<id> - Get specific merch item
@@ -30,6 +31,7 @@ def get_merch_item(item_id):
     SELECT * FROM MerchItem WHERE ID = {item_id};
     """
     return execute_query(query)
+
 
 # ------------------------------------------------------------
 # POST /merch-items - Post new merch item

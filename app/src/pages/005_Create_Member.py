@@ -8,6 +8,7 @@ st.set_page_config(layout="wide")
 
 
 from modules.nav import SideBarLinks
+
 SideBarLinks()
 
 
@@ -16,7 +17,7 @@ st.title("Create New Member")
 # Form to input new member data
 with st.form("new_member_form"):
     st.subheader("Enter New Member Information")
-        
+
     first_name = st.text_input("First Name")
     last_name = st.text_input("Last Name")
     email = st.text_input("Email")
@@ -36,17 +37,17 @@ with st.form("new_member_form"):
                 "last_name": last_name,
                 "email": email,
                 "member_id": member_id,
-                "join_date": join_date.strftime('%Y-%m-%d')
+                "join_date": join_date.strftime("%Y-%m-%d"),
             }
-                
+
             # Here we store the new member in session state for simplicity (in real apps, use a database)
-            if 'members' not in st.session_state:
-                st.session_state['members'] = []  
-            
-                st.session_state['members'].append(new_member)  
-                
+            if "members" not in st.session_state:
+                st.session_state["members"] = []
+
+                st.session_state["members"].append(new_member)
+
                 st.success(f"New member {first_name} {last_name} added successfully!")
 
                 # View the members
                 st.write("### All Members:")
-                st.write(st.session_state['members'])
+                st.write(st.session_state["members"])

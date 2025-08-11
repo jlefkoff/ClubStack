@@ -26,7 +26,8 @@ def get_all_ngos():
         founding_year = request.args.get("founding_year")
 
         current_app.logger.debug(
-            f"Query parameters - country: {country}, focus_area: {focus_area}, founding_year: {founding_year}")
+            f"Query parameters - country: {country}, focus_area: {focus_area}, founding_year: {founding_year}"
+        )
 
         # Prepare the Base query
         query = "SELECT * FROM WorldNGOs WHERE 1=1"
@@ -43,8 +44,7 @@ def get_all_ngos():
             query += " AND Founding_Year = %s"
             params.append(founding_year)
 
-        current_app.logger.debug(
-            f"Executing query: {query} with params: {params}")
+        current_app.logger.debug(f"Executing query: {query} with params: {params}")
         cursor.execute(query, params)
         ngos = cursor.fetchall()
         cursor.close()
@@ -97,16 +97,10 @@ def create_ngo():
         data = request.get_json()
 
         # Validate required fields
-        required_fields = [
-            "Name",
-            "Country",
-            "Founding_Year",
-            "Focus_Area",
-            "Website"]
+        required_fields = ["Name", "Country", "Founding_Year", "Focus_Area", "Website"]
         for field in required_fields:
             if field not in data:
-                return jsonify(
-                    {"error": f"Missing required field: {field}"}), 400
+                return jsonify({"error": f"Missing required field: {field}"}), 400
 
         cursor = db.get_db().cursor()
 
@@ -155,12 +149,7 @@ def update_ngo(ngo_id):
         # Build update query dynamically based on provided fields
         update_fields = []
         params = []
-        allowed_fields = [
-            "Name",
-            "Country",
-            "Founding_Year",
-            "Focus_Area",
-            "Website"]
+        allowed_fields = ["Name", "Country", "Founding_Year", "Focus_Area", "Website"]
 
         for field in allowed_fields:
             if field in data:

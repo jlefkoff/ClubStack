@@ -2,10 +2,19 @@ import logging
 import os
 from logging.handlers import RotatingFileHandler
 
-from backend.blueprints import (allergies_bp, budget_bp, communications_bp,
-                                elections_bp, events_bp, feedback_bp, gear_bp,
-                                members_bp, merch_bp, permissions_bp,
-                                reimbursements_bp)
+from backend.blueprints import (
+    allergies_bp,
+    budget_bp,
+    communications_bp,
+    elections_bp,
+    events_bp,
+    feedback_bp,
+    gear_bp,
+    members_bp,
+    merch_bp,
+    permissions_bp,
+    reimbursements_bp,
+)
 from backend.db_connection import db
 from backend.ngos.ngo_routes import ngos
 from backend.simple.simple_routes import simple_routes
@@ -36,8 +45,7 @@ def create_app():
     # # these are for the DB object to be able to connect to MySQL.
     # app.config['MYSQL_DATABASE_USER'] = 'root'
     app.config["MYSQL_DATABASE_USER"] = os.getenv("DB_USER").strip()
-    app.config["MYSQL_DATABASE_PASSWORD"] = os.getenv(
-        "MYSQL_ROOT_PASSWORD").strip()
+    app.config["MYSQL_DATABASE_PASSWORD"] = os.getenv("MYSQL_ROOT_PASSWORD").strip()
     app.config["MYSQL_DATABASE_HOST"] = os.getenv("DB_HOST").strip()
     app.config["MYSQL_DATABASE_PORT"] = int(os.getenv("DB_PORT").strip())
     app.config["MYSQL_DATABASE_DB"] = os.getenv(
@@ -50,8 +58,7 @@ def create_app():
 
     # Register the routes from each Blueprint with the app object
     # and give a url prefix to each
-    app.logger.info(
-        "create_app(): registering blueprints with Flask app object.")
+    app.logger.info("create_app(): registering blueprints with Flask app object.")
     app.register_blueprint(simple_routes)
     app.register_blueprint(ngos, url_prefix="/ngo")
     app.register_blueprint(allergies_bp.allergies_bp, url_prefix="/allergies")
@@ -65,9 +72,7 @@ def create_app():
     app.register_blueprint(gear_bp.gear_bp, url_prefix="/gear")
     app.register_blueprint(members_bp.members_bp, url_prefix="/members")
     app.register_blueprint(merch_bp.merch_bp, url_prefix="/merch")
-    app.register_blueprint(
-        permissions_bp.permissions_bp,
-        url_prefix="/permissions")
+    app.register_blueprint(permissions_bp.permissions_bp, url_prefix="/permissions")
     app.register_blueprint(
         reimbursements_bp.reimbursements_bp, url_prefix="/reimbursements"
     )
@@ -87,10 +92,12 @@ def setup_logging(app):
         os.mkdir("logs")
 
     # Set up FILE HANDLER for all levels
-    file_handler = RotatingFileHandler(
-        "logs/api.log", maxBytes=10240, backupCount=10)
-    file_handler.setFormatter(logging.Formatter(
-        "%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]"))
+    file_handler = RotatingFileHandler("logs/api.log", maxBytes=10240, backupCount=10)
+    file_handler.setFormatter(
+        logging.Formatter(
+            "%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]"
+        )
+    )
 
     # Make sure we are capturing all levels of logging into the log files.
     file_handler.setLevel(logging.DEBUG)  # Capture all levels in file

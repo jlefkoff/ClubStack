@@ -11,6 +11,7 @@ from flask import Blueprint, current_app, jsonify, make_response, request
 # routes.
 gear_bp = Blueprint("gear", __name__)
 
+
 # ------------------------------------------------------------
 # GET / - Browse available gear
 @gear_bp.route("/", methods=["GET"])
@@ -21,6 +22,7 @@ def get_rental_items():
     """
     return execute_query(query)
 
+
 # ------------------------------------------------------------
 # POST /rental-items - Post new rental item
 @gear_bp.route("/", methods=["POST"])
@@ -30,8 +32,15 @@ def post_rental_item():
     INSERT INTO RentalItem (Name, Price, Location, Quantity, Size, Status)
     VALUES (%s, %s, %s, %s, %s, %s);
     """
-    params = (data["name"], data["price"], data["location"], data["quantity"], data["size"], "AVAILABLE")
-    return(execute_update(query, params))
+    params = (
+        data["name"],
+        data["price"],
+        data["location"],
+        data["quantity"],
+        data["size"],
+        "AVAILABLE",
+    )
+    return execute_update(query, params)
 
 
 # ------------------------------------------------------------
@@ -42,6 +51,7 @@ def get_rental_item(item_id):
     SELECT * FROM RentalItem WHERE ID = %s;
     """
     return execute_query(query, (item_id,))
+
 
 # ------------------------------------------------------------
 # PUT /rental-items/<id>/toggle-avail - Mark item unavailable
@@ -70,16 +80,20 @@ def reserve_gear():
     params = (data["item_id"],)
     execute_update(query, params)
 
-    return jsonify({"message": "Gear reserved"}), 201
+    return jsonify({"message": "Gear reserved"}), 200
+
 
 # ------------------------------------------------------------
-# GET /gear-reservations/<member_id> - Get all member's gear reservations
-@gear_bp.route("/gear-reservations/<int:member_id>", methods=["GET"])
+# GET /reservations/<member_id> - Get all member's gear reservations
+@gear_bp.route("/reservations/<int:member_id>", methods=["GET"])
 def get_gear_reservation(member_id):
     query = """
-    SELECT * FROM GearReservation WHERE Member = %s;
+    SELECT Name, CheckOutDate, ReturnDate FROM GearReservation JOIN GearReservationItems ON GearReservation.ID = GearReservationItems.Reservation
+         JOIN RentalItem ON GearReservationItems.Item = RentalItem.ID
+         WHERE Member = %s;
     """
     return execute_query(query, (member_id,))
+
 
 # ------------------------------------------------------------
 # GET /gear-reservations/report - Gear ROI report

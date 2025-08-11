@@ -13,6 +13,7 @@ def review_feedback():
     """
     return execute_query(query)
 
+
 # POST /feedback - Submit feedback
 @feedback_bp.route("/", methods=["POST"])
 def submit_feedback():
