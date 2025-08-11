@@ -3,73 +3,101 @@ from modules.nav import SideBarLinks
 import streamlit as st
 import pandas as pd
 import requests
-import logging
 
-st.set_page_config(page_title="Budgets", page_icon="💰")
-
-# Sidebar navigation
+st.set_page_config(page_title="Budget Overview", page_icon="💰")
 SideBarLinks()
 
-st.header("Browse Budgets")
+st.header("Budget Overview")
 
-logger = logging.getLogger(__name__)
+# ----- fetch budgets -----
+def fetch_budgets():
+    try:
+        r = requests.get("http://api:4000/budget", timeout=10)
+        r.raise_for_status()
+        data = r.json()
+        return pd.DataFrame(data if isinstance(data, list) else [])
+    except Exception as e:
+        st.error(f"Error fetching budgets: {e}")
+        return pd.DataFrame()
 
-# ---- Get data from API ----
-try:
-    resp = requests.get("http://api:4000/budget", timeout=10)
-    resp.raise_for_status()
-    data = resp.json()
-except Exception as e:
-    st.error(f"Failed to load budgets: {e}")
-    st.stop()
-
-# Make a DataFrame (empty-safe)
-df = pd.DataFrame(data if isinstance(data, list) else [])
-
+df = fetch_budgets()
 if df.empty:
     st.info("No budgets found.")
     st.stop()
 
-# Helper to combine names, handling nulls
-def _name(first, last):
-    f = (first or "").strip()
-    l = (last or "").strip()
-    return (f"{f} {l}").strip() or "—"
+# ----- friendly helpers -----
+def friendly(v): return "—" if v in (None, "", [], {}) else v
+def full_name(first, last):
+    f, l = (first or "").strip(), (last or "").strip()
+    return (f"{f} {l}".strip()) or "—"
 
-# Create display columns
-df["Author"] = df.apply(lambda r: _name(r.get("AuthorFirstName"), r.get("AuthorLastName")), axis=1)
-df["Approved By"] = df.apply(lambda r: _name(r.get("ApprovedByFirstName"), r.get("ApprovedByLastName")), axis=1)
+# derived display fields
+df = df.copy()
+df["Author"] = df.apply(lambda r: full_name(r.get("AuthorFirstName"), r.get("AuthorLastName")), axis=1)
+df["Approver"] = df.apply(lambda r: full_name(r.get("ApprovedByFirstName"), r.get("ApprovedByLastName")), axis=1)
 
-# Show a tidy table
-show_cols = ["BudgetID", "FiscalYear", "Author", "Approved By", "Status"]
+# quick nav to accounts
+nav = st.columns([1, 5])
+with nav[0]:
+    if hasattr(st, "switch_page"):
+        if st.button("🏦 Budget Accounts", use_container_width=True):
+            st.switch_page("pages/budget_accounts.py")
+    else:
+        st.link_button("🏦 Budget Accounts", "budget_accounts")
+
+# tidy table
+show = ["BudgetID", "FiscalYear", "Author", "Approver", "Status"]
+pretty = df[show].rename(columns={
+    "BudgetID": "Budget ID",
+    "FiscalYear": "Fiscal Year",
+    "Author": "Author",
+    "Approver": "Approver",
+    "Status": "Status",
+}).applymap(friendly)
+
+st.subheader("All Budgets")
 st.dataframe(
-    df[show_cols].sort_values(["FiscalYear", "BudgetID"], ascending=[False, True]),
-    hide_index=True,
+    pretty.sort_values(["Fiscal Year", "Budget ID"], ascending=[False, True]),
     use_container_width=True,
+    hide_index=True,
 )
 
 st.divider()
-st.subheader("Open a Budget")
+st.subheader("Open / Accounts")
 
-# If your Streamlit supports native switch_page
 can_switch = hasattr(st, "switch_page")
 
-# Render an "Open" button per budget
+# per-row actions
 for _, row in df.sort_values(["FiscalYear", "BudgetID"], ascending=[False, True]).iterrows():
     bid = int(row["BudgetID"])
-    cols = st.columns([6, 1])
-    with cols[0]:
-        st.write(f"**Budget #{bid}** — FY {int(row['FiscalYear'])} • Author: {row['Author']} • Status: {row['Status']}")
-    with cols[1]:
+    info, open_col, acct_col = st.columns([6, 1.5, 1.5])
+
+    with info:
+        st.write(
+            f"**Budget #{bid}** — FY {int(row['FiscalYear'])} • "
+            f"Author: {row['Author']} • Status: {row['Status']}"
+        )
+
+    with open_col:
         if st.button("Open", key=f"open_{bid}", use_container_width=True):
             st.session_state["selected_budget_id"] = bid
             if can_switch:
                 st.switch_page("pages/budget_id.py")
             else:
-                # Fallback for older Streamlit: prompt a link
                 st.session_state["_open_link_ready"] = True
+
+    with acct_col:
+        if st.button("Accounts", key=f"acct_{bid}", use_container_width=True):
+            if can_switch:
+                st.switch_page("pages/budget_accounts.py")
+            else:
+                st.session_state["_acct_link_ready"] = True
+
     st.divider()
 
-if not can_switch and st.session_state.get("_open_link_ready"):
-    # This relies on the page existing in /pages and default routing
-    st.link_button("Go to Budget Details", "budget_id")
+# fallbacks for very old Streamlit
+if not can_switch:
+    if st.session_state.get("_open_link_ready"):
+        st.link_button("Go to Budget Details", "budget_id")
+    if st.session_state.get("_acct_link_ready"):
+        st.link_button("Go to Budget Accounts", "budget_accounts")
