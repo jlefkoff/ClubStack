@@ -120,6 +120,7 @@ def SideBarLinks(show_home=False):
             ClassificationNav()
             NgoDirectoryNav()
             AddNgoNav()
+            permissions()
 
         if st.session_state["role"] == "administrator":
             AdminPageNav()
