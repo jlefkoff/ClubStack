@@ -63,13 +63,13 @@ else:
             if st.button("Open", key=f"acct_open_{bid}", use_container_width=True):
                 st.session_state["selected_account_id"] = bid
                 if can_switch:
-                    st.switch_page("pages/budget_account_id.py")
+                    st.switch_page("pages/budget_accounts_id.py")
                 else:
                     st.session_state["_acct_link_ready"] = True
         st.divider()
 
     if not can_switch and st.session_state.get("_acct_link_ready"):
-        st.link_button("Go to Account Details", "budget_account_id")
+        st.link_button("Go to Account Details", "budget_accounts_id")
 
 # ---- create account ----
 st.subheader("Create New Account")
