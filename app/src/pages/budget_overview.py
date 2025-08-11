@@ -3,34 +3,22 @@ from modules.nav import SideBarLinks
 import streamlit as st
 import pandas as pd
 from datetime import date
+import requests
+
+
+# data from api
+data = {}
+data = requests.get("http://api:4000/budget").json()
+
+logger = logging.getLogger(__name__)
+data_frame = pd.DataFrame(data)
+
 
 st.set_page_config(page_title="Budgets", page_icon="💰")
 SideBarLinks()
 st.header("💰 Budgets")
 
-# ---------- Session init (mock data; no API) ----------
-if "budgets" not in st.session_state:
-    st.session_state.budgets = [
-        {"id": 1, "name": "Fall Backpacking Trips", "owner": "outdoors@neu.edu",
-         "start_date": "2025-09-01", "end_date": "2025-12-15", "cap": 5000.0, "spent": 2700.0, "status": "Active"},
-        {"id": 2, "name": "Winter Gear Refresh", "owner": "gear@neu.edu",
-         "start_date": "2025-01-05", "end_date": "2025-03-15", "cap": 3000.0, "spent": 3100.0, "status": "Closed"},
-        {"id": 3, "name": "Spring Climbing Trips", "owner": "climbing@neu.edu",
-         "start_date": "2025-03-01", "end_date": "2025-05-20", "cap": 4200.0, "spent": 1950.0, "status": "Active"},
-    ]
 
-def budgets_df():
-    df = pd.DataFrame(st.session_state.budgets).copy()
-    if df.empty:
-        return df
-    df["remaining"]   = (df["cap"] - df["spent"]).round(2)
-    df["utilization"] = (df["spent"] / df["cap"]).where(df["cap"] > 0, 0.0).clip(0, 1.0)
-    df["cap_fmt"]       = df["cap"].map(lambda x: f"${x:,.2f}")
-    df["spent_fmt"]     = df["spent"].map(lambda x: f"${x:,.2f}")
-    df["remaining_fmt"] = df["remaining"].map(lambda x: f"${x:,.2f}")
-    return df
-
-df = budgets_df()
 
 # ---------- Filters ----------
 fc1, fc2, fc3 = st.columns([2, 2, 1])
@@ -50,20 +38,20 @@ if not df.empty:
         df = df[df["status"] == status_filter]
 
 # ---------- Table ----------
-st.subheader("All Budgets")
-if df.empty:
-    st.info("No budgets to show yet. Create one below.")
-else:
-    show_cols = ["name", "owner", "start_date", "end_date", "cap_fmt", "spent_fmt", "remaining_fmt", "status"]
-    col_rename = {
-        "name": "Name", "owner": "Owner", "start_date": "Start", "end_date": "End",
-        "cap_fmt": "Cap", "spent_fmt": "Spent", "remaining_fmt": "Remaining", "status": "Status",
-    }
-    st.dataframe(
-        df[show_cols].rename(columns=col_rename),
-        use_container_width=True,
-        hide_index=True,
-    )
+# st.subheader("All Budgets")
+# if df.empty:
+#     st.info("No budgets to show yet. Create one below.")
+# else:
+#     show_cols = ["name", "owner", "start_date", "end_date", "cap_fmt", "spent_fmt", "remaining_fmt", "status"]
+#     col_rename = {
+#         "name": "Name", "owner": "Owner", "start_date": "Start", "end_date": "End",
+#         "cap_fmt": "Cap", "spent_fmt": "Spent", "remaining_fmt": "Remaining", "status": "Status",
+#     }
+#     st.dataframe(
+#         df[show_cols].rename(columns=col_rename),
+#         use_container_width=True,
+#         hide_index=True,
+#     )
 
     st.divider()
     st.subheader("Utilization & Open")
