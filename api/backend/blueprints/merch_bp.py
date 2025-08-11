@@ -55,20 +55,19 @@ def post_merch_item():
 # POST /merch-sales - Record a merch sale
 @merch_bp.route("/merch-sales", methods=["POST"])
 def post_merch_sale():
-  data = request.json
+    data = request.json
 
-  # 1. Insert into MerchSale (Cash, SaleDate auto)
-  sale_id = execute_update(
-      "INSERT INTO MerchSale (Cash) VALUES (%s);",
-      (data["cash"],)
-  )
+    # 1. Insert into MerchSale (Cash, SaleDate auto)
+    sale_id = execute_update(
+        "INSERT INTO MerchSale (Cash) VALUES (%s);", (data["cash"],)
+    )
 
-  execute_update(
+    execute_update(
         "INSERT INTO MerchSaleItems (MerchItem, MerchSale) VALUES (%s, %s);",
-        (data["ID"], sale_id)
-  )
+        (data["ID"], sale_id),
+    )
 
-  return jsonify({"sale_id": sale_id, "status": "success"}), 200
+    return jsonify({"sale_id": sale_id, "status": "success"}), 200
 
 
 # ------------------------------------------------------------

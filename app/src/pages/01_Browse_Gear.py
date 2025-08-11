@@ -54,7 +54,7 @@ if st.button("Reserve Gear"):
         "user_id": st.session_state.get("member_id"),
         "item_id": int(gear_df.loc[gear_df["Name"] == selected_gear, "ID"].values[0]),
         "start_date": check_out_date.strftime("%Y-%m-%d"),
-        "end_date": return_date.strftime("%Y-%m-%d")
+        "end_date": return_date.strftime("%Y-%m-%d"),
     }
     response = requests.post("http://api:4000/gear/reservation", json=reservation_data)
     if response.status_code == 200:
