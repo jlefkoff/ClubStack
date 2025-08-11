@@ -52,6 +52,7 @@ def get_rental_item(item_id):
     """
     return execute_query(query, (item_id,))
 
+
 # ------------------------------------------------------------
 # DELETE /<id> - Remove specific item
 @gear_bp.route("/<int:item_id>", methods=["DELETE"])
@@ -71,6 +72,7 @@ def toggle_rental_item_avail(item_id, status):
     """
     return execute_update(query, (status, item_id))
 
+
 # ------------------------------------------------------------
 # GET /reservation/ - Get all gear reservations
 @gear_bp.route("/reservation", methods=["GET"])
@@ -80,6 +82,7 @@ def get_gear_reservations():
          JOIN RentalItem ON GearReservationItems.Item = RentalItem.ID;
     """
     return execute_query(query)
+
 
 # ------------------------------------------------------------
 # POST /gear-reservations - Reserve gear
@@ -114,6 +117,7 @@ def get_gear_reservation(member_id):
     """
     return execute_query(query, (member_id,))
 
+
 # PUT /reservations/<reservation_id>/<status> - Update gear reservation status
 @gear_bp.route("/reservations/<int:reservation_id>/<string:status>", methods=["PUT"])
 def update_gear_reservation_status(reservation_id, status):
@@ -121,6 +125,7 @@ def update_gear_reservation_status(reservation_id, status):
     UPDATE GearReservation SET Status = %s WHERE ID = %s;
     """
     return execute_update(query, (status, reservation_id))
+
 
 # DELETE /reservations/<reservation_id> - Cancel a gear reservation
 @gear_bp.route("/reservations/<int:reservation_id>", methods=["DELETE"])

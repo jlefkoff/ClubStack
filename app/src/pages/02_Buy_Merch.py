@@ -38,7 +38,9 @@ merch_items = fetch_merch_items()
 
 def buy_item(item_id: int, cash: bool = True):
     try:
-        response = requests.post(f"{BASE_URL}/merch/merch-sales", json={"cash": cash, "ID": item_id})
+        response = requests.post(
+            f"{BASE_URL}/merch/merch-sales", json={"cash": cash, "ID": item_id}
+        )
         response.raise_for_status()
         data = response.json()
         if data.get("status") == "success":
