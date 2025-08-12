@@ -20,6 +20,20 @@ if st.button(
     type="primary",
         use_container_width=True):
     st.switch_page("pages/01_Browse_Gear.py")
+    
+
+if st.button(
+    "Member Profile",
+    type="primary",
+        use_container_width=True):
+    st.switch_page("pages/09_Member_Profile.py")
+
+
+if st.button(
+    "Submit a reimbursement",
+    type="primary",
+        use_container_width=True):
+    st.switch_page("pages/31_Reimbursed.py")
 
 if st.button("Buy Merch", type="primary", use_container_width=True):
     st.switch_page("pages/02_Buy_Merch.py")

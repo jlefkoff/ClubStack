@@ -72,6 +72,14 @@ def reserve_gear():
 
     return jsonify({"message": "Gear reserved"}), 201
 
+# ------------------------------------------------------------
+# GET /gear-reservations/<member_id> - Get all member's gear reservations
+@gear_bp.route("/gear-reservations/<int:member_id>", methods=["GET"])
+def get_gear_reservation(member_id):
+    query = """
+    SELECT * FROM GearReservation WHERE Member = %s;
+    """
+    return execute_query(query, (member_id,))
 
 # ------------------------------------------------------------
 # GET /gear-reservations/report - Gear ROI report
