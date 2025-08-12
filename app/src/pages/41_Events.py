@@ -83,17 +83,18 @@ if st.session_state.get("first_name", "").lower() == "chance":
 
         if submitted:
             payload = {
-               #  "Author": author,
-                "Name": name,
-                "Description": description,
-                "EventLoc": event_loc,
-                "EventType": event_type,
-               #  "ID": ID,
-                "LeadOrg": lead_org,
-                "MaxSize": max_size,
-                "PartySize": party_size,
-                "MeetLoc": meet_loc,
-                "RecItems": rec_items,
+              "Author": st.session_state["member_id"],
+              "PartySize": party_size,
+              "MaxSize": max_size,
+              "EventLoc": event_loc,
+              "Randomized": False,
+              "Name": name,
+              "Description": description,
+              "MeetLoc": meet_loc,
+              "LeadOrg": lead_org,
+              "EventType": event_type,
+              "RecItems": rec_items,
+              "Picture": "",  # You can add a file uploader for picture if needed
             }
             try:
                 response = requests.post("http://api:4000/events", json=payload)

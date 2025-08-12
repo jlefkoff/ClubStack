@@ -72,7 +72,7 @@ if submit_rsvp:
     }
 
     try:
-        response = requests.post(f"http://localhost:4001/events/{event_info['ID']}/roster", json=payload)
+        response = requests.post(f"http://api:4000/events/{event_info['ID']}/roster", json=payload)
         response.raise_for_status()
         st.success("You have successfully RSVP'd!")
         st.json(response.json())
