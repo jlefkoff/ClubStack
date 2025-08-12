@@ -66,7 +66,7 @@ if st.session_state.get("first_name", "").lower() == "chance":
     # Only show form if we're in create mode
     if st.session_state.create_event_mode:
         with st.form("create_event_form"):
-            # author = st.text_input("Author", "")
+            author = st.number_input("Author", min_value=0, value=0)
             name = st.text_input("Name", "")
             description = st.text_area("Description", "")
             event_loc = st.text_input("Event Location", "")
@@ -74,7 +74,7 @@ if st.session_state.get("first_name", "").lower() == "chance":
            #  ID = st.text_input("ID", "")
             lead_org = st.text_input("Lead Organization", "")
             max_size = st.number_input("Max Size", min_value=1)
-            party_size = st.number_input("Party Size", 0)
+            party_size = st.number_input("Party Size", 0, max_value = 0)
             meet_loc = st.text_input("Meeting Location", "")
             rec_items = st.text_area("Recommended Items", "")
 
@@ -83,18 +83,17 @@ if st.session_state.get("first_name", "").lower() == "chance":
 
         if submitted:
             payload = {
-              "Author": st.session_state["member_id"],
-              "PartySize": party_size,
-              "MaxSize": max_size,
-              "EventLoc": event_loc,
-              "Randomized": False,
-              "Name": name,
-              "Description": description,
-              "MeetLoc": meet_loc,
-              "LeadOrg": lead_org,
-              "EventType": event_type,
-              "RecItems": rec_items,
-              "Picture": "",  # You can add a file uploader for picture if needed
+                "Author": author,
+                "Name": name,
+                "Description": description,
+                "EventLoc": event_loc,
+                "EventType": event_type,
+               #  "ID": ID,
+                "LeadOrg": lead_org,
+                "MaxSize": max_size,
+                "PartySize": party_size,
+                "MeetLoc": meet_loc,
+                "RecItems": rec_items,
             }
             try:
                 response = requests.post("http://api:4000/events", json=payload)

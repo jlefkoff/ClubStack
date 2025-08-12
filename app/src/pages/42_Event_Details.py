@@ -53,22 +53,22 @@ st.subheader(f"Roster for Event {data['event_id']}")
 if data["roster"]:
     for member in data["roster"]:
         st.write(f"- {member}")
-    else:
-        st.info("Roster is currently empty.")
 
 
 # rsvp for event
 with st.form("rsvp_form"):
     st.write("RSVP to this event")
-    name = st.text_input("Name", "")
-    email = st.text_input("Email", "")
+    Fname = st.text_input("First Name", "")
+    Lname = st.text_input("Last Name", "")
+    MID = st.number_input("MID", min_value = 0)
 
     submit_rsvp = st.form_submit_button("RSVP Now")
 
 if submit_rsvp:
     payload = {
-        "name": name,
-        "email": email,
+        "FirstName": Fname,
+        "LastName": Lname,
+        "MemberID": MID
     }
 
     try:
@@ -89,7 +89,7 @@ if submit_rsvp:
 
 
 # updating an event
-if st.session_state.get("first_name", "").lower() == "jacob":
+if st.session_state.get("first_name", "").lower() == "chance":
     if st.button("Update Event"):
         # You can trigger your update logic here,
         # e.g., navigate to an edit page or open a form
@@ -122,7 +122,7 @@ if st.session_state.get("first_name", "").lower() == "jacob":
                 "RecItems": rec_items,
             }
             try:
-                response = requests.put(f"http://localhost:4001/events/{event_id}", json=payload)
+                response = requests.put(f"http://api:4000/events/{event_id}", json=payload)
                 response.raise_for_status()
                 st.success("Event updated successfully!")
                 st.session_state.edit_mode = False
