@@ -17,39 +17,24 @@ def AboutPageNav():
 
 # ------------------------ Examples for Role of pol_strat_advisor --------
 def PolStratAdvHomeNav():
-    st.sidebar.page_link(
-        "pages/00_Member_Home.py",
-        label="Club Member Home",
-        icon="👤")
+    st.sidebar.page_link("pages/00_Member_Home.py", label="Club Member Home", icon="👤")
 
 
 def WorldBankVizNav():
-    st.sidebar.page_link(
-        "pages/01_Browse_Gear.py",
-        label="Browse Gear",
-        icon="🏕️")
+    st.sidebar.page_link("pages/01_Browse_Gear.py", label="Browse Gear", icon="🏕️")
 
 
 def MapDemoNav():
-    st.sidebar.page_link(
-        "pages/02_Buy_Merch.py",
-        label="Buy Merch",
-        icon="💰")
-    
+    st.sidebar.page_link("pages/02_Buy_Merch.py", label="Buy Merch", icon="💰")
+
 
 def MyGearNav():
-    st.sidebar.page_link(
-        "pages/My_Gear.py",
-        label="My Gear",
-        icon="⚙️")
+    st.sidebar.page_link("pages/My_Gear.py", label="My Gear", icon="⚙️")
 
 
 # ------------------------ Examples for Role of usaid_worker -------------
 def ApiTestNav():
-    st.sidebar.page_link(
-        "pages/12_API_Test.py",
-        label="Test the API",
-        icon="🛜")
+    st.sidebar.page_link("pages/12_API_Test.py", label="Test the API", icon="🛜")
 
 
 def PredictionNav():
@@ -65,10 +50,7 @@ def ClassificationNav():
 
 
 def NgoDirectoryNav():
-    st.sidebar.page_link(
-        "pages/14_NGO_Directory.py",
-        label="NGO Directory",
-        icon="📁")
+    st.sidebar.page_link("pages/14_NGO_Directory.py", label="NGO Directory", icon="📁")
 
 
 def AddNgoNav():
@@ -77,10 +59,7 @@ def AddNgoNav():
 
 # ------------------------ System Admin Role ------------------------
 def AdminPageNav():
-    st.sidebar.page_link(
-        "pages/30_Admin_Home.py",
-        label="System Admin",
-        icon="🖥️")
+    st.sidebar.page_link("pages/30_Admin_Home.py", label="System Admin", icon="🖥️")
 
 
 # --------------------------------Links Function -------------------------

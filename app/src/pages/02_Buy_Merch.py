@@ -11,6 +11,7 @@ st.header("Buy Merch")
 # Define the base URL for the API
 BASE_URL = "http://api:4000"
 
+
 # Function to fetch merch items from the API
 def fetch_merch_items():
     try:
@@ -30,15 +31,25 @@ def fetch_merch_items():
         logger.error(f"UnexpectedError: {err}")
         return []
 
+
 # Fetch and display merch items
 merch_items = fetch_merch_items()
 
-def buy_item(item_name):
-    response = requests.post(f"{BASE_URL}/sale", json={"item_name": item_name})
-    if response.status_code == 200:
-        st.success(f"You bought a {item_name}!")
-    else:
-        st.error("Failed to process the sale.")
+
+def buy_item(item_id: int, cash: bool = True):
+    try:
+        response = requests.post(
+            f"{BASE_URL}/merch/merch-sales", json={"cash": cash, "ID": item_id}
+        )
+        response.raise_for_status()
+        data = response.json()
+        if data.get("status") == "success":
+            st.success(f"You bought item ID {item_id}!")
+        else:
+            st.error("Failed to process the sale.")
+    except requests.exceptions.RequestException as e:
+        st.error(f"Failed to process the sale: {e}")
+
 
 # Function to delete a merch item
 def delete_merch_item(item_id):

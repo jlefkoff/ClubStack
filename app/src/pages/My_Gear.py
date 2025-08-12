@@ -17,15 +17,16 @@ st.header("Your Gear")
 st.write(f"### Hi, {st.session_state['first_name']}.")
 
 
-
 # Display user's gear reservations
 st.subheader("Your Gear Reservations")
-user_reservations = requests.get("http://api:4000/reservation").json()  # Assuming this endpoint returns user's reservations
+user_reservations = requests.get(
+    f"http://api:4000/gear/reservations/{st.session_state.get('member_id')}"
+).json()  # Assuming this endpoint returns user's reservations
 st.dataframe(pd.DataFrame(user_reservations))
 
-if st.session_state.get('first_name') == 'Jacob':
+if st.session_state.get("first_name") == "Jacob":
     st.subheader("Manage Gear Items")
-    
+
     # Input fields for adding new gear
     new_gear = st.text_input("New Gear Item")
     new_available = st.number_input("Available Quantity", min_value=0)
@@ -33,7 +34,10 @@ if st.session_state.get('first_name') == 'Jacob':
 
     if st.button("Add Gear"):
         if new_gear and new_available > 0 and new_price >= 0:
-            response = requests.post("http://api:4000/add_gear", json={"gear": new_gear, "available": new_available, "price": new_price})
+            response = requests.post(
+                "http://api:4000/add_gear",
+                json={"gear": new_gear, "available": new_available, "price": new_price},
+            )
             if response.status_code == 200:
                 st.success(f"{new_gear} has been added.")
             else:
@@ -41,7 +45,7 @@ if st.session_state.get('first_name') == 'Jacob':
 
     # Select gear to delete
     gear_to_delete = st.selectbox("Select Gear to Delete", gear_df["Gear"])
-    
+
     if st.button("Delete Gear"):
         response = requests.delete(f"http://api:4000/delete_gear/{gear_to_delete}")
         if response.status_code == 200:

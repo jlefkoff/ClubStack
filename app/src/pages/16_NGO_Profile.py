@@ -47,8 +47,7 @@ else:
                     with st.expander(
                         f"{project['Project_Name']} ({project['Focus_Area']})"
                     ):
-                        budget = float(
-                            project["Budget"]) if project["Budget"] else 0.0
+                        budget = float(project["Budget"]) if project["Budget"] else 0.0
                         st.write(f"**Budget:** ${budget:,.2f}")
                         st.write(f"**Start Date:** {project['Start_Date']}")
                         st.write(f"**End Date:** {project['End_Date']}")
@@ -76,7 +75,8 @@ else:
                 f"Error fetching NGO data: {
                     response.json().get(
                         'error',
-                        'Unknown error')}")
+                        'Unknown error')}"
+            )
 
     except requests.exceptions.RequestException as e:
         st.error(f"Error connecting to the API: {str(e)}")
