@@ -14,7 +14,7 @@ st.title("System Admin Home Page")
 
 
 if st.button(
-    "View Classification Demo",
+    "Permissions Overview",
     type="primary",
         use_container_width=True):
-    st.switch_page("pages/permissions.py")
+    st.switch_page("pages/permissions_overview.py")

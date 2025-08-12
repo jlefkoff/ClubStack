@@ -70,7 +70,7 @@ def AddNgoNav():
 
 def Permissions():
     st.sidebar.page_link(
-        "pages/permissions.py",
+        "pages/permissions_overview.py",
         label = "Permissions",
         icon = "🔐")
 
