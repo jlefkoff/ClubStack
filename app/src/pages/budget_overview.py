@@ -11,7 +11,8 @@ budgets = []
 try:
     r = requests.get(API_BASE, timeout=15)
     r.raise_for_status()
-    budgets = r.json() if isinstance(r.json(), list) else r.json().get("results", [])
+    data = r.json()
+    budgets = data if isinstance(data, list) else data.get("results", [])
 except requests.RequestException as e:
     st.error(f"Error fetching budgets: {e}")
 
@@ -34,29 +35,49 @@ if budgets:
             st.session_state["budget_id"] = bid
             st.switch_page("pages/budget_id_report.py")
 
+        # 👉 New: View Accounts button (per budget)
+        if st.button("View Accounts", key=f"acct_{bid}"):
+            st.session_state["budget_id"] = bid
+            st.switch_page("pages/budget_accounts.py")
+else:
+    st.info("No budgets found.")
 
 st.markdown("---")
 
-# POST: create
+# POST: create (NOTE: your backend POST is a stub; it returns 201 but does not persist yet)
 st.subheader("Create a New Budget Proposal")
 with st.form("new_budget_form"):
-    fy = st.text_input("Fiscal Year", placeholder="e.g., 2026")
-    amt = st.number_input("Amount", min_value=0.00, step=0.01, format="%.2f")
-    desc = st.text_area("Description")
-    go = st.form_submit_button("Create Budget")
-    if go:
-        if not fy.strip():
-            st.warning("Fiscal Year is required.")
-        elif amt <= 0:
-            st.warning("Amount must be greater than 0.")
-        else:
+    # API expects Author as a MEMBER ID (int), not names
+    author_member_id = st.number_input("Author (Member ID)", min_value=1, step=1, format="%d")
+    status = st.selectbox("Status (optional)", ["", "SUBMITTED", "APPROVED", "PAST"], index=0)
+
+    # integers with no decimals
+    fy = st.number_input("Fiscal Year", min_value=2000, max_value=2100, step=1, format="%d")
+
+    submitted = st.form_submit_button("Create Budget")
+    cancel = st.form_submit_button("Cancel")
+
+    if submitted:
+        payload = {
+            "FiscalYear": int(fy),
+            "Author": int(author_member_id),
+        }
+        if status:
+            payload["Status"] = status
+
+        try:
+            resp = requests.post(f"{API_BASE}/", json=payload, timeout=15)
+            # Show server response to confirm what happened
             try:
-                payload = {"FiscalYear": fy.strip(), "Amount": float(amt), "Description": desc.strip()}
-                resp = requests.post(API_BASE, json=payload, timeout=15)
-                if resp.ok:
-                    st.success("Budget proposal created successfully!")
-                    st.rerun()
-                else:
-                    st.error(f"Error: {resp.status_code} — {resp.text[:400]}")
-            except requests.RequestException as e:
-                st.error(f"Error creating budget: {e}")
+                body = resp.json()
+            except Exception:
+                body = {"raw": resp.text[:1000]}
+            if 200 <= resp.status_code < 300:
+                st.success("Request sent. (Note: POST /budget is a stub in the backend, so data may not persist yet.)")
+                st.json(body)
+                st.rerun()
+            else:
+                st.error(f"Error: {resp.status_code}")
+                st.json(body)
+        except requests.RequestException as e:
+            st.error(f"Error creating budget: {e}")

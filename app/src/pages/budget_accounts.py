@@ -1,106 +1,131 @@
 # pages/budget_accounts.py
-from modules.nav import SideBarLinks
 import streamlit as st
-import pandas as pd
 import requests
+import pandas as pd
 
 st.set_page_config(page_title="Budget Accounts", page_icon="🏦")
-SideBarLinks()
 st.header("Budget Accounts")
 
-# ---- fetch accounts (your API uses /budget) ----
-def fetch_accounts():
-    try:
-        r = requests.get("http://api:4000/budget", timeout=10)
-        r.raise_for_status()
-        data = r.json()
-        return pd.DataFrame(data if isinstance(data, list) else [])
-    except Exception as e:
-        st.error(f"Failed to load accounts: {e}")
-        return pd.DataFrame()
+API_BASE = "http://api:4000/budget"
 
-df = fetch_accounts()
+# Back to overview
+st.page_link("pages/budget_overview.py", label="← Back to Budgets", icon="↩️")
 
-def friendly(v): return "—" if v in (None, "", [], {}) else v
+# --- Load budgets for selection (GET /budget) ---
+budgets = []
+try:
+    r = requests.get(API_BASE, timeout=15)
+    r.raise_for_status()
+    data = r.json()
+    budgets = data if isinstance(data, list) else data.get("results", [])
+except requests.RequestException as e:
+    st.error(f"Error fetching budgets: {e}")
+    st.stop()
 
-label_map = {
-    "BudgetID": "Budget ID",
-    "AuthorFirstName": "Author First Name",
-    "AuthorLastName": "Author Last Name",
-    "ApprovedByFirstName": "Approver First Name",
-    "ApprovedByLastName": "Approver Last Name",
-    "FiscalYear": "Fiscal Year",
-    "Status": "Status",
-}
+if not budgets:
+    st.info("No budgets found.")
+    st.stop()
 
-# ---- table ----
-if df.empty:
-    st.info("No accounts found.")
-else:
-    display = df.rename(columns={k: v for k, v in label_map.items() if k in df.columns}).copy()
-    for c in display.columns:
-        display[c] = display[c].apply(friendly)
+# Prefer a pre-selected budget from session_state if you arrived via a button
+initial_bid = st.session_state.get("budget_id")
 
-    order = [c for c in ["Budget ID", "Author First Name", "Author Last Name",
-                         "Approver First Name", "Approver Last Name",
-                         "Fiscal Year", "Status"] if c in display.columns]
-    cols = order or list(display.columns)
+# Build label -> id map
+def budget_label(b):
+    return f"Budget #{b.get('BudgetID')} • FY {b.get('FiscalYear','—')} • {b.get('Status','—')}"
 
-    st.subheader("All Accounts")
-    st.dataframe(display[cols], use_container_width=True, hide_index=True)
+label_to_id = {budget_label(b): b.get("BudgetID") for b in budgets}
 
-    st.divider()
-    st.subheader("Open an Account")
+# Pick default label if we have an initial id
+default_index = 0
+if initial_bid is not None:
+    for i, (lbl, bid) in enumerate(label_to_id.items()):
+        if str(bid) == str(initial_bid):
+            default_index = i
+            break
 
-    can_switch = hasattr(st, "switch_page")
-    # per-row open button
-    for _, row in df.sort_values(["FiscalYear", "BudgetID"], ascending=[False, True]).iterrows():
-        bid = int(row["BudgetID"])
+st.subheader("View Accounts by Budget")
+selected_label = st.selectbox("Choose a budget", list(label_to_id.keys()), index=default_index)
+selected_budget_id = str(label_to_id[selected_label])
+st.caption(f"Selected Budget ID: {selected_budget_id}")
+
+# --- Fetch accounts for selected budget (GET /budget/<id>) ---
+accounts = []
+try:
+    with st.spinner(f"Loading accounts for budget #{selected_budget_id}..."):
+        bresp = requests.get(f"{API_BASE}/{selected_budget_id}", timeout=15)
+        bresp.raise_for_status()
+        bdata = bresp.json()
+        accounts = bdata.get("Accounts") or []
+except requests.RequestException as e:
+    st.error(f"Error fetching accounts: {e}")
+
+# Show accounts table
+st.markdown("**Accounts for selected budget**")
+if accounts:
+    df = pd.DataFrame(accounts)
+    order = [c for c in ["ID", "AcctCode", "AcctTitle"] if c in df.columns]
+    st.dataframe(df[order] if order else df, use_container_width=True, hide_index=True)
+
+    # 👉 Added: per-account Open button
+    st.markdown("**Open an Account**")
+    for a in accounts:
+        aid = a.get("ID")
         left, right = st.columns([6, 1.5])
         with left:
-            st.write(f"**Account #{bid}** — FY {int(row['FiscalYear'])} • Status: {row.get('Status','—')}")
+            st.write(f"{a.get('AcctTitle','—')} — `{a.get('AcctCode','—')}` (ID: {aid})")
         with right:
-            if st.button("Open", key=f"acct_open_{bid}", use_container_width=True):
-                st.session_state["selected_account_id"] = bid
-                if can_switch:
-                    st.switch_page("pages/budget_accounts_id.py")
-                else:
-                    st.session_state["_acct_link_ready"] = True
-        st.divider()
+            if st.button("Open", key=f"acct_open_{aid}", use_container_width=True):
+                st.session_state["account_id"] = aid
+                st.session_state["budget_id"] = selected_budget_id
+                st.switch_page("pages/budget_accounts_id.py")
+else:
+    st.info("No accounts on this budget.")
 
-    if not can_switch and st.session_state.get("_acct_link_ready"):
-        st.link_button("Go to Account Details", "budget_accounts_id")
+st.divider()
 
-# ---- create account ----
-st.subheader("Create New Account")
-with st.form("create_account_form", clear_on_submit=True):
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        fiscal_year = st.number_input("Fiscal Year", min_value=2000, max_value=2100, step=1)
-    with c2:
-        author_first = st.text_input("Author First Name")
-    with c3:
-        author_last  = st.text_input("Author Last Name")
-    status = st.selectbox("Status", ["DRAFT", "SUBMITTED", "PAST"])
-    submitted = st.form_submit_button("Create")
+# --- Create a new account ---
+st.subheader("Create a New Account on Selected Budget")
 
-if submitted:
-    if not (fiscal_year and author_first.strip() and author_last.strip()):
-        st.error("Please fill in all required fields.")
+with st.form("create_account_form"):
+    acct_code = st.text_input("Account Code", placeholder="e.g., GEAR001")
+    acct_title = st.text_input("Account Title", placeholder="e.g., Equipment & Gear")
+    create = st.form_submit_button("Create Account")
+
+if create:
+    if not acct_code.strip() or not acct_title.strip():
+        st.warning("Please provide both Account Code and Account Title.")
     else:
-        try:
-            payload = {
-                "FiscalYear": int(fiscal_year),
-                "AuthorFirstName": author_first.strip(),
-                "AuthorLastName":  author_last.strip(),
-                "Status": status,
-            }
-            r = requests.post("http://api:4000/budget", json=payload, timeout=10)
-            r.raise_for_status()
-            st.success("Account created.")
-            st.experimental_rerun()
-        except requests.HTTPError as e:
-            msg = getattr(e.response, "text", "") or str(e)
-            st.error(f"Failed to create account: {msg}")
-        except Exception as e:
-            st.error(f"Failed to create account: {e}")
+        # Try two common backend patterns and surface results to help align with the API
+        attempts = [
+            ("POST", f"{API_BASE}/{selected_budget_id}/accounts", {"json": {"AcctCode": acct_code.strip(), "AcctTitle": acct_title.strip()}}),
+            ("POST", "http://api:4000/accounts", {"json": {"Budget": int(selected_budget_id), "AcctCode": acct_code.strip(), "AcctTitle": acct_title.strip()}}),
+        ]
+        success = False
+        last_status = None
+        last_body = None
+
+        for method, url, kwargs in attempts:
+            try:
+                with st.spinner(f"Creating account via {method} {url} ..."):
+                    resp = requests.request(method, url, timeout=20, **kwargs)
+                last_status = resp.status_code
+                try:
+                    last_body = resp.json()
+                except Exception:
+                    last_body = {"raw": resp.text[:1000]}
+
+                if 200 <= resp.status_code < 300:
+                    st.success("Account created.")
+                    st.json(last_body)
+                    st.rerun()
+                    success = True
+                    break
+            except requests.RequestException as e:
+                last_status = "request_error"
+                last_body = str(e)
+
+        if not success:
+            st.error("Could not create account — backend route not found or rejected the request.")
+            st.write("Last response/status:")
+            st.write(last_status)
+            st.json(last_body if isinstance(last_body, dict) else {"message": str(last_body)})
