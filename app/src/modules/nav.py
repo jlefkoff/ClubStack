@@ -123,6 +123,7 @@ def SideBarLinks(show_home=False):
             AddNgoNav()
             WorldBankVizNav()
             MapDemoNav()
+            
 
         if st.session_state["role"] == "administrator":
             AdminPageNav()
