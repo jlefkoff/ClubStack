@@ -30,33 +30,40 @@ def post_member():
     preferred_name = data.get("preferred_name")
     if preferred_name:
         preferred_name = preferred_name.strip() or None
-    
+
     graduation_year = data.get("graduation_year")
     is_grad_student = bool(data.get("is_grad_student", False))
     activation_date = data.get("activation_date")
-    
+
     # Car fields
     car_plate = data.get("car_plate")
     if car_plate:
         car_plate = car_plate.strip() or None
-    
-    car_state = data.get("car_state") 
+
+    car_state = data.get("car_state")
     if car_state:
         car_state = car_state.strip() or None
-        
+
     car_pass_count = data.get("car_pass_count")
-    
+
     emer_contact_name = data["emer_contact_name"].strip()
     emer_contact_phone = data["emer_contact_phone"].strip()
 
     # Validate car data consistency
     has_car_data = any([car_plate, car_state, car_pass_count is not None])
     if has_car_data and not all([car_plate, car_state, car_pass_count is not None]):
-        return jsonify({"error": "If providing car information, all car fields (plate, state, pass_count) are required"}), 400
+        return (
+            jsonify(
+                {
+                    "error": "If providing car information, all car fields (plate, state, pass_count) are required"
+                }
+            ),
+            400,
+        )
 
     try:
         cursor = db.get_db().cursor()
-        
+
         # Insert member
         insert_query = """
         INSERT INTO Member (
@@ -65,10 +72,10 @@ def post_member():
             CarPassCount, EmerContactName, EmerContactPhone
         ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
-        
+
         values = (
             first_name,
-            last_name, 
+            last_name,
             preferred_name,
             graduation_year,
             is_grad_student,
@@ -77,18 +84,18 @@ def post_member():
             car_state,
             car_pass_count,
             emer_contact_name,
-            emer_contact_phone
+            emer_contact_phone,
         )
-        
+
         cursor.execute(insert_query, values)
         member_id = cursor.lastrowid
         db.get_db().commit()
-        
-        return jsonify({
-            "message": "Member created successfully",
-            "member_id": member_id
-        }), 201
-        
+
+        return (
+            jsonify({"message": "Member created successfully", "member_id": member_id}),
+            201,
+        )
+
     except Exception as e:
         db.get_db().rollback()
         return jsonify({"error": f"Database error: {str(e)}"}), 500

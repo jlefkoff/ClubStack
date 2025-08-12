@@ -23,7 +23,9 @@ emer_contact_phone = st.text_input("Emergency Contact Phone *")
 
 # Optional
 preferred_name = st.text_input("Preferred Name (optional)")
-graduation_year = st.number_input("Graduation Year (optional)", min_value=1900, max_value=2100, step=1, value=2025)
+graduation_year = st.number_input(
+    "Graduation Year (optional)", min_value=1900, max_value=2100, step=1, value=2025
+)
 is_grad_student = st.checkbox("Graduate student?")
 activation_date = date.today()  # Always today's date
 
@@ -44,7 +46,12 @@ if has_car:
 # --- Submit ---
 if st.button("Add Member", use_container_width=True):
     # Validate required
-    if not first_name.strip() or not last_name.strip() or not emer_contact_name.strip() or not emer_contact_phone.strip():
+    if (
+        not first_name.strip()
+        or not last_name.strip()
+        or not emer_contact_name.strip()
+        or not emer_contact_phone.strip()
+    ):
         st.error("Please fill in all required (*) fields.")
         st.stop()
 
@@ -63,7 +70,9 @@ if st.button("Add Member", use_container_width=True):
         "activation_date": activation_date.strftime("%Y-%m-%d"),
         "car_plate": car_plate.strip() if has_car and car_plate else None,
         "car_state": car_state.strip() if has_car and car_state else None,
-        "car_pass_count": int(car_pass_count) if has_car and car_pass_count is not None else None,
+        "car_pass_count": int(car_pass_count)
+        if has_car and car_pass_count is not None
+        else None,
         "emer_contact_name": emer_contact_name.strip(),
         "emer_contact_phone": emer_contact_phone.strip(),
     }
@@ -73,7 +82,7 @@ if st.button("Add Member", use_container_width=True):
         response = requests.post(
             f"{API_BASE}/members/",
             headers={"Content-Type": "application/json"},
-            json=new_member
+            json=new_member,
         )
         response.raise_for_status()  # Raise error for HTTP 4xx/5xx
 

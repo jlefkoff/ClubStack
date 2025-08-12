@@ -44,9 +44,9 @@ with st.form("reimbursement_form"):
 
             # Add the reimbursement request to session state (or database)
             if "reimbursement_requests" not in st.session_state:
-                st.session_state["reimbursement_requests"] = (
-                    []
-                )  # Initialize list if not present
+                st.session_state[
+                    "reimbursement_requests"
+                ] = []  # Initialize list if not present
 
             st.session_state["reimbursement_requests"].append(
                 reimbursement_request
