@@ -64,6 +64,9 @@ def AdminPageNav():
 def AdminElectionsNav():
     st.sidebar.page_link("pages/Admin_Elections.py", label="Elections", icon="🗳️")
 
+def ViewProfile():
+    st.sidebar.page_link("pages/View_Profile.py", label="View Members")
+
 
 # --------------------------------Links Function -------------------------
 def SideBarLinks(show_home=False):
@@ -110,6 +113,7 @@ def SideBarLinks(show_home=False):
         if st.session_state["role"] == "administrator":
             AdminPageNav()
             AdminElectionsNav()
+            ViewProfile()
 
     # Always show the About page at the bottom of the list of links
     AboutPageNav()
