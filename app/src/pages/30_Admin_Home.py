@@ -11,3 +11,10 @@ st.set_page_config(layout="wide")
 SideBarLinks()
 
 st.title("System Admin Home Page")
+
+
+if st.button(
+    "View Classification Demo",
+    type="primary",
+        use_container_width=True):
+    st.switch_page("pages/permissions.py")

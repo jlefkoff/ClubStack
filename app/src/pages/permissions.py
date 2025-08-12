@@ -22,7 +22,7 @@ def friendly(val):
 @st.cache_data(show_spinner=False, ttl=30)
 def fetch_permissions():
     try:
-        r = requests.get(f"{API_BASE}/permissions", timeout=10)
+        r = requests.get(f"{API_BASE}", timeout=10)
         r.raise_for_status()
         data = r.json()
         return pd.DataFrame(data if isinstance(data, list) else [])
