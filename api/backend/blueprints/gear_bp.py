@@ -140,5 +140,16 @@ def delete_gear_reservation(reservation_id):
 # GET /gear-reservations/report - Gear ROI report
 @gear_bp.route("/report", methods=["GET"])
 def gear_roi_report():
-    # Stub: Return placeholder report
-    return jsonify({"report": "ROI report (stub)"}), 200
+    query = """
+      SELECT
+        ri.Name,
+        ri.Price as PurchasePrice,
+        COUNT(gri.Item) as TimesRented,
+        (COUNT(gri.Item) * 5.00) as EstimatedRentalRevenue,
+        ROUND(((COUNT(gri.Item) * 5.00) / ri.Price) * 100, 2) as ROI_Percentage
+      FROM RentalItem ri
+      LEFT JOIN GearReservationItems gri ON ri.ID = gri.Item
+      GROUP BY ri.ID, ri.Name, ri.Price
+      ORDER BY ROI_Percentage DESC;
+    """
+    return execute_query(query)
