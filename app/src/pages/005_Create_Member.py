@@ -5,6 +5,7 @@ import requests
 
 st.set_page_config(layout="wide")
 from modules.nav import SideBarLinks
+
 SideBarLinks()
 
 st.title("Create New Member")

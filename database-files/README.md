@@ -17,3 +17,6 @@ docker compose down db -v && docker compose up db
 ```
 
 The `-v` flag will also delete the volume associated with MySQL, which is necessary to rerun the sql files. 
+
+# Data Generation
+To generate seed data, simply run `generate_fake_data.py` in this folder with the `faker` library installed.

@@ -3,8 +3,15 @@ import json
 from backend.db_connection import db
 from backend.ml_models import model01
 from backend.simple.playlist import sample_playlist_data
-from flask import (Blueprint, current_app, jsonify, make_response, redirect,
-                   request, url_for)
+from flask import (
+    Blueprint,
+    current_app,
+    jsonify,
+    make_response,
+    redirect,
+    request,
+    url_for,
+)
 
 # This blueprint handles some basic routes that you can use for testing
 simple_routes = Blueprint("simple_routes", __name__)
