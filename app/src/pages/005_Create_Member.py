@@ -11,7 +11,7 @@ st.title("Create New Member")
 
 API_BASE = os.getenv("API_BASE") or "http://localhost:4001"
 
-
+# --- Inputs ---
 st.subheader("Enter New Member Information")
 
 # Required
@@ -20,13 +20,13 @@ last_name = st.text_input("Last Name *")
 emer_contact_name = st.text_input("Emergency Contact Name *")
 emer_contact_phone = st.text_input("Emergency Contact Phone *")
 
-# Optional (non-car)
+# Optional
 preferred_name = st.text_input("Preferred Name (optional)")
 graduation_year = st.number_input("Graduation Year (optional)", min_value=1900, max_value=2100, step=1, value=2025)
 is_grad_student = st.checkbox("Graduate student?")
 activation_date = date.today()  # Always today's date
 
-# Car section — appears immediately when checked
+# Car section — instant reveal
 has_car = st.checkbox("Has a car?")
 car_plate = car_state = None
 car_pass_count = None
@@ -40,6 +40,7 @@ if has_car:
     with c3:
         car_pass_count = st.number_input("Passenger Count *", min_value=0, step=1)
 
+# --- Submit ---
 if st.button("Add Member", use_container_width=True):
     # Validate required
     if not first_name.strip() or not last_name.strip() or not emer_contact_name.strip() or not emer_contact_phone.strip():
@@ -52,7 +53,7 @@ if st.button("Add Member", use_container_width=True):
         st.stop()
 
     # Build payload
-    payload = {
+    new_member = {
         "first_name": first_name.strip(),
         "last_name": last_name.strip(),
         "preferred_name": preferred_name.strip() or None,
@@ -67,14 +68,16 @@ if st.button("Add Member", use_container_width=True):
     }
 
     try:
-        resp = requests.post(
+        # Make POST request to API
+        response = requests.post(
             f"{API_BASE}/members/",
             headers={"Content-Type": "application/json"},
-            json=payload,
-            timeout=20
+            json=new_member
         )
-        resp.raise_for_status()
+        response.raise_for_status()  # Raise error for HTTP 4xx/5xx
+
         st.success(f"New member {first_name} {last_name} added successfully!")
-        st.json(resp.json())
+        st.json(response.json())  # Show server response
+
     except requests.exceptions.RequestException as e:
         st.error(f"Failed to add new member: {e}")
