@@ -10,7 +10,7 @@ SideBarLinks()
 
 st.title("Create New Member")
 
-API_BASE = os.getenv("API_BASE") or "http://localhost:4001"
+API_BASE = "http://api:4000"
 
 # --- Inputs ---
 st.subheader("Enter New Member Information")
