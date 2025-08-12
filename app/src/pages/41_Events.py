@@ -106,33 +106,41 @@ st.bar_chart(report_df.set_index("Event Name"))
 
 
 
-if st.session_state.get("first_name", "").lower() == "jacob":
-    if st.button("Create Event"):
-        # You can trigger your update logic here,
-        # e.g., navigate to an edit page or open a form
-        with st.form("create_event_form"):
-            # Create inputs for each editable field — customize as needed
-            author = st.text_input("ID", "")
-            name = st.text_input("Name", "")
-            description = st.text_area("Description", value=event_info.get("Description", ""))
-            event_loc = st.text_input("Event Location", value=event_info.get("EventLoc", ""))
-            event_type = st.text_input("Event Type", value=event_info.get("EventType", ""))
-            lead_org = st.text_input("Lead Organization", value=event_info.get("LeadOrg", ""))
-            max_size = st.number_input("Max Size", value=event_info.get("MaxSize", 1), min_value=1)
-            party_size = st.number_input("Party Size", value=event_info.get("PartySize", 0), min_value=0, max_value=max_size)
-            meet_loc = st.text_input("Meeting Location", value=event_info.get("MeetLoc", ""))
-            rec_items = st.text_area("Recommended Items", value=event_info.get("RecItems", ""))
+# creating an event
+if st.session_state.get("first_name", "").lower() == "chance":
+    if "create_event_mode" not in st.session_state:
+        st.session_state.create_event_mode = False
 
-            submitted = st.form_submit_button("Save Changes")
+    # Toggle form visibility
+    if st.button("Create Event"):
+        st.session_state.create_event_mode = True
+
+    # Only show form if we're in create mode
+    if st.session_state.create_event_mode:
+        with st.form("create_event_form"):
+            author = st.text_input("Author", "")
+            name = st.text_input("Name", "")
+            description = st.text_area("Description", "")
+            event_loc = st.text_input("Event Location", "")
+            event_type = st.text_input("Event Type", "")
+            ID = st.text_input("ID", "")
+            lead_org = st.text_input("Lead Organization", "")
+            max_size = st.number_input("Max Size", min_value=1)
+            party_size = st.number_input("Party Size", min_value=0, max_value=max_size)
+            meet_loc = st.text_input("Meeting Location", "")
+            rec_items = st.text_area("Recommended Items", "")
+
+            submitted = st.form_submit_button("Save Event")
             cancel = st.form_submit_button("Cancel")
 
         if submitted:
-            # Prepare payload with updated fields
             payload = {
+                "Author": author,
                 "Name": name,
                 "Description": description,
                 "EventLoc": event_loc,
                 "EventType": event_type,
+                "ID": ID,
                 "LeadOrg": lead_org,
                 "MaxSize": max_size,
                 "PartySize": party_size,
@@ -140,14 +148,43 @@ if st.session_state.get("first_name", "").lower() == "jacob":
                 "RecItems": rec_items,
             }
             try:
-                response = requests.put(f"http://api:4000/events/{event_id}", json=payload)
+                response = requests.post("http://api:4000/events", json=payload)
                 response.raise_for_status()
-                st.success("Event updated successfully!")
-                st.session_state.edit_mode = False
-                st.experimental_rerun()
-            except Exception as e:
-                st.error(f"Failed to update event: {e}")
+                st.success("Event created successfully!")
+                st.json(response.json())
+                st.session_state.create_event_mode = False
+            except requests.exceptions.RequestException as e:
+                st.error(f"Failed to add event: {e}")
 
         if cancel:
-            st.session_state.edit_mode = False
-            st.experimental_rerun()
+            st.session_state.create_event_mode = False
+            st.rerun()
+
+# delete an event
+if st.session_state.get("first_name", "").lower() == "chance":
+    if "delete_event_mode" not in st.session_state:
+        st.session_state.delete_event_mode = False
+
+    # Toggle form visibility
+    if st.button("Delete Event"):
+        st.session_state.delete_event_mode = True
+
+    if st.session_state.delete_event_mode:
+        with st.form("delete_event_form"):
+            event_id = st.text_input("Event ID to delete", "")
+        
+            submitted = st.form_submit_button("Delete Event")
+            cancel = st.form_submit_button("Cancel")
+        if submitted:
+            try:
+                response = requests.delete(f"http://api:4000/events/{event_id}")
+                response.raise_for_status()
+                st.success("Event deleted successfully!")
+                st.json(response.json())
+                st.session_state.delete_event_mode = False
+            except requests.exceptions.RequestException as e:
+                st.error(f"Failed to delete event: {e}")
+
+        if cancel:
+            st.session_state.delete_event_mode = False
+            st.rerun()

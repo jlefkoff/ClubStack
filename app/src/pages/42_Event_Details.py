@@ -45,43 +45,51 @@ for key, value in event_info.items():
 
 
 
-
-
 # display event roster
-response = requests.get(f"http://api:4000/events/{event_info['ID']}")
-if response.status_code == 200:
-    roster = event_info.get("roster", [])
-    st.subheader("Event Roster")
-    if roster:
-        roster_df = pd.DataFrame(roster)
-        st.dataframe(roster_df)  # Show all info for each member
+response = requests.get(f"http://localhost:4001/events/{event_info['ID']}/roster")
+response.raise_for_status()
+data = response.json()
+st.subheader(f"Roster for Event {data['event_id']}")
+if data["roster"]:
+    for member in data["roster"]:
+        st.write(f"- {member}")
     else:
-        st.write("No participants yet.")
-else:
-    st.error("Failed to fetch event data.")
-
+        st.info("Roster is currently empty.")
 
 
 # rsvp for event
-if st.button("RSVP to this Event"):
-    current_size = len(st.session_state["event_rosters"][event_id])
-    max_size = event_info["MaxSize"]
-    user_name = st.session_state.get("first_name", "Guest")
+with st.form("rsvp_form"):
+    st.write("RSVP to this event")
+    name = st.text_input("Name", "")
+    email = st.text_input("Email", "")
 
-    if current_size >= max_size:
-        st.error("Sorry, this event is fully booked.")
-    elif user_name in st.session_state["Roster"][event_id]:
-        st.warning("You have already RSVP’d to this event.")
-    else:
-        st.session_state["event_rosters"][event_id].append(user_name)
-        st.success(f"Thanks {user_name}, you are now RSVP’d!")
-        # Update PartySize locally (optional)
-        event_info["PartySize"] = current_size + 1
+    submit_rsvp = st.form_submit_button("RSVP Now")
+
+if submit_rsvp:
+    payload = {
+        "name": name,
+        "email": email,
+    }
+
+    try:
+        response = requests.post(f"http://localhost:4001/events/{event_info['ID']}/roster", json=payload)
+        response.raise_for_status()
+        st.success("You have successfully RSVP'd!")
+        st.json(response.json())
+        st.rerun()  # refresh the page to show updated roster
+    except Exception as e:
+        st.error(f"Failed to RSVP: {e}")
 
 
 
-# update event if you are the vp
-if st.session_state.get("first_name", "").lower() == "jacob":
+
+
+
+
+
+
+# updating an event
+if st.session_state.get("first_name", "").lower() == "chance":
     if st.button("Update Event"):
         # You can trigger your update logic here,
         # e.g., navigate to an edit page or open a form
@@ -114,7 +122,7 @@ if st.session_state.get("first_name", "").lower() == "jacob":
                 "RecItems": rec_items,
             }
             try:
-                response = requests.put(f"http://api:4000/events/{event_id}", json=payload)
+                response = requests.put(f"http://localhost:4001/events/{event_id}", json=payload)
                 response.raise_for_status()
                 st.success("Event updated successfully!")
                 st.session_state.edit_mode = False
