@@ -1,53 +1,62 @@
-# pages/budget_overview.py
-from modules.nav import SideBarLinks
 import streamlit as st
-import pandas as pd
 import requests
 
-st.set_page_config(page_title="Budget Overview", page_icon="💰")
-SideBarLinks()
-st.header("Budget Overview")
+st.sidebar.page_link("Home.py", label="Home", icon="🏠")
+st.title("💰 Budget Overview")
 
-# ---- one button to Accounts ----
-if hasattr(st, "switch_page"):
-    if st.button("🏦 Budget Accounts", use_container_width=False):
-        st.switch_page("pages/budget_accounts.py")
-else:
-    st.link_button("🏦 Budget Accounts", "budget_accounts")
+API_BASE = "http://api:4000/budget"
 
-# ---- (optional) quick list of budgets, minimal) ----
-def fetch_budgets():
-    try:
-        r = requests.get("http://api:4000/budget", timeout=10)
-        r.raise_for_status()
-        data = r.json()
-        return pd.DataFrame(data if isinstance(data, list) else [])
-    except Exception as e:
-        st.error(f"Error fetching budgets: {e}")
-        return pd.DataFrame()
+# GET: budgets
+budgets = []
+try:
+    r = requests.get(API_BASE, timeout=15)
+    r.raise_for_status()
+    budgets = r.json() if isinstance(r.json(), list) else r.json().get("results", [])
+except requests.RequestException as e:
+    st.error(f"Error fetching budgets: {e}")
 
-df = fetch_budgets()
-if df.empty:
-    st.info("No budgets found.")
-else:
-    def friendly(v): return "—" if v in (None, "", [], {}) else v
-    def full_name(first, last):
-        f, l = (first or "").strip(), (last or "").strip()
-        return (f"{f} {l}".strip()) or "—"
+st.subheader("All Budgets")
+if budgets:
+    for b in budgets:
+        bid = b.get("BudgetID")
+        label = (
+            f"📄 Budget #{bid} • Fiscal Year {b.get('FiscalYear','')} • "
+            f"{b.get('Status','')} • Author First Name: {b.get('AuthorFirstName','')} • "
+            f"Author Last Name: {b.get('AuthorLastName','')}"
+        )
 
-    df = df.copy()
-    df["Author"] = df.apply(lambda r: full_name(r.get("AuthorFirstName"), r.get("AuthorLastName")), axis=1)
-    df["Approver"] = df.apply(lambda r: full_name(r.get("ApprovedByFirstName"), r.get("ApprovedByLastName")), axis=1)
+        if st.button(label, key=f"open_{bid}"):
+            st.session_state["budget_id"] = bid
+            st.switch_page("pages/budget_id.py")
 
-    show = ["BudgetID", "FiscalYear", "Author", "Approver", "Status"]
-    pretty = df[show].rename(columns={
-        "BudgetID": "Budget ID",
-        "FiscalYear": "Fiscal Year",
-        "Author": "Author",
-        "Approver": "Approver",
-        "Status": "Status",
-    }).applymap(friendly)
+        # Add spending report button
+        if st.button("Spending Report", key=f"report_{bid}"):
+            st.session_state["budget_id"] = bid
+            st.switch_page("pages/budget_id_report.py")
 
-    st.subheader("All Budgets")
-    st.dataframe(pretty.sort_values(["Fiscal Year", "Budget ID"], ascending=[False, True]),
-                 use_container_width=True, hide_index=True)
+
+st.markdown("---")
+
+# POST: create
+st.subheader("Create a New Budget Proposal")
+with st.form("new_budget_form"):
+    fy = st.text_input("Fiscal Year", placeholder="e.g., 2026")
+    amt = st.number_input("Amount", min_value=0.00, step=0.01, format="%.2f")
+    desc = st.text_area("Description")
+    go = st.form_submit_button("Create Budget")
+    if go:
+        if not fy.strip():
+            st.warning("Fiscal Year is required.")
+        elif amt <= 0:
+            st.warning("Amount must be greater than 0.")
+        else:
+            try:
+                payload = {"FiscalYear": fy.strip(), "Amount": float(amt), "Description": desc.strip()}
+                resp = requests.post(API_BASE, json=payload, timeout=15)
+                if resp.ok:
+                    st.success("Budget proposal created successfully!")
+                    st.rerun()
+                else:
+                    st.error(f"Error: {resp.status_code} — {resp.text[:400]}")
+            except requests.RequestException as e:
+                st.error(f"Error creating budget: {e}")

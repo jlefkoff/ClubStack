@@ -1,87 +1,112 @@
 # pages/budget_id.py
-from modules.nav import SideBarLinks
 import streamlit as st
-import pandas as pd
 import requests
 
-st.set_page_config(page_title="Budget Details", page_icon="📂")
-
-# Sidebar nav
-SideBarLinks()
+# Optional nav (ignore if you don't use it)
+try:
+    from modules.nav import SideBarLinks
+    st.set_page_config(page_title="Budget Details", page_icon="📂")
+    SideBarLinks()
+except Exception:
+    st.set_page_config(page_title="Budget Details", page_icon="📂")
 
 st.header("Budget Details")
 
-# Ensure we have a selected budget id
-if "selected_budget_id" not in st.session_state:
-    st.error("No budget selected. Go back to the budgets list.")
+API_URL = "http://api:4000/budget"
+
+# --- Back to overview link (static) ---
+st.page_link("pages/budget_overview.py", label="← Back to Overview", icon="↩️")
+
+# --- Resolve budget ID (query param first, then session) ---
+qid = None
+if hasattr(st, "query_params"):
+    qid = st.query_params.get("id")
+else:
+    q = st.experimental_get_query_params().get("id")
+    qid = q[0] if isinstance(q, list) else q
+
+budget_id = qid or st.session_state.get("budget_id") or st.session_state.get("selected_account_id")
+if not budget_id:
+    st.error("No budget selected (missing ?id=... and no session_state id).")
     st.stop()
 
-budget_id = int(st.session_state["selected_budget_id"])
+budget_id = str(budget_id)
 
-# --- Fetch budgets and locate this one ---
+# GET: budgets
+budgets = []
 try:
-    resp = requests.get("http://api:4000/budget", timeout=10)
-    resp.raise_for_status()
-    data = resp.json()
-except Exception as e:
-    st.error(f"Failed to load budget data: {e}")
+    r = requests.get(API_URL, timeout=15)
+    r.raise_for_status()
+    budgets = r.json() if isinstance(r.json(), list) else r.json().get("results", [])
+except requests.RequestException as e:
+    st.error(f"Error fetching budgets: {e}")
+
+st.subheader("All Budgets")
+if budgets:
+    for b in budgets:
+        bid = b.get("BudgetID")
+        label = f"📄 Budget #{bid} • Fiscal Year {b.get('FiscalYear','')} • {b.get('Status','')} • Author First Name: {b.get('AuthorFirstName','')} • Author Last Name: {b.get('AuthorLastName','')}"
+        if st.button(label, key=f"open_{bid}"):
+            st.session_state["budget_id"] = bid
+            st.switch_page("pages/budget_id.py")
+else:
+    st.info("No budgets found.")
+# --- GET: fetch budget details ---
+try:
+    with st.spinner(f"Loading budget #{budget_id}..."):
+        resp = requests.get(f"{API_URL}/{budget_id}", timeout=15)
+        resp.raise_for_status()
+        budget = resp.json()
+except requests.RequestException as e:
+    st.error(f"Error fetching budget: {e}")
     st.stop()
 
-df = pd.DataFrame(data if isinstance(data, list) else [])
-if df.empty or "BudgetID" not in df.columns:
-    st.error("Budget data is empty or malformed.")
-    st.stop()
-
-row = df[df["BudgetID"] == budget_id]
-if row.empty:
-    st.error(f"Budget #{budget_id} not found.")
-    st.stop()
-
-budget = row.iloc[0].to_dict()
-
-# --- Key label mapping for display ---
-key_labels = {
-    "BudgetID": "Budget ID",
-    "FiscalYear": "Fiscal Year",
-    "AuthorFirstName": "Author First Name",
-    "AuthorLastName": "Author Last Name",
-    "ApprovedByFirstName": "Approver First Name",
-    "ApprovedByLastName": "Approver Last Name",
-    "Status": "Status",
-}
-
-# Display budget info with nice labels
+# --- Show details ---
 st.subheader(f"Budget #{budget_id}")
-for key, value in budget.items():
-    label = key_labels.get(key, key.replace("_", " ").title())
-    st.write(f"**{label}:** {value if value not in [None, ''] else '—'}")
+c1, c2 = st.columns(2)
+with c1:
+    st.write("**Fiscal Year:**", b.get("FiscalYear", "—"))
+    st.write("**Status:**", b.get("Status", "—"))
+with c2:
+    st.write("**Author First Name:**", b.get("AuthorFirstName"))
+    st.write("**Author Last Name:**", b.get("AuthorLastName"))
+    st.write("**Approved By:**",
+             f"{b.get('ApprovedByFirstName','')} {b.get('ApprovedByLastName','')}")
 
 st.divider()
-st.subheader("Actions")
 
-# ---- Approve budget (PUT) ----
-if budget.get("Status") != "APPROVED":
-    if st.button("✅ Approve Budget", use_container_width=True):
+# --- PUT: approve budget (update status) ---
+if st.button("✅ Approve Budget", use_container_width=True):
+    try:
+        # If your API uses a dedicated approve route, switch to f"{API_URL}/{budget_id}/approve"
+        put_resp = requests.put(f"{API_URL}/{budget_id}", json={"Status": "APPROVED"}, timeout=15)
+        put_resp.raise_for_status()
+        st.success("Budget approved.")
         try:
-            payload = {**budget, "Status": "APPROVED"}
-            r = requests.put(f"http://api:4000/budget/{budget_id}", json=payload, timeout=10)
-            r.raise_for_status()
-            st.success("Budget approved.")
+            st.rerun()
+        except Exception:
             st.experimental_rerun()
-        except Exception as e:
-            st.error(f"Failed to approve budget: {e}")
-else:
-    st.info("This budget is already APPROVED.")
+    except requests.RequestException as e:
+        st.error(f"Error approving budget: {e}")
 
-# ---- Delete budget (DELETE) ----
-with st.expander("Danger Zone – Delete Budget"):
-    st.warning("Deleting will remove this budget permanently.")
+st.divider()
+
+# --- DELETE: delete budget ---
+with st.expander("Danger Zone"):
+    st.warning("This will permanently delete the budget.")
     confirm = st.checkbox("I understand and want to delete this budget.")
     if st.button("🗑️ Delete Budget", disabled=not confirm, use_container_width=True):
         try:
-            r = requests.delete(f"http://api:4000/budget/{budget_id}", timeout=10)
-            r.raise_for_status()
-            st.success(f"Budget #{budget_id} deleted.")
-            st.session_state.pop("selected_budget_id", None)
-        except Exception as e:
-            st.error(f"Failed to delete budget: {e}")
+            del_resp = requests.delete(f"{API_URL}/{budget_id}", timeout=15)
+            del_resp.raise_for_status()
+            st.success("Budget deleted.")
+            # Clear any saved id and go back to list
+            for k in ("budget_id", "selected_account_id"):
+                if k in st.session_state:
+                    del st.session_state[k]
+            if hasattr(st, "switch_page"):
+                st.switch_page("pages/budget_overview.py")
+            else:
+                st.page_link("pages/budget_overview.py", label="Return to Overview", icon="↩️")
+        except requests.RequestException as e:
+            st.error(f"Error deleting budget: {e}")

@@ -11,3 +11,4 @@ st.set_page_config(layout="wide")
 SideBarLinks()
 
 st.title("VP Home Page")
+st.title("💰 Budget Overview")
