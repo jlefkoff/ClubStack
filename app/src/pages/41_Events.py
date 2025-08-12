@@ -55,7 +55,7 @@ st.bar_chart(report_df.set_index("Event Name"))
 
 
 # creating an event
-if st.session_state.get("first_name", "").lower() == "jacob":
+if st.session_state.get("first_name", "").lower() == "chance":
     if "create_event_mode" not in st.session_state:
         st.session_state.create_event_mode = False
 
@@ -66,15 +66,15 @@ if st.session_state.get("first_name", "").lower() == "jacob":
     # Only show form if we're in create mode
     if st.session_state.create_event_mode:
         with st.form("create_event_form"):
-            author = st.text_input("Author", "")
+            # author = st.text_input("Author", "")
             name = st.text_input("Name", "")
             description = st.text_area("Description", "")
             event_loc = st.text_input("Event Location", "")
             event_type = st.text_input("Event Type", "")
-            ID = st.text_input("ID", "")
+           #  ID = st.text_input("ID", "")
             lead_org = st.text_input("Lead Organization", "")
             max_size = st.number_input("Max Size", min_value=1)
-            party_size = st.number_input("Party Size", min_value=0, max_value=max_size)
+            party_size = st.number_input("Party Size", 0)
             meet_loc = st.text_input("Meeting Location", "")
             rec_items = st.text_area("Recommended Items", "")
 
@@ -83,12 +83,12 @@ if st.session_state.get("first_name", "").lower() == "jacob":
 
         if submitted:
             payload = {
-                "Author": author,
+               #  "Author": author,
                 "Name": name,
                 "Description": description,
                 "EventLoc": event_loc,
                 "EventType": event_type,
-                "ID": ID,
+               #  "ID": ID,
                 "LeadOrg": lead_org,
                 "MaxSize": max_size,
                 "PartySize": party_size,
@@ -109,7 +109,7 @@ if st.session_state.get("first_name", "").lower() == "jacob":
             st.rerun()
 
 # delete an event
-if st.session_state.get("first_name", "").lower() == "jacob":
+if st.session_state.get("first_name", "").lower() == "chance":
     if "delete_event_mode" not in st.session_state:
         st.session_state.delete_event_mode = False
 
