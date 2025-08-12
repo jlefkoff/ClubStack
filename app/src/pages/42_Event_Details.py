@@ -89,7 +89,7 @@ if submit_rsvp:
 
 
 # updating an event
-if st.session_state.get("first_name", "").lower() == "chance":
+if st.session_state.get("first_name", "").lower() == "jacob":
     if st.button("Update Event"):
         # You can trigger your update logic here,
         # e.g., navigate to an edit page or open a form
