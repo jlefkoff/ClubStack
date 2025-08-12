@@ -181,6 +181,28 @@ CREATE TABLE Ballot (
     FOREIGN KEY (Election) REFERENCES Election(ID)
 );
 
+-- Track which accepted nominations appear on each ballot
+CREATE TABLE BallotOptions (
+    ID INT PRIMARY KEY AUTO_INCREMENT,
+    Ballot INT,
+    Nomination INT,
+    FOREIGN KEY (Ballot) REFERENCES Ballot(ID),
+    FOREIGN KEY (Nomination) REFERENCES Nomination(ID)
+);
+
+-- Track individual member votes
+CREATE TABLE Vote (
+    ID INT PRIMARY KEY AUTO_INCREMENT,
+    Ballot INT,
+    Member INT,
+    BallotOption INT,
+    VotedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (Ballot) REFERENCES Ballot(ID),
+    FOREIGN KEY (Member) REFERENCES Member(ID),
+    FOREIGN KEY (BallotOption) REFERENCES BallotOptions(ID),
+    UNIQUE KEY unique_member_ballot (Member, Ballot) -- Ensures one vote per member per ballot
+);
+
 CREATE TABLE Winner (
     ID INT PRIMARY KEY AUTO_INCREMENT,
     Member INT,
