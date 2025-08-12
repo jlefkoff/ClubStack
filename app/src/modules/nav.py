@@ -17,31 +17,23 @@ def AboutPageNav():
 
 # ------------------------ Examples for Role of pol_strat_advisor --------
 def PolStratAdvHomeNav():
-    st.sidebar.page_link(
-        "pages/00_Member_Home.py",
-        label="Political Strategist Home",
-        icon="👤")
+    st.sidebar.page_link("pages/00_Member_Home.py", label="Club Member Home", icon="👤")
 
 
 def WorldBankVizNav():
-    st.sidebar.page_link(
-        "pages/01_World_Bank_Viz.py",
-        label="World Bank Visualization",
-        icon="🏦")
+    st.sidebar.page_link("pages/01_Browse_Gear.py", label="Browse Gear", icon="🏕️")
 
 
 def MapDemoNav():
-    st.sidebar.page_link(
-        "pages/02_Map_Demo.py",
-        label="Map Demonstration",
-        icon="🗺️")
+    st.sidebar.page_link("pages/02_Buy_Merch.py", label="Buy Merch", icon="💰")
+
+
+def MyGearNav():
+    st.sidebar.page_link("pages/My_Gear.py", label="My Gear", icon="⚙️")
 
 # ------------------------ Examples for Role of usaid_worker -------------
 def ApiTestNav():
-    st.sidebar.page_link(
-        "pages/12_API_Test.py",
-        label="Test the API",
-        icon="🛜")
+    st.sidebar.page_link("pages/12_API_Test.py", label="Test the API", icon="🛜")
 
 
 def PredictionNav():
@@ -57,10 +49,7 @@ def ClassificationNav():
 
 
 def NgoDirectoryNav():
-    st.sidebar.page_link(
-        "pages/14_NGO_Directory.py",
-        label="NGO Directory",
-        icon="📁")
+    st.sidebar.page_link("pages/14_NGO_Directory.py", label="NGO Directory", icon="📁")
 
 
 def AddNgoNav():
@@ -101,6 +90,7 @@ def SideBarLinks(show_home=False):
             PolStratAdvHomeNav()
             WorldBankVizNav()
             MapDemoNav()
+            MyGearNav()
 
         if st.session_state["role"] == "treasurer":
             PolStratAdvHomeNav()
@@ -113,9 +103,13 @@ def SideBarLinks(show_home=False):
             ClassificationNav()
             NgoDirectoryNav()
             AddNgoNav()
+            WorldBankVizNav()
+            MapDemoNav()
+            
 
         if st.session_state["role"] == "administrator":
             AdminPageNav()
+            AdminElectionsNav()
 
     # Always show the About page at the bottom of the list of links
     AboutPageNav()
