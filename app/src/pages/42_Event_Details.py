@@ -46,7 +46,7 @@ for key, value in event_info.items():
 
 
 # display event roster
-response = requests.get(f"http://localhost:4001/events/{event_info['ID']}/roster")
+response = requests.get(f"http://api:4000/events/{event_info['ID']}/roster")
 response.raise_for_status()
 data = response.json()
 st.subheader(f"Roster for Event {data['event_id']}")
