@@ -61,6 +61,9 @@ def AddNgoNav():
 def AdminPageNav():
     st.sidebar.page_link("pages/30_Admin_Home.py", label="System Admin", icon="🖥️")
 
+def AdminElectionsNav():
+    st.sidebar.page_link("pages/Admin_Elections.py", label="Elections", icon="🗳️")
+
 
 # --------------------------------Links Function -------------------------
 def SideBarLinks(show_home=False):
@@ -106,6 +109,7 @@ def SideBarLinks(show_home=False):
 
         if st.session_state["role"] == "administrator":
             AdminPageNav()
+            AdminElectionsNav()
 
     # Always show the About page at the bottom of the list of links
     AboutPageNav()
