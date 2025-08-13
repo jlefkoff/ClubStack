@@ -37,16 +37,10 @@ def SubmitReimbursementNav():
 def MyGearNav():
     st.sidebar.page_link("pages/My_Gear.py", label="My Gear", icon="⚙️")
 
-<<<<<<< HEAD
-# ------------------------ Examples for Role of usaid_worker -------------
-def ApiTestNav():
-    st.sidebar.page_link("pages/12_API_Test.py", label="Test the API", icon="🛜")
-=======
 
 # ------------------------ For role of Treasurer -------------
 def TreasurerBudgetOverview():
     st.sidebar.page_link("pages/Budget_Overview.py", label="Budget Overview", icon="💰")
->>>>>>> main
 
 
 def TreasurerReimbursementsNav():
