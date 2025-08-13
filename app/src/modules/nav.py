@@ -12,57 +12,67 @@ def HomeNav():
 
 
 def AboutPageNav():
-    st.sidebar.page_link("pages/40_About.py", label="About", icon="🧠")
+    st.sidebar.page_link("pages/About.py", label="About", icon="🧠")
 
 
-# ------------------------ Examples for Role of pol_strat_advisor --------
-def PolStratAdvHomeNav():
-    st.sidebar.page_link("pages/00_Member_Home.py", label="Club Member Home", icon="👤")
+# ------------------------ For member role ------------------------
+def MemberHomeNav():
+    st.sidebar.page_link("pages/Member_Home.py", label="Club Member Home", icon="👤")
 
 
-def WorldBankVizNav():
-    st.sidebar.page_link("pages/01_Browse_Gear.py", label="Browse Gear", icon="🏕️")
+def GearBrowseNav():
+    st.sidebar.page_link("pages/Browse_Gear.py", label="Browse Gear", icon="🏕️")
 
 
-def MapDemoNav():
-    st.sidebar.page_link("pages/02_Buy_Merch.py", label="Buy Merch", icon="💰")
+def MerchBuyNav():
+    st.sidebar.page_link("pages/Buy_Merch.py", label="Buy Merch", icon="💰")
+
+
+def SubmitReimbursementNav():
+    st.sidebar.page_link(
+        "pages/Submit_Reimbursement.py", label="Submit Reimbursement", icon="🧾"
+    )
 
 
 def MyGearNav():
     st.sidebar.page_link("pages/My_Gear.py", label="My Gear", icon="⚙️")
 
+<<<<<<< HEAD
 # ------------------------ Examples for Role of usaid_worker -------------
 def ApiTestNav():
     st.sidebar.page_link("pages/12_API_Test.py", label="Test the API", icon="🛜")
+=======
+
+# ------------------------ For role of Treasurer -------------
+def TreasurerBudgetOverview():
+    st.sidebar.page_link("pages/Budget_Overview.py", label="Budget Overview", icon="💰")
+>>>>>>> main
 
 
-def PredictionNav():
+def TreasurerReimbursementsNav():
     st.sidebar.page_link(
-        "pages/11_Prediction.py", label="Regression Prediction", icon="📈"
+        "pages/Manage_Reimbursements.py", label="Reimbursement Overview", icon="🧾"
     )
 
 
-def ClassificationNav():
+# ------------------------ For role of VP ------------------------
+
+
+def Permissions():
     st.sidebar.page_link(
-        "pages/13_Classification.py", label="Classification Demo", icon="🌺"
+        "pages/permissions_overview.py", label="Permissions", icon="🔐"
     )
-
-
-def NgoDirectoryNav():
-    st.sidebar.page_link("pages/14_NGO_Directory.py", label="NGO Directory", icon="📁")
-
-
-def AddNgoNav():
-    st.sidebar.page_link("pages/15_Add_NGO.py", label="Add New NGO", icon="➕")
 
 
 # ------------------------ System Admin Role ------------------------
 def AdminPageNav():
-    st.sidebar.page_link(
-        "pages/41_Events.py",
-        # "pages/30_Admin_Home.py",
-        label="System Admin",
-        icon="🖥️")
+    st.sidebar.page_link("pages/Admin_Home.py", label="System Admin", icon="🖥️")
+
+
+def AdminElectionsNav():
+    st.sidebar.page_link("pages/Admin_Elections.py", label="Elections", icon="🗳️")
+
+def AdminEventsNav():
     st.sidebar.page_link(
         "pages/41_Events.py",
         label="Event Management",
@@ -91,28 +101,40 @@ def SideBarLinks(show_home=False):
     if st.session_state["authenticated"]:
 
         if st.session_state["role"] == "member":
-            PolStratAdvHomeNav()
-            WorldBankVizNav()
-            MapDemoNav()
+            MemberHomeNav()
+            MerchBuyNav()
             MyGearNav()
+            GearBrowseNav()
+            SubmitReimbursementNav()
 
         if st.session_state["role"] == "treasurer":
-            PolStratAdvHomeNav()
-            WorldBankVizNav()
-            MapDemoNav()
+            MemberHomeNav()
+            MerchBuyNav()
+            MyGearNav()
+            GearBrowseNav()
+            SubmitReimbursementNav()
+            TreasurerReimbursementsNav()
+            TreasurerBudgetOverview()
 
         if st.session_state["role"] == "vp":
-            PredictionNav()
-            ApiTestNav()
-            ClassificationNav()
-            NgoDirectoryNav()
-            AddNgoNav()
-            WorldBankVizNav()
-            MapDemoNav()
-            
+            MemberHomeNav()
+            MerchBuyNav()
+            MyGearNav()
+            GearBrowseNav()
+            SubmitReimbursementNav()
 
         if st.session_state["role"] == "administrator":
+            MemberHomeNav()
+            MerchBuyNav()
+            MyGearNav()
+            GearBrowseNav()
+            SubmitReimbursementNav()
+            TreasurerReimbursementsNav()
+            TreasurerBudgetOverview()
             AdminPageNav()
+            Permissions()
+            AdminElectionsNav()
+            AdminEventsNav()
 
     # Always show the About page at the bottom of the list of links
     AboutPageNav()
