@@ -16,7 +16,7 @@ st.header("Budget Details")
 API_URL = "http://api:4000/budget"
 
 # Back to overview link
-st.page_link("pages/budget_overview.py", label="← Back to Overview", icon="↩️")
+st.page_link("pages/Budget_Overview.py", label="← Back to Overview", icon="↩️")
 
 # --- Resolve budget ID (query param first, then session) ---
 qid = None
@@ -83,12 +83,12 @@ st.divider()
 
 # --- PUT: approve budget (correct route + payload) ---
 st.subheader("Approve Budget")
-approver_id = st.number_input("Approver Member ID", min_value=1, step=1, format="%d")
+
 if st.button("✅ Approve Budget", use_container_width=True):
     try:
         put_resp = requests.put(
             f"{API_URL}/{budget_id}/approve",
-            json={"ApprovedBy": int(approver_id)},
+            json={"ApprovedBy": st.session_state['member_id']},
             timeout=15,
         )
         if 200 <= put_resp.status_code < 300:
@@ -118,10 +118,10 @@ with st.expander("Danger Zone"):
                 if k in st.session_state:
                     del st.session_state[k]
             if hasattr(st, "switch_page"):
-                st.switch_page("pages/budget_overview.py")
+                st.switch_page("pages/Budget_Overview.py")
             else:
                 st.page_link(
-                    "pages/budget_overview.py", label="Return to Overview", icon="↩️"
+                    "pages/Budget_Overview.py", label="Return to Overview", icon="↩️"
                 )
         except requests.RequestException as e:
             st.error(f"Error deleting budget: {e}")

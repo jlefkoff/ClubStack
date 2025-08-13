@@ -10,7 +10,7 @@ st.header("Spending Report")
 API_BASE = "http://api:4000/budget"
 
 # Nav
-st.page_link("pages/budget_overview.py", label="← Back to Overview", icon="↩️")
+st.page_link("pages/Budget_Overview.py", label="← Back to Overview", icon="↩️")
 
 # Resolve budget id (session first, then query param)
 budget_id = st.session_state.get("budget_id")

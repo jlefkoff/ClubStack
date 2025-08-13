@@ -8,7 +8,7 @@ st.header("Budget Account Details")
 API_BASE = "http://api:4000/budget"
 
 # Nav
-st.page_link("pages/budget_overview.py", label="← Back to Budgets", icon="↩️")
+st.page_link("pages/Budget_Overview.py", label="← Back to Budgets", icon="↩️")
 st.page_link("pages/budget_accounts.py", label="← Back to Accounts", icon="↩️")
 
 # --- Resolve budget/account IDs (session first, then query params) ---

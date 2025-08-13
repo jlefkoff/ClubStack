@@ -9,7 +9,7 @@ st.header("Budget Accounts")
 API_BASE = "http://api:4000/budget"
 
 # Back to overview
-st.page_link("pages/budget_overview.py", label="← Back to Budgets", icon="↩️")
+st.page_link("pages/Budget_Overview.py", label="← Back to Budgets", icon="↩️")
 
 # --- Load budgets for selection (GET /budget) ---
 budgets = []

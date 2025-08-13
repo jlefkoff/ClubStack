@@ -48,9 +48,6 @@ st.markdown("---")
 st.subheader("Create a New Budget Proposal")
 with st.form("new_budget_form"):
     # API expects Author as a MEMBER ID (int), not names
-    author_member_id = st.number_input(
-        "Author (Member ID)", min_value=1, step=1, format="%d"
-    )
     status = st.selectbox(
         "Status (optional)", ["", "SUBMITTED", "APPROVED", "PAST"], index=0
     )
@@ -66,7 +63,7 @@ with st.form("new_budget_form"):
     if submitted:
         payload = {
             "FiscalYear": int(fy),
-            "Author": int(author_member_id),
+            "Author": st.session_state['member_id'],
         }
         if status:
             payload["Status"] = status
@@ -80,10 +77,9 @@ with st.form("new_budget_form"):
                 body = {"raw": resp.text[:1000]}
             if 200 <= resp.status_code < 300:
                 st.success(
-                    "Request sent. (Note: POST /budget is a stub in the backend, so data may not persist yet.)"
+                    "Request sent."
                 )
                 st.json(body)
-                st.rerun()
             else:
                 st.error(f"Error: {resp.status_code}")
                 st.json(body)
