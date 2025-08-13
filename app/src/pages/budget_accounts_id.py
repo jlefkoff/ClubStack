@@ -29,7 +29,9 @@ if not budget_id or not account_id:
     account_id = account_id or q_account
 
 if not budget_id or not account_id:
-    st.error("Missing budget/account id. Open from the Accounts page or pass ?budget=<bid>&account=<aid>.")
+    st.error(
+        "Missing budget/account id. Open from the Accounts page or pass ?budget=<bid>&account=<aid>."
+    )
     st.stop()
 
 budget_id = str(budget_id)
@@ -47,7 +49,7 @@ try:
             st.stop()
         bresp.raise_for_status()
         bdata = bresp.json()
-        for a in (bdata.get("Accounts") or []):
+        for a in bdata.get("Accounts") or []:
             if str(a.get("ID")) == account_id:
                 account = a
                 break
@@ -71,7 +73,9 @@ st.divider()
 st.subheader("Update Account")
 with st.form("update_account_form"):
     new_code = st.text_input("Account Code", value=str(account.get("AcctCode") or ""))
-    new_title = st.text_input("Account Title", value=str(account.get("AcctTitle") or ""))
+    new_title = st.text_input(
+        "Account Title", value=str(account.get("AcctTitle") or "")
+    )
     do_update = st.form_submit_button("Save Changes")
 
 if do_update:
@@ -81,7 +85,11 @@ if do_update:
         payload = {"AcctCode": new_code.strip(), "AcctTitle": new_title.strip()}
         attempts = [
             ("PUT", f"{API_BASE}/{budget_id}/accounts/{account_id}", {"json": payload}),
-            ("PUT", "http://api:4000/accounts/" + account_id, {"json": {**payload, "Budget": int(budget_id)}}),
+            (
+                "PUT",
+                "http://api:4000/accounts/" + account_id,
+                {"json": {**payload, "Budget": int(budget_id)}},
+            ),
         ]
         updated = False
         last_status = None
@@ -112,7 +120,11 @@ if do_update:
             st.error("Update failed — backend route not found or rejected the request.")
             st.write("Last response/status:")
             st.write(last_status)
-            st.json(last_body if isinstance(last_body, dict) else {"message": str(last_body)})
+            st.json(
+                last_body
+                if isinstance(last_body, dict)
+                else {"message": str(last_body)}
+            )
 
 st.divider()
 
@@ -144,7 +156,9 @@ if st.button("🗑️ Delete Account", disabled=not danger, use_container_width=
                 try:
                     st.switch_page("pages/budget_accounts.py")
                 except Exception:
-                    st.page_link("pages/budget_accounts.py", label="Return to Accounts", icon="↩️")
+                    st.page_link(
+                        "pages/budget_accounts.py", label="Return to Accounts", icon="↩️"
+                    )
                 deleted = True
                 break
         except requests.RequestException as e:
@@ -154,4 +168,6 @@ if st.button("🗑️ Delete Account", disabled=not danger, use_container_width=
         st.error("Delete failed — backend route not found or rejected the request.")
         st.write("Last response/status:")
         st.write(last_status)
-        st.json(last_body if isinstance(last_body, dict) else {"message": str(last_body)})
+        st.json(
+            last_body if isinstance(last_body, dict) else {"message": str(last_body)}
+        )

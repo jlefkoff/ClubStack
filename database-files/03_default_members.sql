@@ -1,3 +1,5 @@
+USE ClubStack;
+
 INSERT INTO Member (ID, FirstName, LastName, GraduationYear, IsGradStudent, ActivationDate, CarPlate, CarState, CarPassCount, EmerContactName, EmerContactPhone) VALUES 
 (10, 'Daniel', 'S', 2027, FALSE, '2025-01-01', NULL, NULL, 0, 'Jane', '555-1234');
 INSERT INTO Member (ID, FirstName, LastName, GraduationYear, IsGradStudent, ActivationDate, CarPlate, CarState, CarPassCount, EmerContactName, EmerContactPhone) VALUES 

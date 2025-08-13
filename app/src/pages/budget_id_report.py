@@ -22,7 +22,9 @@ if not budget_id:
         budget_id = q[0] if isinstance(q, list) else q
 
 if not budget_id:
-    st.error("No budget selected. Open a budget from the overview to generate a report.")
+    st.error(
+        "No budget selected. Open a budget from the overview to generate a report."
+    )
     st.stop()
 
 budget_id = str(budget_id)
@@ -35,8 +37,14 @@ st.subheader("Create Spending Report")
 default_start = date(date.today().year, 1, 1)
 default_end = date.today()
 with st.form("report_form"):
-    _ = st.date_input("Date Range (not used by API yet)", value=(default_start, default_end))
-    _ = st.selectbox("Group By (not used by API yet)", ["none", "category", "month", "vendor", "account"], index=0)
+    _ = st.date_input(
+        "Date Range (not used by API yet)", value=(default_start, default_end)
+    )
+    _ = st.selectbox(
+        "Group By (not used by API yet)",
+        ["none", "category", "month", "vendor", "account"],
+        index=0,
+    )
     _ = st.checkbox("Include transaction details (not used by API yet)", value=False)
     run = st.form_submit_button("Create Spending Report")
 
@@ -78,12 +86,18 @@ if run:
             st.json(data["BudgetInfo"])
 
         # Show ActiveMemberMetrics if present
-        if "ActiveMemberMetrics" in data and isinstance(data["ActiveMemberMetrics"], dict):
+        if "ActiveMemberMetrics" in data and isinstance(
+            data["ActiveMemberMetrics"], dict
+        ):
             st.markdown("**Active Member Metrics**")
             st.json(data["ActiveMemberMetrics"])
 
         # Fallback: show whatever else the stub returns
-        other_keys = set(data.keys()) - {"SpendingBreakdown", "BudgetInfo", "ActiveMemberMetrics"}
+        other_keys = set(data.keys()) - {
+            "SpendingBreakdown",
+            "BudgetInfo",
+            "ActiveMemberMetrics",
+        }
         if other_keys:
             st.markdown("**Raw Report Data**")
             st.json({k: data[k] for k in other_keys})

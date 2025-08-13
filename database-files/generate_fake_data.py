@@ -390,7 +390,12 @@ def generate_fake_data():
         rec_items = random.choice(rec_items_options)
         picture = f"{name.lower().replace(' ', '_').replace(':', '')}.jpg"
 
-        sql = f"""INSERT INTO Event (ID, Author, PartySize, MaxSize, EventLoc, Randomized, Name, Description, MeetLoc, LeadOrg, EventType, RecItems, Picture) VALUES ({event_id}, {author_id}, {party_size}, {max_size}, '{event_loc}', {randomized}, '{name}', '{description}', '{meet_loc}', '{lead_org}', '{event_type}', '{rec_items}', '{picture}');"""
+        # Generate EventDate: from now to 90 days in the future
+        event_date = fake.date_between(start_date="today", end_date="+90d").strftime(
+            "%Y-%m-%d"
+        )
+
+        sql = f"""INSERT INTO Event (ID, Author, PartySize, MaxSize, EventLoc, Randomized, Name, Description, MeetLoc, LeadOrg, EventType, RecItems, Picture, EventDate) VALUES ({event_id}, {author_id}, {party_size}, {max_size}, '{event_loc}', {randomized}, '{name}', '{description}', '{meet_loc}', '{lead_org}', '{event_type}', '{rec_items}', '{picture}', '{event_date}');"""
 
         sql_statements.append(sql)
 

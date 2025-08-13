@@ -5,6 +5,7 @@ import requests
 # Optional nav
 try:
     from modules.nav import SideBarLinks
+
     st.set_page_config(page_title="Budget Details", page_icon="📂")
     SideBarLinks()
 except Exception:
@@ -25,7 +26,11 @@ else:
     q = st.experimental_get_query_params().get("id")
     qid = q[0] if isinstance(q, list) else q
 
-budget_id = qid or st.session_state.get("budget_id") or st.session_state.get("selected_account_id")
+budget_id = (
+    qid
+    or st.session_state.get("budget_id")
+    or st.session_state.get("selected_account_id")
+)
 if not budget_id:
     st.error("No budget selected (missing ?id=... and no session_state id).")
     st.stop()
@@ -42,7 +47,7 @@ except requests.RequestException as e:
     st.stop()
 
 # Unpack nested objects safely
-author   = budget.get("Author") or {}
+author = budget.get("Author") or {}
 approver = budget.get("ApprovedBy") or None
 
 # --- Show details ---
@@ -52,10 +57,17 @@ with c1:
     st.write("**Fiscal Year:**", budget.get("FiscalYear", "—"))
     st.write("**Status:**", budget.get("Status", "—"))
 with c2:
-    st.write("**Author:**", f"{author.get('FirstName','—')} {author.get('LastName','')}".strip())
+    st.write(
+        "**Author:**",
+        f"{author.get('FirstName','—')} {author.get('LastName','')}".strip(),
+    )
     st.write(
         "**Approved By:**",
-        (f"{approver.get('FirstName','—')} {approver.get('LastName','')}".strip() if approver else "—"),
+        (
+            f"{approver.get('FirstName','—')} {approver.get('LastName','')}".strip()
+            if approver
+            else "—"
+        ),
     )
 
 # If the endpoint returns Accounts, show them
@@ -63,7 +75,9 @@ accounts = budget.get("Accounts") or []
 if accounts:
     st.markdown("**Accounts**")
     for a in accounts:
-        st.write(f"- `{a.get('AcctCode','')}` — {a.get('AcctTitle','')} (ID: {a.get('ID','')})")
+        st.write(
+            f"- `{a.get('AcctCode','')}` — {a.get('AcctTitle','')} (ID: {a.get('ID','')})"
+        )
 
 st.divider()
 
@@ -106,6 +120,8 @@ with st.expander("Danger Zone"):
             if hasattr(st, "switch_page"):
                 st.switch_page("pages/budget_overview.py")
             else:
-                st.page_link("pages/budget_overview.py", label="Return to Overview", icon="↩️")
+                st.page_link(
+                    "pages/budget_overview.py", label="Return to Overview", icon="↩️"
+                )
         except requests.RequestException as e:
             st.error(f"Error deleting budget: {e}")

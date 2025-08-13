@@ -8,6 +8,7 @@ elections_bp = Blueprint("elections", __name__)
 
 # ==================== TERMS ====================
 
+
 # POST /terms - Create term
 @elections_bp.route("/terms", methods=["POST"])
 def create_term():
@@ -41,6 +42,7 @@ def view_terms():
 
 # ==================== POSITIONS ====================
 
+
 # GET /positions - View all positions
 @elections_bp.route("/positions", methods=["GET"])
 def view_positions():
@@ -73,6 +75,7 @@ def create_position():
 
 # ==================== ELECTIONS ====================
 
+
 # POST /elections - Create election
 @elections_bp.route("/", methods=["POST"])
 def create_election():
@@ -100,14 +103,19 @@ def create_election():
         """
         execute_update(query, (election_id, pos_id))
 
-    return jsonify({
-        "message": "Election created",
-        "election_id": election_id,
-        "term_id": term_id,
-        "positions": positions,
-        "date": date,
-        "nominate_by": nominate_by
-    }), 201
+    return (
+        jsonify(
+            {
+                "message": "Election created",
+                "election_id": election_id,
+                "term_id": term_id,
+                "positions": positions,
+                "date": date,
+                "nominate_by": nominate_by,
+            }
+        ),
+        201,
+    )
 
 
 # GET /elections - View all elections
@@ -153,7 +161,7 @@ def get_election(election_id):
 
     if not election:
         return jsonify({"error": "Election not found"}), 404
-    
+
     # Get positions for this election
     positions_query = """
     SELECT P.ID, P.Title, P.BallotOrder
@@ -166,14 +174,12 @@ def get_election(election_id):
     positions = cursor.fetchall()
     if not positions:
         return jsonify({"error": "No positions found for this election"}), 404
-    
-    return jsonify({
-        "election": election,
-        "positions": positions
-    })
+
+    return jsonify({"election": election, "positions": positions})
 
 
 # ==================== NOMINATIONS ====================
+
 
 # POST /nominations - Submit nomination
 @elections_bp.route("/nominations", methods=["POST"])
@@ -192,10 +198,10 @@ def nominate_member():
     """
     nomination_id = execute_update(query, (nominator, nominee, position))
 
-    return jsonify({
-        "message": "Nomination submitted",
-        "nomination_id": nomination_id
-    }), 201
+    return (
+        jsonify({"message": "Nomination submitted", "nomination_id": nomination_id}),
+        201,
+    )
 
 
 # PUT /nominations/<id>/accept - Accept/decline nomination
@@ -266,6 +272,7 @@ def get_election_nominations(election_id):
 
 # ==================== BALLOTS ====================
 
+
 # POST /elections/<election_id>/generate-ballots - Generate ballots for election
 @elections_bp.route("/elections/<int:election_id>/generate-ballots", methods=["POST"])
 def generate_ballots(election_id):
@@ -282,12 +289,12 @@ def generate_ballots(election_id):
     positions = cursor.fetchall()
 
     print(positions)  # Debugging line to check positions
-    
+
     if not positions:
         return jsonify({"error": "No positions found for election"}), 400
 
     ballots_created = []
-    
+
     for position in positions:
         # Check if already won by someone in this election
         winner_check_query = """
@@ -297,12 +304,12 @@ def generate_ballots(election_id):
         WHERE EP.Election = %s AND W.Position = %s;
         """
         cursor = db.get_db().cursor()
-        cursor.execute(winner_check_query, (election_id, position['ID']))
+        cursor.execute(winner_check_query, (election_id, position["ID"]))
         winner_result = cursor.fetchall()
 
-        if winner_result[0]['count'] > 0:
+        if winner_result[0]["count"] > 0:
             continue  # Skip if position already has winner
-        
+
         # Get accepted nominations for this position
         nominations_query = """
         SELECT N.ID
@@ -310,37 +317,46 @@ def generate_ballots(election_id):
         JOIN ElectionPositions EP ON N.Position = EP.Position
         WHERE EP.Election = %s AND N.Position = %s AND N.Accepted = TRUE;
         """
-        cursor.execute(nominations_query, (election_id, position['ID']))
+        cursor.execute(nominations_query, (election_id, position["ID"]))
         nominations = cursor.fetchall()
 
         if len(nominations) == 0:
             continue  # Skip if no accepted nominations
-        
+
         # Create ballot
         ballot_query = """
         INSERT INTO Ballot (`Position`, Election, CreatedAt)
         VALUES (%s, %s, %s);
         """
-        ballot_id = execute_update(ballot_query, (position['ID'], election_id, datetime.now()))
-        
+        ballot_id = execute_update(
+            ballot_query, (position["ID"], election_id, datetime.now())
+        )
+
         # Add ballot options
         for nomination in nominations:
             option_query = """
             INSERT INTO BallotOptions (Ballot, Nomination)
             VALUES (%s, %s);
             """
-            execute_update(option_query, (ballot_id, nomination['ID']))
-        
-        ballots_created.append({
-            "ballot_id": ballot_id,
-            "position": position['Title'],
-            "options_count": len(nominations)
-        })
-    
-    return jsonify({
-        "message": f"Generated {len(ballots_created)} ballots",
-        "ballots": ballots_created
-    }), 201
+            execute_update(option_query, (ballot_id, nomination["ID"]))
+
+        ballots_created.append(
+            {
+                "ballot_id": ballot_id,
+                "position": position["Title"],
+                "options_count": len(nominations),
+            }
+        )
+
+    return (
+        jsonify(
+            {
+                "message": f"Generated {len(ballots_created)} ballots",
+                "ballots": ballots_created,
+            }
+        ),
+        201,
+    )
 
 
 # GET /ballots/member/<member_id> - Get available ballots for member
@@ -385,10 +401,10 @@ def get_ballot_details(ballot_id):
     cursor = db.get_db().cursor()
     cursor.execute(ballot_query, (ballot_id,))
     ballot = cursor.fetchall()
-    
+
     if not ballot:
         return jsonify({"error": "Ballot not found"}), 404
-    
+
     # Get ballot options
     options_query = """
     SELECT 
@@ -404,13 +420,11 @@ def get_ballot_details(ballot_id):
     cursor.execute(options_query, (ballot_id,))
     options = cursor.fetchall()
 
-    return jsonify({
-        "ballot": ballot[0],
-        "options": options
-    })
+    return jsonify({"ballot": ballot[0], "options": options})
 
 
 # ==================== VOTING ====================
+
 
 # POST /votes - Submit vote
 @elections_bp.route("/votes", methods=["POST"])
@@ -433,7 +447,7 @@ def submit_vote():
     cursor.execute(check_query, (member_id, ballot_id))
     existing = cursor.fetchall()
 
-    if existing[0]['count'] > 0:
+    if existing[0]["count"] > 0:
         return jsonify({"error": "Member has already voted on this ballot"}), 400
 
     # Submit vote
@@ -441,12 +455,11 @@ def submit_vote():
     INSERT INTO Vote (Ballot, Member, BallotOption, VotedAt)
     VALUES (%s, %s, %s, %s);
     """
-    vote_id = execute_update(vote_query, (ballot_id, member_id, ballot_option_id, datetime.now()))
+    vote_id = execute_update(
+        vote_query, (ballot_id, member_id, ballot_option_id, datetime.now())
+    )
 
-    return jsonify({
-        "message": "Vote submitted successfully",
-        "vote_id": vote_id
-    }), 201
+    return jsonify({"message": "Vote submitted successfully", "vote_id": vote_id}), 201
 
 
 # GET /ballots/<ballot_id>/results - Get voting results
@@ -478,15 +491,13 @@ def get_ballot_results(ballot_id):
     """
     cursor.execute(total_query, (ballot_id,))
     total_result = cursor.fetchall()
-    total_votes = total_result[0]['TotalVotes'] if total_result else 0
+    total_votes = total_result[0]["TotalVotes"] if total_result else 0
 
-    return jsonify({
-        "results": results,
-        "total_votes": total_votes
-    })
+    return jsonify({"results": results, "total_votes": total_votes})
 
 
 # ==================== WINNERS ====================
+
 
 # POST /ballots/<ballot_id>/declare-winner - Declare winner of ballot
 @elections_bp.route("/ballots/<int:ballot_id>/declare-winner", methods=["POST"])
@@ -508,7 +519,7 @@ def declare_winner(ballot_id):
     if not position_result:
         return jsonify({"error": "Ballot not found"}), 404
 
-    position_id = position_result[0]['Position']
+    position_id = position_result[0]["Position"]
 
     # Record winner
     winner_query = """
@@ -517,10 +528,10 @@ def declare_winner(ballot_id):
     """
     winner_id = execute_update(winner_query, (member_id, position_id))
 
-    return jsonify({
-        "message": "Winner declared successfully",
-        "winner_id": winner_id
-    }), 201
+    return (
+        jsonify({"message": "Winner declared successfully", "winner_id": winner_id}),
+        201,
+    )
 
 
 # GET /elections/<election_id>/winners - Get all winners for election

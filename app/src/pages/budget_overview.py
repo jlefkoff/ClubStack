@@ -48,11 +48,17 @@ st.markdown("---")
 st.subheader("Create a New Budget Proposal")
 with st.form("new_budget_form"):
     # API expects Author as a MEMBER ID (int), not names
-    author_member_id = st.number_input("Author (Member ID)", min_value=1, step=1, format="%d")
-    status = st.selectbox("Status (optional)", ["", "SUBMITTED", "APPROVED", "PAST"], index=0)
+    author_member_id = st.number_input(
+        "Author (Member ID)", min_value=1, step=1, format="%d"
+    )
+    status = st.selectbox(
+        "Status (optional)", ["", "SUBMITTED", "APPROVED", "PAST"], index=0
+    )
 
     # integers with no decimals
-    fy = st.number_input("Fiscal Year", min_value=2000, max_value=2100, step=1, format="%d")
+    fy = st.number_input(
+        "Fiscal Year", min_value=2000, max_value=2100, step=1, format="%d"
+    )
 
     submitted = st.form_submit_button("Create Budget")
     cancel = st.form_submit_button("Cancel")
@@ -73,7 +79,9 @@ with st.form("new_budget_form"):
             except Exception:
                 body = {"raw": resp.text[:1000]}
             if 200 <= resp.status_code < 300:
-                st.success("Request sent. (Note: POST /budget is a stub in the backend, so data may not persist yet.)")
+                st.success(
+                    "Request sent. (Note: POST /budget is a stub in the backend, so data may not persist yet.)"
+                )
                 st.json(body)
                 st.rerun()
             else:

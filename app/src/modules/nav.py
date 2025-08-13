@@ -6,7 +6,6 @@
 import streamlit as st
 
 
-
 # ------------------------ General ------------------------
 def HomeNav():
     st.sidebar.page_link("Home.py", label="Home", icon="🏠")
@@ -20,12 +19,9 @@ def AboutPageNav():
 def PolStratAdvHomeNav():
     st.sidebar.page_link("pages/00_Member_Home.py", label="Club Member Home", icon="👤")
 
+
 def TreasurerBudgetOverview():
-    st.sidebar.page_link(
-        "pages/budget_overview.py",
-        label="Budget Overview",
-        icon = "💰"
-    )
+    st.sidebar.page_link("pages/budget_overview.py", label="Budget Overview", icon="💰")
 
 
 def WorldBankVizNav():
@@ -65,9 +61,16 @@ def AddNgoNav():
     st.sidebar.page_link("pages/15_Add_NGO.py", label="Add New NGO", icon="➕")
 
 
+def Permissions():
+    st.sidebar.page_link(
+        "pages/permissions_overview.py", label="Permissions", icon="🔐"
+    )
+
+
 # ------------------------ System Admin Role ------------------------
 def AdminPageNav():
     st.sidebar.page_link("pages/30_Admin_Home.py", label="System Admin", icon="🖥️")
+
 
 def AdminElectionsNav():
     st.sidebar.page_link("pages/Admin_Elections.py", label="Elections", icon="🗳️")
@@ -117,6 +120,9 @@ def SideBarLinks(show_home=False):
         if st.session_state["role"] == "administrator":
             AdminPageNav()
             TreasurerBudgetOverview()
+            AdminPageNav()
+            Permissions()
+            AdminElectionsNav()
 
     # Always show the About page at the bottom of the list of links
     AboutPageNav()

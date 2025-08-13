@@ -29,9 +29,11 @@ if not budgets:
 # Prefer a pre-selected budget from session_state if you arrived via a button
 initial_bid = st.session_state.get("budget_id")
 
+
 # Build label -> id map
 def budget_label(b):
     return f"Budget #{b.get('BudgetID')} • FY {b.get('FiscalYear','—')} • {b.get('Status','—')}"
+
 
 label_to_id = {budget_label(b): b.get("BudgetID") for b in budgets}
 
@@ -44,7 +46,9 @@ if initial_bid is not None:
             break
 
 st.subheader("View Accounts by Budget")
-selected_label = st.selectbox("Choose a budget", list(label_to_id.keys()), index=default_index)
+selected_label = st.selectbox(
+    "Choose a budget", list(label_to_id.keys()), index=default_index
+)
 selected_budget_id = str(label_to_id[selected_label])
 st.caption(f"Selected Budget ID: {selected_budget_id}")
 
@@ -72,7 +76,9 @@ if accounts:
         aid = a.get("ID")
         left, right = st.columns([6, 1.5])
         with left:
-            st.write(f"{a.get('AcctTitle','—')} — `{a.get('AcctCode','—')}` (ID: {aid})")
+            st.write(
+                f"{a.get('AcctTitle','—')} — `{a.get('AcctCode','—')}` (ID: {aid})"
+            )
         with right:
             if st.button("Open", key=f"acct_open_{aid}", use_container_width=True):
                 st.session_state["account_id"] = aid
@@ -97,8 +103,27 @@ if create:
     else:
         # Try two common backend patterns and surface results to help align with the API
         attempts = [
-            ("POST", f"{API_BASE}/{selected_budget_id}/accounts", {"json": {"AcctCode": acct_code.strip(), "AcctTitle": acct_title.strip()}}),
-            ("POST", "http://api:4000/accounts", {"json": {"Budget": int(selected_budget_id), "AcctCode": acct_code.strip(), "AcctTitle": acct_title.strip()}}),
+            (
+                "POST",
+                f"{API_BASE}/{selected_budget_id}/accounts",
+                {
+                    "json": {
+                        "AcctCode": acct_code.strip(),
+                        "AcctTitle": acct_title.strip(),
+                    }
+                },
+            ),
+            (
+                "POST",
+                "http://api:4000/accounts",
+                {
+                    "json": {
+                        "Budget": int(selected_budget_id),
+                        "AcctCode": acct_code.strip(),
+                        "AcctTitle": acct_title.strip(),
+                    }
+                },
+            ),
         ]
         success = False
         last_status = None
@@ -125,7 +150,13 @@ if create:
                 last_body = str(e)
 
         if not success:
-            st.error("Could not create account — backend route not found or rejected the request.")
+            st.error(
+                "Could not create account — backend route not found or rejected the request."
+            )
             st.write("Last response/status:")
             st.write(last_status)
-            st.json(last_body if isinstance(last_body, dict) else {"message": str(last_body)})
+            st.json(
+                last_body
+                if isinstance(last_body, dict)
+                else {"message": str(last_body)}
+            )
