@@ -394,7 +394,8 @@ with col3:
                 "View Elections", key="elections_btn", use_container_width=True
             ):
                 st.switch_page("pages/Voting.py")
-        except:
+        except Exception as e:
+            st.error(f"Error loading nominations: {e}")
             st.warning("Elections service unavailable")
 
     st.write("")
