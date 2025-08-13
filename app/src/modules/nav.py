@@ -57,6 +57,12 @@ def AddNgoNav():
     st.sidebar.page_link("pages/15_Add_NGO.py", label="Add New NGO", icon="➕")
 
 
+def Permissions():
+    st.sidebar.page_link(
+        "pages/permissions_overview.py", label="Permissions", icon="🔐"
+    )
+
+
 # ------------------------ System Admin Role ------------------------
 def AdminPageNav():
     st.sidebar.page_link("pages/30_Admin_Home.py", label="System Admin", icon="🖥️")
@@ -109,6 +115,7 @@ def SideBarLinks(show_home=False):
 
         if st.session_state["role"] == "administrator":
             AdminPageNav()
+            Permissions()
             AdminElectionsNav()
 
     # Always show the About page at the bottom of the list of links

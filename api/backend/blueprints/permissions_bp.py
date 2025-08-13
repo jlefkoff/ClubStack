@@ -33,11 +33,13 @@ def assign_permissions(member_id):
 # GET /permissions/<member_id> - Get permissions of member
 @permissions_bp.route("/<int:member_id>", methods=["GET"])
 def get_member_permissions(member_id):
-    query = f"""
-    SELECT M.FirstName, M.LastName, P.Title FROM Permission P JOIN MemberPermissions MP ON P.ID = MP.Permission
-    JOIN Member M ON MP.Member = M.ID WHERE M.ID = {member_id};
-    """
-    return execute_query(query)
+  query = """
+  SELECT P.ID, P.Title
+  FROM Permission P
+  JOIN MemberPermissions MP ON P.ID = MP.Permission
+  WHERE MP.Member = %s;
+  """
+  return execute_query(query, (member_id,))
 
 
 # POST /permissions - Create permission and assign accessible pages
