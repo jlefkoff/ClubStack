@@ -304,98 +304,100 @@ def generate_fake_data():
     sql_statements.append("-- 🎪 EVENTS")
 
     event_names = [
-      "Beginner Rock Climbing",
-      "Advanced Mountaineering",
-      "Weekend Backpacking",
-      "Map and Compass Workshop",
-      "Wilderness First Aid",
-      "Gear Maintenance Session",
-      "New Member BBQ",
-      "Monthly Social Dinner",
-      "Film Night: Mountain Movies",
-      "Knot Tying Workshop",
-      "Leave No Trace Training",
-      "Winter Camping Prep",
-      "Avalanche Safety Course",
-      "Photography Workshop",
-      "Trail Maintenance Day",
-      "Club Fair Booth",
-      "Officer Elections",
-      "Budget Planning Meeting",
-      "Gear Sale Event",
-      "Trip Planning Session",
-      "Safety Committee Meeting",
-      "White Mountain Day Hike",
-      "Ice Climbing Introduction",
-      "Ski Touring Basics",
-      "Camping Fundamentals",
-      "Peak Bagging Challenge",
-      "Sunrise Photography Hike",
+        "Beginner Rock Climbing",
+        "Advanced Mountaineering",
+        "Weekend Backpacking",
+        "Map and Compass Workshop",
+        "Wilderness First Aid",
+        "Gear Maintenance Session",
+        "New Member BBQ",
+        "Monthly Social Dinner",
+        "Film Night: Mountain Movies",
+        "Knot Tying Workshop",
+        "Leave No Trace Training",
+        "Winter Camping Prep",
+        "Avalanche Safety Course",
+        "Photography Workshop",
+        "Trail Maintenance Day",
+        "Club Fair Booth",
+        "Officer Elections",
+        "Budget Planning Meeting",
+        "Gear Sale Event",
+        "Trip Planning Session",
+        "Safety Committee Meeting",
+        "White Mountain Day Hike",
+        "Ice Climbing Introduction",
+        "Ski Touring Basics",
+        "Camping Fundamentals",
+        "Peak Bagging Challenge",
+        "Sunrise Photography Hike",
     ]
 
     locations = [
-      "White Mountains NH",
-      "Loj",
-      "Pub",
-      "Centennial",
-      "Campus",
-      "Local Crag",
-      "Gear Room",
-      "Marino Center",
+        "White Mountains NH",
+        "Loj",
+        "Pub",
+        "Centennial",
+        "Campus",
+        "Local Crag",
+        "Gear Room",
+        "Marino Center",
     ]
     meet_locations = [
-      "Curry Student Center",
-      "Marino Center",
-      "Ruggles Station",
-      "Back Bay Station",
-      "Campus Quad",
+        "Curry Student Center",
+        "Marino Center",
+        "Ruggles Station",
+        "Back Bay Station",
+        "Campus Quad",
     ]
     organizations = [
-      "Hiking Committee",
-      "Climbing Committee",
-      "Social Committee",
-      "Safety Committee",
-      "Membership Committee",
+        "Hiking Committee",
+        "Climbing Committee",
+        "Social Committee",
+        "Safety Committee",
+        "Membership Committee",
     ]
     event_types = [
-      "Outdoor",
-      "Educational",
-      "Social",
-      "Training",
-      "Meeting",
-      "Competition",
+        "Outdoor",
+        "Educational",
+        "Social",
+        "Training",
+        "Meeting",
+        "Competition",
     ]
 
     for event_id in event_ids:
-      author_id = random.choice(member_ids)
-      party_size = random.randint(5, 30)
-      max_size = party_size + random.randint(5, 20)
-      event_loc = random.choice(locations)
-      randomized = "TRUE" if random.random() < 0.15 else "FALSE"
-      name = random.choice(event_names)
-      description = fake.text(max_nb_chars=150).replace("'", "''")
-      meet_loc = random.choice(meet_locations)
-      lead_org = random.choice(organizations)
-      event_type = random.choice(event_types)
+        author_id = random.choice(member_ids)
+        party_size = random.randint(5, 30)
+        max_size = party_size + random.randint(5, 20)
+        event_loc = random.choice(locations)
+        randomized = "TRUE" if random.random() < 0.15 else "FALSE"
+        name = random.choice(event_names)
+        description = fake.text(max_nb_chars=150).replace("'", "''")
+        meet_loc = random.choice(meet_locations)
+        lead_org = random.choice(organizations)
+        event_type = random.choice(event_types)
 
-      # Generate relevant recommended items
-      rec_items_options = [
-        "hiking boots, water, snacks",
-        "climbing shoes, harness, helmet",
-        "sleeping bag, tent, camp stove",
-        "warm layers, headlamp, map",
-        "first aid kit, whistle, compass",
-        "notebook, pen, enthusiasm",
-      ]
-      rec_items = random.choice(rec_items_options)
-      picture = f"{name.lower().replace(' ', '_').replace(':', '')}.jpg"
+        # Generate relevant recommended items
+        rec_items_options = [
+            "hiking boots, water, snacks",
+            "climbing shoes, harness, helmet",
+            "sleeping bag, tent, camp stove",
+            "warm layers, headlamp, map",
+            "first aid kit, whistle, compass",
+            "notebook, pen, enthusiasm",
+        ]
+        rec_items = random.choice(rec_items_options)
+        picture = f"{name.lower().replace(' ', '_').replace(':', '')}.jpg"
 
-      # Generate EventDate: from now to 90 days in the future
-      event_date = fake.date_between(start_date="today", end_date="+90d").strftime("%Y-%m-%d")
+        # Generate EventDate: from now to 90 days in the future
+        event_date = fake.date_between(start_date="today", end_date="+90d").strftime(
+            "%Y-%m-%d"
+        )
 
-      sql = f"""INSERT INTO Event (ID, Author, PartySize, MaxSize, EventLoc, Randomized, Name, Description, MeetLoc, LeadOrg, EventType, RecItems, Picture, EventDate) VALUES ({event_id}, {author_id}, {party_size}, {max_size}, '{event_loc}', {randomized}, '{name}', '{description}', '{meet_loc}', '{lead_org}', '{event_type}', '{rec_items}', '{picture}', '{event_date}');"""
+        sql = f"""INSERT INTO Event (ID, Author, PartySize, MaxSize, EventLoc, Randomized, Name, Description, MeetLoc, LeadOrg, EventType, RecItems, Picture, EventDate) VALUES ({event_id}, {author_id}, {party_size}, {max_size}, '{event_loc}', {randomized}, '{name}', '{description}', '{meet_loc}', '{lead_org}', '{event_type}', '{rec_items}', '{picture}', '{event_date}');"""
 
-      sql_statements.append(sql)
+        sql_statements.append(sql)
 
     sql_statements.append("")
 
