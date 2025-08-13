@@ -13,7 +13,9 @@ st.divider()
 # If you navigated here via another page and stored an ID:
 prefill = st.session_state.get("member_id", 1)
 
-member_id = st.number_input("Enter Member ID", min_value=1, step=1, format="%d", value=int(prefill))
+member_id = st.number_input(
+    "Enter Member ID", min_value=1, step=1, format="%d", value=int(prefill)
+)
 
 if st.button("View Member's Permissions", type="primary"):
     try:
@@ -24,7 +26,9 @@ if st.button("View Member's Permissions", type="primary"):
     except requests.RequestException as e:
         st.error(f"Error fetching member permissions: {e}")
     else:
-        st.subheader(f"Permissions for Member #{st.session_state.get('first_name', 'Unknown')} (ID: {member_id})")
+        st.subheader(
+            f"Permissions for Member #{st.session_state.get('first_name', 'Unknown')} (ID: {member_id})"
+        )
 
         if not data:
             st.info("This member has no permissions.")

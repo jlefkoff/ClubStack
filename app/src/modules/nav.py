@@ -59,14 +59,14 @@ def AddNgoNav():
 
 def Permissions():
     st.sidebar.page_link(
-        "pages/permissions_overview.py",
-        label = "Permissions",
-        icon = "🔐")
+        "pages/permissions_overview.py", label="Permissions", icon="🔐"
+    )
 
 
 # ------------------------ System Admin Role ------------------------
 def AdminPageNav():
     st.sidebar.page_link("pages/30_Admin_Home.py", label="System Admin", icon="🖥️")
+
 
 def AdminElectionsNav():
     st.sidebar.page_link("pages/Admin_Elections.py", label="Elections", icon="🗳️")
@@ -112,8 +112,6 @@ def SideBarLinks(show_home=False):
             AddNgoNav()
             WorldBankVizNav()
             MapDemoNav()
-            
-
 
         if st.session_state["role"] == "administrator":
             AdminPageNav()

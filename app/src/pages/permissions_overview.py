@@ -44,7 +44,9 @@ st.subheader("Create New Permission")
 
 with st.form("create_permission_form"):
     name = st.text_input("Permission Name", placeholder="e.g., VIEW_REPORTS")
-    description = st.text_input("Description (optional)", placeholder="e.g., Can view spending reports")
+    description = st.text_input(
+        "Description (optional)", placeholder="e.g., Can view spending reports"
+    )
     submit = st.form_submit_button("Create")
 
 if submit:
@@ -64,7 +66,9 @@ if submit:
                 body = {"raw": resp.text[:1000]}
 
             if 200 <= resp.status_code < 300:
-                st.success("Create request sent. (Backend is a stub and may not persist yet.)")
+                st.success(
+                    "Create request sent. (Backend is a stub and may not persist yet.)"
+                )
                 st.json(body)
                 st.rerun()
             else:

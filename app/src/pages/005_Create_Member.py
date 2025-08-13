@@ -70,9 +70,9 @@ if st.button("Add Member", use_container_width=True):
         "activation_date": activation_date.strftime("%Y-%m-%d"),
         "car_plate": car_plate.strip() if has_car and car_plate else None,
         "car_state": car_state.strip() if has_car and car_state else None,
-        "car_pass_count": int(car_pass_count)
-        if has_car and car_pass_count is not None
-        else None,
+        "car_pass_count": (
+            int(car_pass_count) if has_car and car_pass_count is not None else None
+        ),
         "emer_contact_name": emer_contact_name.strip(),
         "emer_contact_phone": emer_contact_phone.strip(),
     }
