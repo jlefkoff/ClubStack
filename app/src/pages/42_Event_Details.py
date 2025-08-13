@@ -57,8 +57,18 @@ if data["roster"]:
 
 
 # updating an event
+# updating an event
 if st.session_state.get("first_name", "").lower() in ("chance", "jacob"):
-    if st.button("Update Event"):
+    # Initialize edit mode state
+    if "edit_mode" not in st.session_state:
+        st.session_state.edit_mode = False
+    
+    if not st.session_state.edit_mode:
+        if st.button("Update Event"):
+            st.session_state.edit_mode = True
+            st.rerun()
+    else:
+        # Edit form is now persistent
         with st.form("update_event_form"):
             # Create inputs for each editable field — customize as needed
             name = st.text_input("Name", value=event_info.get("Name", ""))
@@ -71,9 +81,13 @@ if st.session_state.get("first_name", "").lower() in ("chance", "jacob"):
             meet_loc = st.text_input("Meeting Location", value=event_info.get("MeetLoc", ""))
             rec_items = st.text_area("Recommended Items", value=event_info.get("RecItems", ""))
 
-            submitted = st.form_submit_button("Save Changes")
-            cancel = st.form_submit_button("Cancel")
+            col1, col2 = st.columns(2)
+            with col1:
+                submitted = st.form_submit_button("Save Changes", type="primary")
+            with col2:
+                cancel = st.form_submit_button("Cancel")
 
+        # Handle form submission - OUTSIDE the form but inside the edit_mode condition
         if submitted:
             # Prepare payload with updated fields
             payload = {
@@ -91,11 +105,11 @@ if st.session_state.get("first_name", "").lower() in ("chance", "jacob"):
                 response = requests.put(f"http://api:4000/events/{event_id}", json=payload)
                 response.raise_for_status()
                 st.success("Event updated successfully!")
-                st.json(response.json())
                 st.session_state.edit_mode = False
+                st.rerun()  # Use st.rerun() instead of st.experimental_rerun()
             except Exception as e:
                 st.error(f"Failed to update event: {e}")
 
         if cancel:
             st.session_state.edit_mode = False
-            st.experimental_rerun()
+            st.rerun()  # Use st.rerun() instead of st.experimental_rerun()
