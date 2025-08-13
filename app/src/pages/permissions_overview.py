@@ -31,7 +31,7 @@ if permissions:
         for p in permissions:
             st.write("•", p)
 else:
-    st.info("No permissions found (backend may currently return an empty list).")
+    st.info("No permissions found.")
 
 # --- Button to go to permissions_member_id page ---
 if st.button("Go to Member Permissions Page"):
@@ -67,7 +67,7 @@ if submit:
 
             if 200 <= resp.status_code < 300:
                 st.success(
-                    "Create request sent. (Backend is a stub and may not persist yet.)"
+                    "Create request sent."
                 )
                 st.json(body)
                 st.rerun()
