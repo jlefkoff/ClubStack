@@ -63,17 +63,22 @@ def post_member():
 
     try:
         cursor = db.get_db().cursor()
+        
+        # Get the next available ID by finding max ID and adding 1
+        cursor.execute("SELECT COALESCE(MAX(ID), 0) + 1 as next_id FROM Member")
+        next_id = cursor.fetchone()["next_id"]
 
-        # Insert member
+        # Insert member with manual ID
         insert_query = """
         INSERT INTO Member (
-            FirstName, LastName, PreferredName, GraduationYear, 
+            ID, FirstName, LastName, PreferredName, GraduationYear, 
             IsGradStudent, ActivationDate, CarPlate, CarState, 
             CarPassCount, EmerContactName, EmerContactPhone
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
 
         values = (
+            next_id,  # Include the calculated ID as first value
             first_name,
             last_name,
             preferred_name,
@@ -88,19 +93,17 @@ def post_member():
         )
 
         cursor.execute(insert_query, values)
-        member_id = cursor.lastrowid
         db.get_db().commit()
 
         return (
-            jsonify({"message": "Member created successfully", "member_id": member_id}),
+            jsonify({"message": "Member created successfully", "member_id": next_id}),
             201,
         )
 
     except Exception as e:
         db.get_db().rollback()
         return jsonify({"error": f"Database error: {str(e)}"}), 500
-
-
+        
 # GET /members - View all members
 @members_bp.route("/", methods=["GET"])
 def get_members():
