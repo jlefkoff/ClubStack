@@ -55,30 +55,38 @@ if data["roster"]:
         st.write(f"- {member}")
 
 
-# rsvp for event
+#rsvp 
 with st.form("rsvp_form"):
     st.write("RSVP to this event")
-    Fname = st.text_input("First Name", "")
-    Lname = st.text_input("Last Name", "")
-    MID = st.number_input("MID", min_value = 0)
+    event_id = st.number_input("Event ID", value=event_info['ID'], step=1)
+    member_id = st.number_input("Member ID", min_value=0, step=1)
+    can_bring_car = st.text_input("Can you bring a car? (yes/no)", "")
+    avail_start = st.text_input("Available Start (YYYY-MM-DD HH:MM)", "")
+    avail_end = st.text_input("Available End (YYYY-MM-DD HH:MM)", "")
 
     submit_rsvp = st.form_submit_button("RSVP Now")
 
 if submit_rsvp:
     payload = {
-        "FirstName": Fname,
-        "LastName": Lname,
-        "MemberID": MID
+        "event_id": event_id,
+        "member_id": member_id,
+        "can_bring_car": can_bring_car,
+        "avail_start": avail_start,
+        "avail_end": avail_end
     }
-
+    
     try:
-        response = requests.post(f"http://api:4000/events/{event_info['ID']}/roster", json=payload)
+        response = requests.post(
+            f"http://api:4000/events/{event_info['ID']}/rsvp",
+            json=payload
+        )
         response.raise_for_status()
         st.success("You have successfully RSVP'd!")
         st.json(response.json())
-        st.rerun()  # refresh the page to show updated roster
+        st.rerun()
     except Exception as e:
         st.error(f"Failed to RSVP: {e}")
+
 
 
 

@@ -77,6 +77,7 @@ if st.session_state.get("first_name", "").lower() == "chance":
             party_size = st.number_input("Party Size", 0, max_value = 0)
             meet_loc = st.text_input("Meeting Location", "")
             rec_items = st.text_area("Recommended Items", "")
+            randomized = st.checkbox("Randomized", value=False)
 
             submitted = st.form_submit_button("Save Event")
             cancel = st.form_submit_button("Cancel")
@@ -94,6 +95,7 @@ if st.session_state.get("first_name", "").lower() == "chance":
                 "PartySize": party_size,
                 "MeetLoc": meet_loc,
                 "RecItems": rec_items,
+                "Randomized": randomized
             }
             try:
                 response = requests.post("http://api:4000/events", json=payload)
