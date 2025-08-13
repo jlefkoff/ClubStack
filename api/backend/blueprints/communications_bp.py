@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from datetime import datetime
 from backend.db_connection import db
+from backend.utils.db_utils import execute_query, execute_update
 
 communications_bp = Blueprint("communications", __name__)
 
@@ -16,21 +17,18 @@ def send_mass_communication():
     if not subject or not content or not recipients:
         return jsonify({"error": "Missing required fields"}), 400
 
-    cursor = db.get_db().cursor()
-
-    cursor.execute(
-        "INSERT INTO Communication (Subject, Content, DateSent) VALUES (%s, %s, %s)",
-        (subject, content, datetime.now()),
+    communication_id = execute_update("""
+    INSERT INTO Communication (Subject, Content, DateSent)
+    VALUES (%s, %s, %s);
+    """, (subject, content, datetime.now())
     )
-    communication_id = cursor.lastrowid
 
     for member_id in recipients:
-        cursor.execute(
-            "INSERT INTO CommunicationRecipients (Communication, Member) VALUES (%s, %s)",
-            (communication_id, member_id),
-        )
+        query = """
+        INSERT INTO CommunicationRecipients (Communication, Member) VALUES (%s, %s)
+        """
+        execute_update(query, (communication_id, member_id))
 
-    db.commit()
     return jsonify({"message": "Mass communication sent", "id": communication_id}), 201
 
 

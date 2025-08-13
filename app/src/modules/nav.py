@@ -37,6 +37,9 @@ def SubmitReimbursementNav():
 def MyGearNav():
     st.sidebar.page_link("pages/My_Gear.py", label="My Gear", icon="⚙️")
 
+def CommunicationsNav():
+    st.sidebar.page_link("pages/Communications.py", label="Communications", icon="📬")
+
 
 # ------------------------ For role of Treasurer -------------
 def TreasurerBudgetOverview():
@@ -98,6 +101,7 @@ def SideBarLinks(show_home=False):
             MyGearNav()
             GearBrowseNav()
             SubmitReimbursementNav()
+            CommunicationsNav()
 
         if st.session_state["role"] == "treasurer":
             MemberHomeNav()
@@ -107,6 +111,7 @@ def SideBarLinks(show_home=False):
             SubmitReimbursementNav()
             TreasurerReimbursementsNav()
             TreasurerBudgetOverview()
+            CommunicationsNav()
 
         if st.session_state["role"] == "vp":
             MemberHomeNav()
@@ -114,6 +119,7 @@ def SideBarLinks(show_home=False):
             MyGearNav()
             GearBrowseNav()
             SubmitReimbursementNav()
+            CommunicationsNav()
 
         if st.session_state["role"] == "administrator":
             MemberHomeNav()
@@ -127,6 +133,7 @@ def SideBarLinks(show_home=False):
             Permissions()
             AdminElectionsNav()
             ViewProfile()
+            CommunicationsNav()
 
     # Always show the About page at the bottom of the list of links
     AboutPageNav()
