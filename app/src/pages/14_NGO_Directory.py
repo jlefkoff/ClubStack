@@ -23,17 +23,14 @@ try:
         # Extract unique values for filters
         countries = sorted(list(set(ngo["Country"] for ngo in ngos)))
         focus_areas = sorted(list(set(ngo["Focus_Area"] for ngo in ngos)))
-        founding_years = sorted(
-            list(set(ngo["Founding_Year"] for ngo in ngos)))
+        founding_years = sorted(list(set(ngo["Founding_Year"] for ngo in ngos)))
 
         # Create filters
         with col1:
-            selected_country = st.selectbox(
-                "Filter by Country", ["All"] + countries)
+            selected_country = st.selectbox("Filter by Country", ["All"] + countries)
 
         with col2:
-            selected_focus = st.selectbox(
-                "Filter by Focus Area", ["All"] + focus_areas)
+            selected_focus = st.selectbox("Filter by Focus Area", ["All"] + focus_areas)
 
         with col3:
             selected_year = st.selectbox(
@@ -71,13 +68,14 @@ try:
 
                     with col2:
                         st.write("**Contact Information**")
-                        st.write(
-                            f"**Website:** [{ngo['Website']}]({ngo['Website']})")
+                        st.write(f"**Website:** [{ngo['Website']}]({ngo['Website']})")
 
                     # Add a button to view full profile
                     if st.button(
-                        f"View Full Profile", key=f"view_{
-                            ngo['NGO_ID']}"):
+                        f"View Full Profile",
+                        key=f"view_{
+                            ngo['NGO_ID']}",
+                    ):
                         st.session_state["selected_ngo_id"] = ngo["NGO_ID"]
                         st.switch_page("pages/16_NGO_Profile.py")
 

@@ -2,6 +2,7 @@
 # Sample customers blueprint of endpoints
 # Remove this file if you are not using it in your project
 ########################################################
+from backend.utils.db_utils import execute_query, execute_update
 from backend.db_connection import db
 from flask import Blueprint, current_app, jsonify, make_response, request
 
@@ -13,39 +14,72 @@ merch_bp = Blueprint("merch", __name__)
 
 # ------------------------------------------------------------
 # GET /merch-items - Browse available merch
-@merch_bp.route("/merch-items", methods=["GET"])
+@merch_bp.route("/", methods=["GET"])
 def get_merch_items():
     # Stub: Return empty list or placeholder data
-    return jsonify([]), 200
+    query = """
+   SELECT * FROM MerchItem;
+   """
+    return execute_query(query)
 
 
 # ------------------------------------------------------------
 # GET /merch-items/<id> - Get specific merch item
-@merch_bp.route("/merch-items/<int:item_id>", methods=["GET"])
+@merch_bp.route("/<int:item_id>", methods=["GET"])
 def get_merch_item(item_id):
-    # Stub: Return placeholder item
-    return jsonify({"id": item_id, "name": "Stub Merch Item"}), 200
+    query = f"""
+    SELECT * FROM MerchItem WHERE ID = {item_id};
+    """
+    return execute_query(query)
 
 
 # ------------------------------------------------------------
 # POST /merch-items - Post new merch item
 @merch_bp.route("/merch-items", methods=["POST"])
 def post_merch_item():
-    # Stub: Accept posted data and return success
-    return jsonify({"message": "Merch item created (stub)"}), 201
+    data = request.json
+    query = """
+    INSERT INTO MerchItem (Name, Price, Description, Quantity)
+    VALUES (%s, %s, %s, %s);
+    """
+    params = (
+        data["name"],
+        data["price"],
+        data["description"],
+        data["quantity"],
+    )
+    return execute_update(query, params)
 
 
 # ------------------------------------------------------------
 # POST /merch-sales - Record a merch sale
 @merch_bp.route("/merch-sales", methods=["POST"])
 def post_merch_sale():
-    # Stub: Accept sale data and return success
-    return jsonify({"message": "Merch sale recorded (stub)"}), 201
+    data = request.json
+
+    # 1. Insert into MerchSale (Cash, SaleDate auto)
+    sale_id = execute_update(
+        "INSERT INTO MerchSale (Cash) VALUES (%s);", (data["cash"],)
+    )
+
+    execute_update(
+        "INSERT INTO MerchSaleItems (MerchItem, MerchSale) VALUES (%s, %s);",
+        (data["ID"], sale_id),
+    )
+
+    return jsonify({"sale_id": sale_id, "status": "success"}), 200
 
 
 # ------------------------------------------------------------
 # GET /merch-report - Merch sales report
 @merch_bp.route("/merch-report", methods=["GET"])
 def merch_report():
-    # Stub: Return placeholder report
-    return jsonify({"report": "Merch sales report (stub)"}), 200
+    query = """
+    SELECT MerchSale.ID, MerchSale.Cash, MerchSale.SaleDate,
+           GROUP_CONCAT(MerchItem.Name) AS ItemsSold
+    FROM MerchSale
+    JOIN MerchSaleItems ON MerchSale.ID = MerchSaleItems.MerchSale
+    JOIN MerchItem ON MerchSaleItems.MerchItem = MerchItem.ID
+    GROUP BY MerchSale.ID;
+    """
+    return execute_query(query)

@@ -24,16 +24,15 @@ if st.button("View Member's Permissions", type="primary"):
     except requests.RequestException as e:
         st.error(f"Error fetching member permissions: {e}")
     else:
-        st.subheader(f"Permissions for Member #{data.get('member_id', member_id)}")
+        st.subheader(f"Permissions for Member #{st.session_state.get('first_name', 'Unknown')} (ID: {member_id})")
 
-        perms = data.get("permissions", [])
-        if not perms:
+        if not data:
             st.info("This member has no permissions.")
         else:
             # If backend returns objects, show a table; if strings, list them
-            if isinstance(perms, list) and len(perms) > 0 and isinstance(perms[0], dict):
-                df = pd.DataFrame(perms)
+            if isinstance(data, list) and len(data) > 0 and isinstance(data[0], dict):
+                df = pd.DataFrame(data)
                 st.dataframe(df, use_container_width=True, hide_index=True)
             else:
-                for p in perms:
+                for p in data:
                     st.write("•", p)
