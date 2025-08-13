@@ -43,7 +43,7 @@ if st.button("Generate Allergy Report"):
         st.error(f"Failed to fetch allergy report: {e}")
 
 
-# create new allergy 
+# create new allergy
 if "show_allergy_form" not in st.session_state:
     st.session_state.show_allergy_form = False
 
@@ -74,8 +74,7 @@ if st.session_state.show_allergy_form:
         st.session_state.show_allergy_form = False
 
 
-
-# display existing allergies 
+# display existing allergies
 st.subheader("Allergies List")
 
 response = requests.get("http://api:4000/allergies/")
@@ -87,4 +86,3 @@ if allergies:
     st.table(df)
 else:
     st.info("No allergies found.")
-

@@ -130,14 +130,14 @@ def post_event():
         data["EventDate"],
     )
     try:
-      id = execute_update(query, values)
+        id = execute_update(query, values)
 
-      print(f"Event created with ID: {id}")
-      return jsonify({"message": "Event created", "event_id": id}), 201
+        print(f"Event created with ID: {id}")
+        return jsonify({"message": "Event created", "event_id": id}), 201
     except Exception as e:
-      db.get_db().rollback()
-      print(f"Error creating event: {e}")
-      return jsonify({"error": "Failed to create event", "details": str(e)}), 500
+        db.get_db().rollback()
+        print(f"Error creating event: {e}")
+        return jsonify({"error": "Failed to create event", "details": str(e)}), 500
 
 
 # PUT /events/<id> - Update event
@@ -160,6 +160,7 @@ def put_event(event_id):
         return jsonify({"error": "Event not found"}), 404
 
     return jsonify({"message": "Event updated successfully"}), 200
+
 
 # DELETE /events/<id> - Delete event
 @events_bp.route("/<int:event_id>", methods=["DELETE"])

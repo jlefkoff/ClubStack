@@ -63,7 +63,7 @@ with st.form("new_budget_form"):
     if submitted:
         payload = {
             "FiscalYear": int(fy),
-            "Author": st.session_state['member_id'],
+            "Author": st.session_state["member_id"],
         }
         if status:
             payload["Status"] = status
@@ -76,9 +76,7 @@ with st.form("new_budget_form"):
             except Exception:
                 body = {"raw": resp.text[:1000]}
             if 200 <= resp.status_code < 300:
-                st.success(
-                    "Request sent."
-                )
+                st.success("Request sent.")
                 st.json(body)
             else:
                 st.error(f"Error: {resp.status_code}")

@@ -95,14 +95,16 @@ with col1:
                 if rsvps:
                     # Fetch event details for each RSVP
                     upcoming_events = []
-                    
+
                     for rsvp in rsvps:
                         try:
                             # Get event details
-                            event_response = requests.get(f"{BASE_URL}/events/{rsvp['Event']}")
+                            event_response = requests.get(
+                                f"{BASE_URL}/events/{rsvp['Event']}"
+                            )
                             if event_response.status_code == 200:
                                 event = event_response.json()
-                                
+
                                 # Check if event is upcoming
                                 try:
                                     event_date = datetime.datetime.strptime(
@@ -110,22 +112,23 @@ with col1:
                                     ).date()
                                     if event_date >= datetime.date.today():
                                         # Add RSVP info to event
-                                        event['rsvp_info'] = rsvp
+                                        event["rsvp_info"] = rsvp
                                         upcoming_events.append(event)
                                 except:
                                     # If date parsing fails, still show the event
-                                    event['rsvp_info'] = rsvp
+                                    event["rsvp_info"] = rsvp
                                     upcoming_events.append(event)
                         except:
                             continue
-                    
+
                     # Sort by date and show top 3
-                    upcoming_events = sorted(upcoming_events, 
-                                           key=lambda x: x.get("EventDate", ""))[:3]
+                    upcoming_events = sorted(
+                        upcoming_events, key=lambda x: x.get("EventDate", "")
+                    )[:3]
 
                     if upcoming_events:
                         for event in upcoming_events:
-                            rsvp = event['rsvp_info']
+                            rsvp = event["rsvp_info"]
                             # Format the date for display
                             try:
                                 event_date = datetime.datetime.strptime(
@@ -133,14 +136,16 @@ with col1:
                                 ).strftime("%Y-%m-%d")
                             except:
                                 event_date = event["EventDate"]
-                            
+
                             with st.expander(f"✅ {event['Name']} - {event_date}"):
                                 st.write(f"**Date:** {event_date}")
                                 st.write(f"**Location:** {event['EventLoc']}")
                                 st.write(f"**Meet Location:** {event['MeetLoc']}")
                                 st.write(f"**Type:** {event['EventType']}")
-                                if event.get('RecItems'):
-                                    st.write(f"**Recommended Items:** {event['RecItems']}")
+                                if event.get("RecItems"):
+                                    st.write(
+                                        f"**Recommended Items:** {event['RecItems']}"
+                                    )
                     else:
                         st.info("No upcoming RSVPs")
 
@@ -456,9 +461,7 @@ with stat_col4:
     # Count unread communications
     try:
         comms = requests.get(f"{BASE_URL}/communications/{member_id}").json()
-        count = len(
-            [msg for msg in comms.get("messages", [])]
-        )
+        count = len([msg for msg in comms.get("messages", [])])
         st.metric("Messages", count)
     except:
         st.metric("Messages", "—")

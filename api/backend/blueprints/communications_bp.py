@@ -17,10 +17,12 @@ def send_mass_communication():
     if not subject or not content or not recipients:
         return jsonify({"error": "Missing required fields"}), 400
 
-    communication_id = execute_update("""
+    communication_id = execute_update(
+        """
     INSERT INTO Communication (Subject, Content, DateSent)
     VALUES (%s, %s, %s);
-    """, (subject, content, datetime.now())
+    """,
+        (subject, content, datetime.now()),
     )
 
     for member_id in recipients:

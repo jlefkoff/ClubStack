@@ -447,10 +447,10 @@ def approve_budget(id):
     """
     data = request.get_json()
     approved_by = data.get("ApprovedBy")
-    
+
     if not approved_by:
         return jsonify({"error": "ApprovedBy is required"}), 400
-    
+
     # Check if budget exists and is in SUBMITTED status
     cursor = db.get_db().cursor()
     cursor.execute("SELECT Status FROM Budget WHERE ID = %s", (id,))
@@ -467,4 +467,13 @@ def approve_budget(id):
       WHERE ID = %s;
     """
     execute_update(update_query, (approved_by, id))
-    return jsonify({"message": "Budget approved successfully", "budget_id": id, "status": "APPROVED"}), 200
+    return (
+        jsonify(
+            {
+                "message": "Budget approved successfully",
+                "budget_id": id,
+                "status": "APPROVED",
+            }
+        ),
+        200,
+    )

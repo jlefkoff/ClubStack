@@ -88,7 +88,7 @@ if st.button("✅ Approve Budget", use_container_width=True):
     try:
         put_resp = requests.put(
             f"{API_URL}/{budget_id}/approve",
-            json={"ApprovedBy": st.session_state['member_id']},
+            json={"ApprovedBy": st.session_state["member_id"]},
             timeout=15,
         )
         if 200 <= put_resp.status_code < 300:

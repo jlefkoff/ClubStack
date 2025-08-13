@@ -44,7 +44,6 @@ for key, value in event_info.items():
     st.write(f"**{key}:** {value}")
 
 
-
 # display event roster
 response = requests.get(f"http://api:4000/events/{event_info['ID']}/roster")
 response.raise_for_status()
@@ -55,14 +54,13 @@ if data["roster"]:
         st.write(f"- {member}")
 
 
-
 # updating an event
 # updating an event
 if st.session_state.get("first_name", "").lower() in ("chance", "jacob"):
     # Initialize edit mode state
     if "edit_mode" not in st.session_state:
         st.session_state.edit_mode = False
-    
+
     if not st.session_state.edit_mode:
         if st.button("Update Event"):
             st.session_state.edit_mode = True
@@ -72,14 +70,33 @@ if st.session_state.get("first_name", "").lower() in ("chance", "jacob"):
         with st.form("update_event_form"):
             # Create inputs for each editable field — customize as needed
             name = st.text_input("Name", value=event_info.get("Name", ""))
-            description = st.text_area("Description", value=event_info.get("Description", ""))
-            event_loc = st.text_input("Event Location", value=event_info.get("EventLoc", ""))
-            event_type = st.text_input("Event Type", value=event_info.get("EventType", ""))
-            lead_org = st.text_input("Lead Organization", value=event_info.get("LeadOrg", ""))
-            max_size = st.number_input("Max Size", value=event_info.get("MaxSize", 1), min_value=1)
-            party_size = st.number_input("Party Size", value=event_info.get("PartySize", 0), min_value=0, max_value=max_size)
-            meet_loc = st.text_input("Meeting Location", value=event_info.get("MeetLoc", ""))
-            rec_items = st.text_area("Recommended Items", value=event_info.get("RecItems", ""))
+            description = st.text_area(
+                "Description", value=event_info.get("Description", "")
+            )
+            event_loc = st.text_input(
+                "Event Location", value=event_info.get("EventLoc", "")
+            )
+            event_type = st.text_input(
+                "Event Type", value=event_info.get("EventType", "")
+            )
+            lead_org = st.text_input(
+                "Lead Organization", value=event_info.get("LeadOrg", "")
+            )
+            max_size = st.number_input(
+                "Max Size", value=event_info.get("MaxSize", 1), min_value=1
+            )
+            party_size = st.number_input(
+                "Party Size",
+                value=event_info.get("PartySize", 0),
+                min_value=0,
+                max_value=max_size,
+            )
+            meet_loc = st.text_input(
+                "Meeting Location", value=event_info.get("MeetLoc", "")
+            )
+            rec_items = st.text_area(
+                "Recommended Items", value=event_info.get("RecItems", "")
+            )
 
             col1, col2 = st.columns(2)
             with col1:
@@ -102,7 +119,9 @@ if st.session_state.get("first_name", "").lower() in ("chance", "jacob"):
                 "RecItems": rec_items,
             }
             try:
-                response = requests.put(f"http://api:4000/events/{event_id}", json=payload)
+                response = requests.put(
+                    f"http://api:4000/events/{event_id}", json=payload
+                )
                 response.raise_for_status()
                 st.success("Event updated successfully!")
                 st.session_state.edit_mode = False
