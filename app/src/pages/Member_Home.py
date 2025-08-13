@@ -108,7 +108,9 @@ with col1:
 
                     if upcoming_events:
                         for rsvp in upcoming_events:
-                            event = requests.get(f"{BASE_URL}/events/{rsvp['EventID']}").json()
+                            event = requests.get(
+                                f"{BASE_URL}/events/{rsvp['EventID']}"
+                            ).json()
                             status_icon = (
                                 "✅"
                                 if rsvp["Status"] == "Going"
@@ -119,7 +121,7 @@ with col1:
                             ):
                                 st.write(f"**Date:** {event['EventDate']}")
                                 st.write(f"**Location:** {event['EventLoc']}")
-                                
+
                     else:
                         st.info("No upcoming RSVPs")
 
@@ -190,7 +192,7 @@ with col2:
                                 # RSVP Button
                                 # Check if user already RSVP'd to this event
                                 user_rsvp_key = f"rsvp_success_{event['ID']}"
-                                
+
                                 if st.session_state.get(user_rsvp_key, False):
                                     st.write("✅ **RSVP'd**")
                                 else:
@@ -234,7 +236,7 @@ with col2:
             st.warning("Events service unavailable")
 
     st.write("")
-  
+
     # COMMUNICATIONS - Compact Version
     with st.container():
         st.subheader("📧 Recent Communications")
@@ -425,9 +427,7 @@ with stat_col2:
 with stat_col3:
     # Count event RSVPs
     try:
-        rsvp_count = len(
-            requests.get(f"{BASE_URL}/events/rsvp/{member_id}").json()
-        )
+        rsvp_count = len(requests.get(f"{BASE_URL}/events/rsvp/{member_id}").json())
         st.metric("Event RSVPs", rsvp_count)
     except:
         st.metric("Event RSVPs", "—")
