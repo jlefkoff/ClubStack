@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 
-from backend.utils.db_utils import execute_query
+from backend.utils.db_utils import execute_query, execute_update
 from backend.db_connection import db
 
 events_bp = Blueprint("events", __name__)
@@ -63,6 +63,7 @@ def get_event(event_id):
 @events_bp.route("/", methods=["POST"])
 def post_event():
     data = request.get_json()
+    print(data)
     required_fields = [
         "Author",
         "PartySize",
@@ -74,8 +75,7 @@ def post_event():
         "MeetLoc",
         "LeadOrg",
         "EventType",
-        "RecItems",
-        "Picture",
+        "RecItems",    
     ]
     if not all(field in data for field in required_fields):
         return jsonify({"error": "Missing required fields"}), 400
@@ -83,8 +83,8 @@ def post_event():
     query = """
   INSERT INTO Event (
     Author, PartySize, MaxSize, EventLoc, Randomized,
-    Name, Description, MeetLoc, LeadOrg, EventType, RecItems, Picture
-  ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    Name, Description, MeetLoc, LeadOrg, EventType, RecItems
+  ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
   """
     values = (
         data["Author"],
@@ -97,14 +97,17 @@ def post_event():
         data["MeetLoc"],
         data["LeadOrg"],
         data["EventType"],
-        data["RecItems"],
-        data["Picture"],
+        data["RecItems"]
     )
-    cursor = db.get_db().cursor()
-    cursor.execute(query, values)
-    db.get_db().commit()
-    event_id = cursor.lastrowid
-    return jsonify({"message": "Event created", "event_id": event_id}), 201
+    try:
+      id = execute_update(query, values)
+
+      print(f"Event created with ID: {id}")
+      return jsonify({"message": "Event created", "event_id": id}), 201
+    except Exception as e:
+      db.get_db().rollback()
+      print(f"Error creating event: {e}")
+      return jsonify({"error": "Failed to create event", "details": str(e)}), 500
 
 
 # PUT /events/<id> - Update event
@@ -127,6 +130,13 @@ def put_event(event_id):
         return jsonify({"error": "Event not found"}), 404
 
     return jsonify({"message": "Event updated successfully"}), 200
+
+# DELETE /events/<id> - Delete event
+@events_bp.route("/<int:event_id>", methods=["DELETE"])
+def delete_event(event_id):
+    query = "DELETE FROM Event WHERE ID = %s"
+    execute_update(query, (event_id,))
+    return jsonify({"message": "Event deleted successfully"}), 200
 
 
 # GET /events/<id>/roster - Get event roster
