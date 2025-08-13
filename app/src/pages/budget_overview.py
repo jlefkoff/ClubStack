@@ -80,10 +80,9 @@ with st.form("new_budget_form"):
                 body = {"raw": resp.text[:1000]}
             if 200 <= resp.status_code < 300:
                 st.success(
-                    "Request sent. (Note: POST /budget is a stub in the backend, so data may not persist yet.)"
+                    "Request sent."
                 )
                 st.json(body)
-                st.rerun()
             else:
                 st.error(f"Error: {resp.status_code}")
                 st.json(body)
