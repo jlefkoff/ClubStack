@@ -83,12 +83,12 @@ st.divider()
 
 # --- PUT: approve budget (correct route + payload) ---
 st.subheader("Approve Budget")
-approver_id = st.number_input("Approver Member ID", min_value=1, step=1, format="%d")
+
 if st.button("✅ Approve Budget", use_container_width=True):
     try:
         put_resp = requests.put(
             f"{API_URL}/{budget_id}/approve",
-            json={"ApprovedBy": int(approver_id)},
+            json={"ApprovedBy": st.session_state['member_id']},
             timeout=15,
         )
         if 200 <= put_resp.status_code < 300:
