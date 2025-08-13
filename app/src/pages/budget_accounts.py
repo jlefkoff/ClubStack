@@ -151,7 +151,7 @@ if create:
 
         if not success:
             st.error(
-                "Could not create account — backend route not found or rejected the request."
+                "Could not create account."
             )
             st.write("Last response/status:")
             st.write(last_status)

@@ -38,14 +38,14 @@ default_start = date(date.today().year, 1, 1)
 default_end = date.today()
 with st.form("report_form"):
     _ = st.date_input(
-        "Date Range (not used by API yet)", value=(default_start, default_end)
+        "Date Range", value=(default_start, default_end)
     )
     _ = st.selectbox(
-        "Group By (not used by API yet)",
+        "Group By",
         ["none", "category", "month", "vendor", "account"],
         index=0,
     )
-    _ = st.checkbox("Include transaction details (not used by API yet)", value=False)
+    _ = st.checkbox("Include transaction details", value=False)
     run = st.form_submit_button("Create Spending Report")
 
 if run:

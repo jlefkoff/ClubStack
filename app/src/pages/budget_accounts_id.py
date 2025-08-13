@@ -8,7 +8,7 @@ st.header("Budget Account Details")
 API_BASE = "http://api:4000/budget"
 
 # Nav
-st.page_link("pages/Budget_Overview.py", label="← Back to Budgets", icon="↩️")
+st.page_link("pages/budget_overview.py", label="← Back to Budgets", icon="↩️")
 st.page_link("pages/budget_accounts.py", label="← Back to Accounts", icon="↩️")
 
 # --- Resolve budget/account IDs (session first, then query params) ---
@@ -117,7 +117,7 @@ if do_update:
                 last_status = "request_error"
                 last_body = str(e)
         if not updated:
-            st.error("Update failed — backend route not found or rejected the request.")
+            st.error("Update failed")
             st.write("Last response/status:")
             st.write(last_status)
             st.json(
@@ -165,7 +165,7 @@ if st.button("🗑️ Delete Account", disabled=not danger, use_container_width=
             last_status = "request_error"
             last_body = str(e)
     if not deleted:
-        st.error("Delete failed — backend route not found or rejected the request.")
+        st.error("Delete failed")
         st.write("Last response/status:")
         st.write(last_status)
         st.json(
