@@ -20,8 +20,10 @@ member_id = st.session_state.get("member_id")
 st.subheader("Enter Reimbursement Information")
 
 # Required fields
-description = st.text_area("Description/Reason for Reimbursement *", 
-                          placeholder="e.g., Business trip expenses, Office supplies")
+description = st.text_area(
+    "Description/Reason for Reimbursement *",
+    placeholder="e.g., Business trip expenses, Office supplies",
+)
 
 # Items section
 st.subheader("Expense Items")
@@ -33,14 +35,17 @@ if "reimbursement_items" not in st.session_state:
 # Add item form
 with st.form("add_item_form", clear_on_submit=True):
     col1, col2 = st.columns(2)
-    
+
     with col1:
-        item_description = st.text_input("Item Description *", 
-                                       placeholder="e.g., Hotel stay, Gas receipt")
-    
+        item_description = st.text_input(
+            "Item Description *", placeholder="e.g., Hotel stay, Gas receipt"
+        )
+
     with col2:
-        item_price = st.number_input("Price ($) *", min_value=0.01, format="%.2f", step=0.01)
-    
+        item_price = st.number_input(
+            "Price ($) *", min_value=0.01, format="%.2f", step=0.01
+        )
+
     if st.form_submit_button("Add Item"):
         if not item_description.strip():
             st.error("Please provide an item description.")
@@ -49,7 +54,7 @@ with st.form("add_item_form", clear_on_submit=True):
         else:
             new_item = {
                 "description": item_description.strip(),
-                "price": float(item_price)
+                "price": float(item_price),
             }
             st.session_state.reimbursement_items.append(new_item)
             st.success(f"Added: {item_description} - ${item_price:.2f}")
@@ -58,26 +63,26 @@ with st.form("add_item_form", clear_on_submit=True):
 # Display current items
 if st.session_state.reimbursement_items:
     st.write("#### Current Items")
-    
+
     total_amount = 0
     for i, item in enumerate(st.session_state.reimbursement_items):
         col1, col2, col3 = st.columns([3, 1, 1])
-        
+
         with col1:
             st.write(f"**{item['description']}**")
-        
+
         with col2:
             st.write(f"${item['price']:.2f}")
-        
+
         with col3:
             if st.button("Remove", key=f"remove_{i}"):
                 st.session_state.reimbursement_items.pop(i)
                 st.rerun()
-        
-        total_amount += item['price']
-    
+
+        total_amount += item["price"]
+
     st.write(f"**Total Amount: ${total_amount:.2f}**")
-    
+
     # Clear all items button
     if st.button("Clear All Items"):
         st.session_state.reimbursement_items = []
@@ -91,7 +96,7 @@ if st.button("Submit Reimbursement", use_container_width=True):
     if not description.strip():
         st.error("Please provide a description for the reimbursement.")
         st.stop()
-    
+
     if not st.session_state.reimbursement_items:
         st.error("Please add at least one expense item.")
         st.stop()
@@ -101,15 +106,13 @@ if st.button("Submit Reimbursement", use_container_width=True):
         "member_id": member_id,
         "description": description.strip(),
         "total": total_amount,
-        "items": st.session_state.reimbursement_items
+        "items": st.session_state.reimbursement_items,
     }
 
     try:
         with st.spinner("Submitting reimbursement..."):
             response = requests.post(
-                f"{API_BASE}/reimbursements/",
-                json=payload,
-                timeout=10
+                f"{API_BASE}/reimbursements/", json=payload, timeout=10
             )
             response.raise_for_status()
 
@@ -117,21 +120,21 @@ if st.button("Submit Reimbursement", use_container_width=True):
         st.success(f"✅ Reimbursement submitted successfully!")
         st.info(f"Reimbursement ID: {result.get('reimbursement_id')}")
         st.info(f"Status: {result.get('status', 'Pending')}")
-        
+
         # Clear items after successful submission
         st.session_state.reimbursement_items = []
-        
+
         # Option to submit another reimbursement
         if st.button("Submit Another Reimbursement"):
             st.rerun()
 
     except requests.exceptions.RequestException as e:
         st.error(f"❌ Failed to submit reimbursement: {e}")
-        
+
         # Show detailed error if available
-        if hasattr(e, 'response') and e.response is not None:
+        if hasattr(e, "response") and e.response is not None:
             try:
-                error_detail = e.response.json().get('error', 'Unknown error')
+                error_detail = e.response.json().get("error", "Unknown error")
                 st.error(f"Server error: {error_detail}")
             except:
                 st.error(f"HTTP Status: {e.response.status_code}")

@@ -48,7 +48,8 @@ def post_merch_item():
         data["description"],
         data["quantity"],
     )
-    return execute_update(query, params)
+    new_item = execute_update(query, params)
+    return jsonify(new_item), 201
 
 
 # ------------------------------------------------------------
@@ -71,15 +72,19 @@ def post_merch_sale():
 
 
 # ------------------------------------------------------------
-# GET /merch-report - Merch sales report
+# GET /merch-report - Merch sales report with sale price
 @merch_bp.route("/merch-report", methods=["GET"])
 def merch_report():
     query = """
-    SELECT MerchSale.ID, MerchSale.Cash, MerchSale.SaleDate,
-           GROUP_CONCAT(MerchItem.Name) AS ItemsSold
-    FROM MerchSale
-    JOIN MerchSaleItems ON MerchSale.ID = MerchSaleItems.MerchSale
-    JOIN MerchItem ON MerchSaleItems.MerchItem = MerchItem.ID
-    GROUP BY MerchSale.ID;
-    """
+  SELECT 
+    MerchSale.ID, 
+    MerchSale.Cash, 
+    MerchSale.SaleDate,
+    GROUP_CONCAT(MerchItem.Name) AS ItemsSold,
+    SUM(MerchItem.Price) AS TotalSalePrice
+  FROM MerchSale
+  JOIN MerchSaleItems ON MerchSale.ID = MerchSaleItems.MerchSale
+  JOIN MerchItem ON MerchSaleItems.MerchItem = MerchItem.ID
+  GROUP BY MerchSale.ID;
+  """
     return execute_query(query)

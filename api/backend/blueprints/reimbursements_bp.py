@@ -18,7 +18,12 @@ def reimbursement_overview():
 @reimbursements_bp.route("/", methods=["POST"])
 def submit_reimbursement():
     data = request.json
-    if not data or "member_id" not in data or "description" not in data or "items" not in data:
+    if (
+        not data
+        or "member_id" not in data
+        or "description" not in data
+        or "items" not in data
+    ):
         return jsonify({"error": "Invalid data"}), 400
 
     member_id = data["member_id"]
@@ -47,6 +52,7 @@ def submit_reimbursement():
     execute_update(item_query)
     return jsonify({"reimbursement_id": reimbursement_id, "status": "Pending"}), 201
 
+
 # GET /reimbursements/<int:id> - Get a specific reimbursement
 @reimbursements_bp.route("/<int:id>", methods=["GET"])
 def get_reimbursement(id):
@@ -57,6 +63,7 @@ def get_reimbursement(id):
     """
     return execute_query(query)
 
+
 # PUT /reimbursements/<int:id>/approve - Approve reimbursement
 @reimbursements_bp.route("/<int:id>/approve", methods=["PUT"])
 def approve_reimbursement(id):
@@ -64,7 +71,7 @@ def approve_reimbursement(id):
     UPDATE Reimbursement SET Status = 'APPROVED' WHERE ID = %s;
     """
     result = execute_query(query, (id,))
-    
+
     if result:
         return jsonify({"message": "Reimbursement approved successfully"}), 200
     else:

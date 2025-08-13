@@ -13,7 +13,6 @@ st.title("Create New Member")
 API_BASE = os.getenv("API_BASE") or "http://web-api:4000"
 
 
-
 # --- Inputs ---
 st.subheader("Enter New Member Information")
 
@@ -36,7 +35,7 @@ st.subheader("Vehicle Information (Optional)")
 has_car = st.checkbox("Member has a vehicle")
 
 car_plate = None
-car_state = None  
+car_state = None
 car_pass_count = None
 
 if has_car:
@@ -51,13 +50,28 @@ if has_car:
 # Submit button
 if st.button("Create Member", use_container_width=True):
     # Validate required fields
-    if not all([first_name.strip(), last_name.strip(), emer_contact_name.strip(), emer_contact_phone.strip()]):
+    if not all(
+        [
+            first_name.strip(),
+            last_name.strip(),
+            emer_contact_name.strip(),
+            emer_contact_phone.strip(),
+        ]
+    ):
         st.error("Please fill in all required (*) fields.")
         st.stop()
 
     # Validate car info if provided
-    if has_car and not all([car_plate and car_plate.strip(), car_state and car_state.strip(), car_pass_count is not None]):
-        st.error("Please complete all vehicle fields or uncheck 'Member has a vehicle'.")
+    if has_car and not all(
+        [
+            car_plate and car_plate.strip(),
+            car_state and car_state.strip(),
+            car_pass_count is not None,
+        ]
+    ):
+        st.error(
+            "Please complete all vehicle fields or uncheck 'Member has a vehicle'."
+        )
         st.stop()
 
     # Build payload to match your API
@@ -72,33 +86,33 @@ if st.button("Create Member", use_container_width=True):
         "activation_date": activation_date.strftime("%Y-%m-%d"),
         "car_plate": car_plate.strip() if has_car and car_plate else None,
         "car_state": car_state.strip() if has_car and car_state else None,
-        "car_pass_count": car_pass_count if has_car and car_pass_count is not None else None
+        "car_pass_count": (
+            int(car_pass_count) if has_car and car_pass_count is not None else None
+        ),
+        "emer_contact_name": emer_contact_name.strip(),
+        "emer_contact_phone": emer_contact_phone.strip(),
     }
 
     try:
         with st.spinner("Creating member..."):
-            response = requests.post(
-                f"{API_BASE}/members/",
-                json=payload,
-                timeout=10
-            )
+            response = requests.post(f"{API_BASE}/members/", json=payload, timeout=10)
             response.raise_for_status()
 
         result = response.json()
         st.success(f"✅ Member {first_name} {last_name} created successfully!")
         st.info(f"Member ID: {result.get('member_id')}")
-        
+
         # Option to create another member
         if st.button("Create Another Member"):
             st.rerun()
 
     except requests.exceptions.RequestException as e:
         st.error(f"❌ Failed to create member: {e}")
-        
+
         # Show detailed error if available
-        if hasattr(e, 'response') and e.response is not None:
+        if hasattr(e, "response") and e.response is not None:
             try:
-                error_detail = e.response.json().get('error', 'Unknown error')
+                error_detail = e.response.json().get("error", "Unknown error")
                 st.error(f"Server error: {error_detail}")
             except:
                 st.error(f"HTTP Status: {e.response.status_code}")
