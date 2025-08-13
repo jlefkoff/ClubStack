@@ -48,6 +48,11 @@ def TreasurerReimbursementsNav():
         "pages/Manage_Reimbursements.py", label="Reimbursement Overview", icon="🧾"
     )
 
+def Allergies():
+    st.sidebar.page_link(
+        "pages/50_Allergies.py", label="Allergies", icon="🍎"
+    )
+
 
 # ------------------------ For role of VP ------------------------
 
@@ -116,6 +121,7 @@ def SideBarLinks(show_home=False):
             MyGearNav()
             GearBrowseNav()
             SubmitReimbursementNav()
+            Allergies()
 
         if st.session_state["role"] == "administrator":
             MemberHomeNav()
