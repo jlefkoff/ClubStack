@@ -20,6 +20,10 @@ def PolStratAdvHomeNav():
     st.sidebar.page_link("pages/00_Member_Home.py", label="Club Member Home", icon="👤")
 
 
+def TreasurerBudgetOverview():
+    st.sidebar.page_link("pages/budget_overview.py", label="Budget Overview", icon="💰")
+
+
 def WorldBankVizNav():
     st.sidebar.page_link("pages/01_Browse_Gear.py", label="Browse Gear", icon="🏕️")
 
@@ -103,6 +107,7 @@ def SideBarLinks(show_home=False):
             PolStratAdvHomeNav()
             WorldBankVizNav()
             MapDemoNav()
+            TreasurerBudgetOverview()
 
         if st.session_state["role"] == "vp":
             PredictionNav()
@@ -110,10 +115,11 @@ def SideBarLinks(show_home=False):
             ClassificationNav()
             NgoDirectoryNav()
             AddNgoNav()
-            WorldBankVizNav()
-            MapDemoNav()
+            TreasurerBudgetOverview()
 
         if st.session_state["role"] == "administrator":
+            AdminPageNav()
+            TreasurerBudgetOverview()
             AdminPageNav()
             Permissions()
             AdminElectionsNav()

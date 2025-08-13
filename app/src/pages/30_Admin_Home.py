@@ -12,7 +12,8 @@ SideBarLinks()
 
 st.title("System Admin Home Page")
 
-
+if st.button("Budget Overview", type="primary", use_container_width=True):
+    st.switch_page("pages/budget_overview.py")
 if st.button("Permissions Overview", type="primary", use_container_width=True):
     st.switch_page("pages/permissions_overview.py")
 if st.button("Create Member", type="primary", use_container_width=True):

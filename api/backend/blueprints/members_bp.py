@@ -160,6 +160,7 @@ def get_member(member_id):
 
     return jsonify({"member": member}), 200
 
+
 # PUT /members/<int:member_id> - Update member details
 @members_bp.route("/<int:member_id>", methods=["PUT"])
 def update_member(member_id):
@@ -205,18 +206,18 @@ def update_member(member_id):
 
     # Validate car data consistency
     has_car_data = any(
-        field is not None
-        for field in [car_plate, car_state, car_pass_count]
+        field is not None for field in [car_plate, car_state, car_pass_count]
     )
     if has_car_data and not all(
-        field is not None
-        for field in [car_plate, car_state, car_pass_count]
+        field is not None for field in [car_plate, car_state, car_pass_count]
     ):
         return (
             jsonify(
                 {
                     "error": "If providing car information, all car fields (plate, state, pass_count) are required"
-                }            ), 400,
+                }
+            ),
+            400,
         )
 
     # Build the update query dynamically based on provided fields
@@ -257,12 +258,11 @@ def update_member(member_id):
 
         if cursor.rowcount == 0:
             return jsonify({"error": "Member not found"}), 404
-        
+
         return jsonify({"message": "Member updated successfully"}), 200
     except Exception as e:
         db.get_db().rollback()
         return jsonify({"error": f"Database error: {str(e)}"}), 500
-
 
 
 # PUT /members/<int:member_id>/activate - Activate/Renew member with payment
