@@ -108,6 +108,7 @@ with col1:
 
                     if upcoming_events:
                         for rsvp in upcoming_events:
+                            event = requests.get(f"{BASE_URL}/events/{rsvp['EventID']}").json()
                             status_icon = (
                                 "✅"
                                 if rsvp["Status"] == "Going"
@@ -116,9 +117,9 @@ with col1:
                             with st.expander(
                                 f"{status_icon} {rsvp['EventTitle']} - {rsvp['EventDate']}"
                             ):
-                                st.write(f"**Date:** {rsvp['EventDate']}")
-                                st.write(f"**Status:** {rsvp['Status']}")
-                                st.write(f"**Type:** {rsvp.get('EventType', 'Event')}")
+                                st.write(f"**Date:** {event['EventDate']}")
+                                st.write(f"**Location:** {event['EventLoc']}")
+                                
                     else:
                         st.info("No upcoming RSVPs")
 
@@ -187,31 +188,38 @@ with col2:
                                     st.write(f"{days_until}d")
 
                                 # RSVP Button
-                                if st.button(
-                                    "RSVP",
-                                    key=f"rsvp_{event['ID']}",
-                                    use_container_width=True,
-                                    type="secondary",
-                                ):
-                                    # Quick RSVP - default to "Going"
-                                    rsvp_data = {
-                                        "member_id": member_id,
-                                        "event_id": event["ID"],
-                                        "status": "Going",
-                                    }
-                                    try:
-                                        rsvp_response = requests.post(
-                                            f"{BASE_URL}/events/{event['ID']}/rsvp",
-                                            json=rsvp_data,
-                                        )
-                                        if rsvp_response.status_code in [200, 201]:
-                                            st.success("✅ RSVP'd!")
-                                            st.rerun()
-                                        else:
-                                            st.error("Failed to RSVP")
-                                    except:
-                                        st.error("Could not submit RSVP")
-
+                                # Check if user already RSVP'd to this event
+                                user_rsvp_key = f"rsvp_success_{event['ID']}"
+                                
+                                if st.session_state.get(user_rsvp_key, False):
+                                    st.write("✅ **RSVP'd**")
+                                else:
+                                    if st.button(
+                                        "RSVP",
+                                        key=f"rsvp_{event['ID']}",
+                                        use_container_width=True,
+                                        type="secondary",
+                                    ):
+                                        # Quick RSVP - default to "Going"
+                                        rsvp_data = {
+                                            "member_id": member_id,
+                                            "event_id": event["ID"],
+                                            "avail_start": f"{datetime.datetime.now():%Y-%m-%d %H:%M:%S}",
+                                            "avail_end": f"{datetime.datetime.now() + datetime.timedelta(days=7):%Y-%m-%d %H:%M:%S}",
+                                        }
+                                        try:
+                                            rsvp_response = requests.post(
+                                                f"{BASE_URL}/events/rsvp",
+                                                json=rsvp_data,
+                                            )
+                                            if rsvp_response.status_code in [200, 201]:
+                                                st.session_state[user_rsvp_key] = True
+                                                st.rerun()
+                                            else:
+                                                st.error("Failed to RSVP")
+                                        except Exception as ex:
+                                            logger.error(f"Error submitting RSVP: {ex}")
+                                            st.error("Could not submit RSVP")
                         st.write("---")
                 else:
                     st.info("No upcoming events")
@@ -226,7 +234,7 @@ with col2:
             st.warning("Events service unavailable")
 
     st.write("")
-
+  
     # COMMUNICATIONS - Compact Version
     with st.container():
         st.subheader("📧 Recent Communications")
@@ -418,7 +426,7 @@ with stat_col3:
     # Count event RSVPs
     try:
         rsvp_count = len(
-            requests.get(f"{BASE_URL}/events/rsvps/member/{member_id}").json()
+            requests.get(f"{BASE_URL}/events/rsvp/{member_id}").json()
         )
         st.metric("Event RSVPs", rsvp_count)
     except:

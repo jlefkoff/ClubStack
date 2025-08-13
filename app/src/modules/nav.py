@@ -124,7 +124,6 @@ def SideBarLinks(show_home=False):
             TreasurerReimbursementsNav()
             TreasurerBudgetOverview()
             AdminPageNav()
-            TreasurerBudgetOverview()
             Permissions()
             AdminElectionsNav()
             ViewProfile()

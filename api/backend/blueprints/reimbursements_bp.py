@@ -70,9 +70,5 @@ def approve_reimbursement(id):
     query = """
     UPDATE Reimbursement SET Status = 'APPROVED' WHERE ID = %s;
     """
-    result = execute_query(query, (id,))
-
-    if result:
-        return jsonify({"message": "Reimbursement approved successfully"}), 200
-    else:
-        return jsonify({"error": "Reimbursement not found"}), 404
+    execute_update(query, (id,))
+    return jsonify({"message": "Reimbursement approved successfully"}), 200
