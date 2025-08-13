@@ -111,7 +111,7 @@ def reserve_gear():
 @gear_bp.route("/reservations/<int:member_id>", methods=["GET"])
 def get_gear_reservation(member_id):
     query = """
-    SELECT Name, CheckOutDate, ReturnDate FROM GearReservation JOIN GearReservationItems ON GearReservation.ID = GearReservationItems.Reservation
+    SELECT GearReservation.ID, Name, CheckOutDate, ReturnDate FROM GearReservation JOIN GearReservationItems ON GearReservation.ID = GearReservationItems.Reservation
          JOIN RentalItem ON GearReservationItems.Item = RentalItem.ID
          WHERE Member = %s;
     """

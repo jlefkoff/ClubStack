@@ -93,16 +93,19 @@ CREATE TABLE Event (
     EventType VARCHAR(255),
     RecItems TEXT,
     Picture TEXT,
+    EventDate DATE,
     FOREIGN KEY (Author) REFERENCES Member(ID)
 );
 
 CREATE TABLE RSVP (
     ID INT PRIMARY KEY AUTO_INCREMENT,
+    Member INT NOT NULL,
     Event INT NOT NULL,
     CanBringCar BOOLEAN NOT NULL DEFAULT FALSE,
     AvailStart DATETIME NOT NULL,
     AvailEnd DATETIME NOT NULL,
-    FOREIGN KEY (Event) REFERENCES Event(ID)
+    FOREIGN KEY (Event) REFERENCES Event(ID),
+    FOREIGN KEY (Member) REFERENCES Member(ID)
 );
 
 CREATE TABLE EventRoster (

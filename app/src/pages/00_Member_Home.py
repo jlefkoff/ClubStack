@@ -56,28 +56,20 @@ with col1:
             if gear_response.status_code == 200:
                 reservations = gear_response.json()
                 if reservations:
-                    # Show next 3 upcoming reservations
-                    upcoming_reservations = [r for r in reservations if datetime.datetime.strptime(r['CheckOutDate'], '%Y-%m-%d').date() >= datetime.date.today()][:3]
-                    
-                    if upcoming_reservations:
-                        for reservation in upcoming_reservations:
-                            with st.expander(f"Reservation #{reservation['ID']} - {reservation['CheckOutDate']}"):
-                                st.write(f"**Check Out:** {reservation['CheckOutDate']}")
-                                st.write(f"**Return:** {reservation['ReturnDate']}")
-                                if 'Items' in reservation:
-                                    st.write(f"**Items:** {', '.join(reservation['Items'])}")
-                    else:
-                        st.info("No upcoming reservations")
-                        
+                    for reservation in reservations:
+                        with st.expander(f"Reservation #{reservation['ID']} - {reservation['CheckOutDate']}"):
+                            st.write(f"**Check Out:** {reservation['CheckOutDate']}")
+                            st.write(f"**Return:** {reservation['ReturnDate']}")
+                            st.write(f"**Item:** {reservation['Name']}")
                     if st.button("View All Reservations", key="gear_btn", use_container_width=True):
-                        st.switch_page("pages/03_My_Gear.py")
+                        st.switch_page("pages/My_Gear.py")
                 else:
                     st.info("No gear reservations")
             else:
                 st.warning("Could not load gear reservations")
-        except:
+        except Exception as e:
             st.warning("Gear service unavailable")
-    
+
     st.write("")
     
     # EVENT RSVPs  
@@ -114,7 +106,7 @@ with col1:
 
 # ==================== COLUMN 2 ====================
 with col2:
-    # EVENTS CALENDAR
+    # EVENTS CALENDAR - Compact Version
     with st.container():
         st.subheader("🗓️ Upcoming Events")
         try:
@@ -123,27 +115,58 @@ with col2:
             if events_response.status_code == 200:
                 events = events_response.json()
                 if events:
-                    # Show next 4 upcoming events
-                    for event in events[:4]:
-                        event_date = datetime.datetime.strptime(event['Date'], '%Y-%m-%d').date()
-                        days_until = (event_date - datetime.date.today()).days
-                        
+                    # Filter and sort upcoming events
+                    upcoming_events = []
+                    for event in events:
+                        try:
+                            event_date = datetime.datetime.strptime(event['EventDate'], '%Y-%m-%d').date()
+                            if event_date >= datetime.date.today():
+                                days_until = (event_date - datetime.date.today()).days
+                                event['days_until'] = days_until
+                                upcoming_events.append(event)
+                        except:
+                            continue
+                    
+                    upcoming_events = sorted(upcoming_events, key=lambda x: x['days_until'])[:4]
+                    
+                    for event in upcoming_events:
+                        # Compact event display
                         with st.container():
-                            col_a, col_b = st.columns([3, 1])
-                            with col_a:
-                                st.write(f"**{event['Title']}**")
-                                st.write(f"📍 {event.get('Location', 'TBD')}")
-                                st.write(f"📅 {event['Date']}")
-                            with col_b:
+                            # Single row layout with clickable RSVP
+                            col_event, col_rsvp = st.columns([3, 1])
+                            
+                            with col_event:
+                                st.write(f"**{event['Name'][:25]}{'...' if len(event['Name']) > 25 else ''}**")
+                                st.write(f"📅 {event['EventDate']} • 📍 {event.get('MeetLoc', 'TBD')}")
+                            
+                            with col_rsvp:
+                                days_until = event['days_until']
                                 if days_until == 0:
-                                    st.write("🔥 **TODAY**")
-                                elif days_until == 1:
-                                    st.write("📅 **Tomorrow**")
-                                elif days_until <= 7:
-                                    st.write(f"📅 **{days_until}d**")
+                                    st.write("🔥 TODAY")
+                                elif days_until <= 3:
+                                    st.write(f"⚡ {days_until}d")
                                 else:
-                                    st.write(f"📅 {days_until}d")
-                            st.write("---")
+                                    st.write(f"{days_until}d")
+                                
+                                # RSVP Button
+                                if st.button("RSVP", key=f"rsvp_{event['ID']}", use_container_width=True, type="secondary"):
+                                    # Quick RSVP - default to "Going"
+                                    rsvp_data = {
+                                        "member_id": member_id,
+                                        "event_id": event['ID'],
+                                        "status": "Going"
+                                    }
+                                    try:
+                                        rsvp_response = requests.post(f"{BASE_URL}/events/{event['ID']}/rsvp", json=rsvp_data)
+                                        if rsvp_response.status_code in [200, 201]:
+                                            st.success("✅ RSVP'd!")
+                                            st.rerun()
+                                        else:
+                                            st.error("Failed to RSVP")
+                                    except:
+                                        st.error("Could not submit RSVP")
+                        
+                        st.write("---")
                 else:
                     st.info("No upcoming events")
                     
@@ -151,12 +174,12 @@ with col2:
                     st.switch_page("pages/05_Events.py")
             else:
                 st.warning("Could not load events calendar")
-        except:
+        except Exception as e:
             st.warning("Events service unavailable")
-    
+
     st.write("")
     
-    # COMMUNICATIONS
+    # COMMUNICATIONS - Compact Version
     with st.container():
         st.subheader("📧 Recent Communications")
         try:
@@ -165,22 +188,26 @@ with col2:
             if comms_response.status_code == 200:
                 communications = comms_response.json()
                 if communications:
-                    # Show most recent 3 communications
-                    for comm in communications[:3]:
+                    # Show most recent 2 communications (reduced from 3)
+                    for comm in communications[:2]:
                         comm_date = datetime.datetime.strptime(comm['SentAt'], '%Y-%m-%d %H:%M:%S').strftime('%m/%d')
                         
-                        with st.expander(f"📧 {comm['Subject']} - {comm_date}"):
-                            st.write(f"**From:** {comm.get('SenderName', 'Club Admin')}")
-                            st.write(f"**Date:** {comm['SentAt']}")
-                            if 'Preview' in comm:
-                                st.write(f"**Preview:** {comm['Preview']}")
+                        # Compact communication display
+                        with st.container():
+                            col_comm, col_status = st.columns([4, 1])
                             
-                            # Mark as read button
-                            if not comm.get('IsRead', True):
-                                if st.button("Mark as Read", key=f"read_{comm['ID']}", use_container_width=True):
-                                    # API call to mark as read
-                                    requests.post(f"{BASE_URL}/communications/{comm['ID']}/read")
-                                    st.rerun()
+                            with col_comm:
+                                st.write(f"**{comm['Subject'][:30]}{'...' if len(comm['Subject']) > 30 else ''}**")
+                                st.write(f"📅 {comm_date}")
+                            
+                            with col_status:
+                                if not comm.get('IsRead', True):
+                                    if st.button("📖", key=f"read_{comm['ID']}", help="Mark as Read"):
+                                        requests.post(f"{BASE_URL}/communications/{comm['ID']}/read")
+                                        st.rerun()
+                                else:
+                                    st.write("✅")
+                        st.write("---")
                 else:
                     st.info("No recent communications")
                     
