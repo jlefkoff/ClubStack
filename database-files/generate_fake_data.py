@@ -685,31 +685,55 @@ def generate_fake_data():
     sql_statements.append("-- 🛍️ MERCHANDISE")
 
     merch_items = [
-        ("Club T-Shirt", 22.00, "Soft cotton t-shirt with club logo"),
-        ("Club Hoodie", 42.00, "Warm fleece hoodie with embroidered logo"),
-        ("Water Bottle", 18.00, "Insulated stainless steel bottle"),
-        ("Club Stickers", 5.00, "Weather-resistant vinyl sticker pack"),
-        ("Club Hat", 25.00, "Adjustable baseball cap with logo"),
-        ("Club Mug", 16.00, "Ceramic mug perfect for camp coffee"),
-        ("Club Patch", 8.00, "Iron-on embroidered patch"),
-        ("Club Pin", 10.00, "Enamel pin with mountain design"),
-        ("Club Buff", 20.00, "Versatile neck gaiter with logo"),
-        ("Club Notebook", 12.00, "Weather-resistant field notebook"),
+      ("Club T-Shirt", 22.00, "Soft cotton t-shirt with club logo"),
+      ("Club Hoodie", 42.00, "Warm fleece hoodie with embroidered logo"),
+      ("Water Bottle", 18.00, "Insulated stainless steel bottle"),
+      ("Club Stickers", 5.00, "Weather-resistant vinyl sticker pack"),
+      ("Club Hat", 25.00, "Adjustable baseball cap with logo"),
+      ("Club Mug", 16.00, "Ceramic mug perfect for camp coffee"),
+      ("Club Patch", 8.00, "Iron-on embroidered patch"),
+      ("Club Pin", 10.00, "Enamel pin with mountain design"),
+      ("Club Buff", 20.00, "Versatile neck gaiter with logo"),
+      ("Club Notebook", 12.00, "Weather-resistant field notebook"),
     ]
 
     merch_id = 50
-    for _ in range(40):  # 40 merch items
-        name, price, description = random.choice(merch_items)
-        purchase_order = random.randint(
-            1, 15
-        )  # Reference existing POs (1-5 from seed, 6-15 from fake data)
-        quantity = random.randint(5, 50)
-        location = "Merch Storage"
+    merch_item_ids = []
+    for _ in range(10):  # 10 merch items
+      name, price, description = random.choice(merch_items)
+      purchase_order = random.randint(
+        1, 15
+      )  # Reference existing POs
+      quantity = random.randint(5, 50)
+      location = "Merch Storage"
 
-        sql = f"""INSERT INTO MerchItem (ID, PurchaseOrder, Price, Quantity, Name, Description, Location) VALUES ({merch_id}, {purchase_order}, {price}, {quantity}, '{name}', '{description}', '{location}');"""
+      sql = f"""INSERT INTO MerchItem (ID, PurchaseOrder, Price, Quantity, Name, Description, Location) VALUES ({merch_id}, {purchase_order}, {price}, {quantity}, '{name}', '{description}', '{location}');"""
 
+      sql_statements.append(sql)
+      merch_item_ids.append(merch_id)
+      merch_id += 1
+
+    sql_statements.append("")
+
+    # 16.5. MERCH SALES
+    print("💸 Generating merch sales...")
+    sql_statements.append("-- 💸 MERCH SALES")
+
+    sale_id = 100
+    for _ in range(20):  # 20 sales
+      sale_date = fake.date_between(start_date="-6m", end_date="today").strftime("%Y-%m-%d")
+      cash = 1 if random.random() < 0.6 else 0
+      sql = f"INSERT INTO MerchSale (ID, SaleDate, Cash) VALUES ({sale_id}, '{sale_date}', {cash});"
+      sql_statements.append(sql)
+
+      # Each sale has 1-3 merch items
+      num_items = random.randint(1, 3)
+      items_sold = random.sample(merch_item_ids, num_items)
+      for merch_item_id in items_sold:
+        sql = f"INSERT INTO MerchSaleItems (MerchItem, MerchSale) VALUES ({merch_item_id}, {sale_id});"
         sql_statements.append(sql)
-        merch_id += 1
+
+      sale_id += 1
 
     sql_statements.append("")
 
