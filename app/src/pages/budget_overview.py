@@ -1,8 +1,8 @@
 import streamlit as st
 import requests
+from modules.nav import SideBarLinks
 
-st.sidebar.page_link("Home.py", label="Home", icon="🏠")
-st.title("💰 Budget Overview")
+SideBarLinks()
 
 API_BASE = "http://api:4000/budget"
 

@@ -76,7 +76,7 @@ with col1:
                 if st.button(
                     "Reserve Gear", key="gear_page_btn", use_container_width=True
                 ):
-                    st.switch_page("pages/01_Browse_Gear.py")
+                    st.switch_page("pages/Browse_Gear.py")
             else:
                 st.warning("Could not load gear reservations")
         except Exception as e:
@@ -407,10 +407,11 @@ with stat_col2:
     # Count gear reservations
     try:
         gear_count = len(
-            requests.get(f"{BASE_URL}/gear/reservations/member/{member_id}").json()
+            requests.get(f"{BASE_URL}/gear/reservations/{member_id}").json()
         )
         st.metric("Gear Reservations", gear_count)
-    except:
+    except Exception as e:
+        st.error(f"Error fetching gear: {e}")
         st.metric("Gear Reservations", "—")
 
 with stat_col3:

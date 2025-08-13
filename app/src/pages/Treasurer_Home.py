@@ -16,10 +16,4 @@ st.write("")
 
 
 if st.button("Manage Reimbursements", type="primary", use_container_width=True):
-    st.switch_page("pages/33_Manage_Reimbursements.py")
-
-if st.button("View the Simple API Demo", type="primary", use_container_width=True):
-    st.switch_page("pages/12_API_Test.py")
-
-if st.button("View Classification Demo", type="primary", use_container_width=True):
-    st.switch_page("pages/13_Classification.py")
+    st.switch_page("pages/Manage_Reimbursements.py")

@@ -13,4 +13,4 @@ SideBarLinks()
 st.title("VP Home Page")
 
 if st.button("Budget Overview", type="primary", use_container_width=True):
-    st.switch_page("pages/budget_overview.py")
+    st.switch_page("pages/Budget_Overview.py")

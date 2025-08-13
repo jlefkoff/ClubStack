@@ -12,53 +12,44 @@ def HomeNav():
 
 
 def AboutPageNav():
-    st.sidebar.page_link("pages/40_About.py", label="About", icon="🧠")
+    st.sidebar.page_link("pages/About.py", label="About", icon="🧠")
 
 
-# ------------------------ Examples for Role of pol_strat_advisor --------
-def PolStratAdvHomeNav():
-    st.sidebar.page_link("pages/00_Member_Home.py", label="Club Member Home", icon="👤")
+# ------------------------ For member role ------------------------
+def MemberHomeNav():
+    st.sidebar.page_link("pages/Member_Home.py", label="Club Member Home", icon="👤")
 
 
-def TreasurerBudgetOverview():
-    st.sidebar.page_link("pages/budget_overview.py", label="Budget Overview", icon="💰")
+def GearBrowseNav():
+    st.sidebar.page_link("pages/Browse_Gear.py", label="Browse Gear", icon="🏕️")
 
 
-def WorldBankVizNav():
-    st.sidebar.page_link("pages/01_Browse_Gear.py", label="Browse Gear", icon="🏕️")
+def MerchBuyNav():
+    st.sidebar.page_link("pages/Buy_Merch.py", label="Buy Merch", icon="💰")
 
 
-def MapDemoNav():
-    st.sidebar.page_link("pages/02_Buy_Merch.py", label="Buy Merch", icon="💰")
+def SubmitReimbursementNav():
+    st.sidebar.page_link(
+        "pages/Submit_Reimbursement.py", label="Submit Reimbursement", icon="🧾"
+    )
 
 
 def MyGearNav():
     st.sidebar.page_link("pages/My_Gear.py", label="My Gear", icon="⚙️")
 
 
-# ------------------------ Examples for Role of usaid_worker -------------
-def ApiTestNav():
-    st.sidebar.page_link("pages/12_API_Test.py", label="Test the API", icon="🛜")
+# ------------------------ For role of Treasurer -------------
+def TreasurerBudgetOverview():
+    st.sidebar.page_link("pages/Budget_Overview.py", label="Budget Overview", icon="💰")
 
 
-def PredictionNav():
+def TreasurerReimbursementsNav():
     st.sidebar.page_link(
-        "pages/11_Prediction.py", label="Regression Prediction", icon="📈"
+        "pages/Manage_Reimbursements.py", label="Reimbursement Overview", icon="🧾"
     )
 
 
-def ClassificationNav():
-    st.sidebar.page_link(
-        "pages/13_Classification.py", label="Classification Demo", icon="🌺"
-    )
-
-
-def NgoDirectoryNav():
-    st.sidebar.page_link("pages/14_NGO_Directory.py", label="NGO Directory", icon="📁")
-
-
-def AddNgoNav():
-    st.sidebar.page_link("pages/15_Add_NGO.py", label="Add New NGO", icon="➕")
+# ------------------------ For role of VP ------------------------
 
 
 def Permissions():
@@ -69,7 +60,7 @@ def Permissions():
 
 # ------------------------ System Admin Role ------------------------
 def AdminPageNav():
-    st.sidebar.page_link("pages/30_Admin_Home.py", label="System Admin", icon="🖥️")
+    st.sidebar.page_link("pages/Admin_Home.py", label="System Admin", icon="🖥️")
 
 
 def AdminElectionsNav():
@@ -98,29 +89,38 @@ def SideBarLinks(show_home=False):
     if st.session_state["authenticated"]:
 
         if st.session_state["role"] == "member":
-            PolStratAdvHomeNav()
-            WorldBankVizNav()
-            MapDemoNav()
+            MemberHomeNav()
+            MerchBuyNav()
             MyGearNav()
+            GearBrowseNav()
+            SubmitReimbursementNav()
 
         if st.session_state["role"] == "treasurer":
-            PolStratAdvHomeNav()
-            WorldBankVizNav()
-            MapDemoNav()
+            MemberHomeNav()
+            MerchBuyNav()
+            MyGearNav()
+            GearBrowseNav()
+            SubmitReimbursementNav()
+            TreasurerReimbursementsNav()
             TreasurerBudgetOverview()
 
         if st.session_state["role"] == "vp":
-            PredictionNav()
-            ApiTestNav()
-            ClassificationNav()
-            NgoDirectoryNav()
-            AddNgoNav()
-            TreasurerBudgetOverview()
+            MemberHomeNav()
+            MerchBuyNav()
+            MyGearNav()
+            GearBrowseNav()
+            SubmitReimbursementNav()
 
         if st.session_state["role"] == "administrator":
-            AdminPageNav()
+            MemberHomeNav()
+            MerchBuyNav()
+            MyGearNav()
+            GearBrowseNav()
+            SubmitReimbursementNav()
+            TreasurerReimbursementsNav()
             TreasurerBudgetOverview()
             AdminPageNav()
+            TreasurerBudgetOverview()
             Permissions()
             AdminElectionsNav()
 

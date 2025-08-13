@@ -35,7 +35,9 @@ available_quantity = (
     else 0
 )
 if available_quantity < 1:
-    st.warning("No gear available for reservation.")
+    st.warning(
+        f"No '{selected_gear}' available for reservation. (Quantity: {available_quantity})"
+    )
 
 available = (
     gear_df.loc[gear_df["Name"] == selected_gear, "Quantity"].values[0]

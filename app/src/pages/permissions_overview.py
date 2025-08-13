@@ -2,11 +2,14 @@
 import streamlit as st
 import requests
 import pandas as pd
+from modules.nav import SideBarLinks
 
 st.set_page_config(page_title="Permissions Overview", page_icon="🔐")
 st.header("Permissions Overview")
 
 API_BASE = "http://api:4000/permissions"
+
+SideBarLinks()
 
 st.divider()
 
