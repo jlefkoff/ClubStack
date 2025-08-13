@@ -131,6 +131,13 @@ def put_event(event_id):
 
     return jsonify({"message": "Event updated successfully"}), 200
 
+# DELETE /events/<id> - Delete event
+@events_bp.route("/<int:event_id>", methods=["DELETE"])
+def delete_event(event_id):
+    query = "DELETE FROM Event WHERE ID = %s"
+    execute_update(query, (event_id,))
+    return jsonify({"message": "Event deleted successfully"}), 200
+
 
 # GET /events/<id>/roster - Get event roster
 @events_bp.route("/<int:event_id>/roster", methods=["GET"])
