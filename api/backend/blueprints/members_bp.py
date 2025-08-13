@@ -268,9 +268,12 @@ def update_member(member_id):
 # PUT /members/<int:member_id>/activate - Activate/Renew member with payment
 @members_bp.route("/<int:member_id>/activate", methods=["PUT"])
 def activate_member(member_id):
-    val = execute_update("""
+    val = execute_update(
+        """
     UPDATE Member SET ActivationDate = NOW() WHERE ID = %s;
-    """, (member_id,))
+    """,
+        (member_id,),
+    )
 
     return (
         jsonify({"message": "Member (re)activated successfully", "rows_updated": val}),

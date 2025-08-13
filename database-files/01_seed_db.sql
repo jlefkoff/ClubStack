@@ -93,16 +93,19 @@ CREATE TABLE Event (
     EventType VARCHAR(255),
     RecItems TEXT,
     Picture TEXT,
+    EventDate DATE,
     FOREIGN KEY (Author) REFERENCES Member(ID)
 );
 
 CREATE TABLE RSVP (
     ID INT PRIMARY KEY AUTO_INCREMENT,
+    Member INT NOT NULL,
     Event INT NOT NULL,
     CanBringCar BOOLEAN NOT NULL DEFAULT FALSE,
     AvailStart DATETIME NOT NULL,
     AvailEnd DATETIME NOT NULL,
-    FOREIGN KEY (Event) REFERENCES Event(ID)
+    FOREIGN KEY (Event) REFERENCES Event(ID),
+    FOREIGN KEY (Member) REFERENCES Member(ID)
 );
 
 CREATE TABLE EventRoster (
@@ -179,6 +182,28 @@ CREATE TABLE Ballot (
     CreatedAt DATETIME NOT NULL,
     FOREIGN KEY (Position) REFERENCES `Position`(ID),
     FOREIGN KEY (Election) REFERENCES Election(ID)
+);
+
+-- Track which accepted nominations appear on each ballot
+CREATE TABLE BallotOptions (
+    ID INT PRIMARY KEY AUTO_INCREMENT,
+    Ballot INT,
+    Nomination INT,
+    FOREIGN KEY (Ballot) REFERENCES Ballot(ID),
+    FOREIGN KEY (Nomination) REFERENCES Nomination(ID)
+);
+
+-- Track individual member votes
+CREATE TABLE Vote (
+    ID INT PRIMARY KEY AUTO_INCREMENT,
+    Ballot INT,
+    Member INT,
+    BallotOption INT,
+    VotedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (Ballot) REFERENCES Ballot(ID),
+    FOREIGN KEY (Member) REFERENCES Member(ID),
+    FOREIGN KEY (BallotOption) REFERENCES BallotOptions(ID),
+    UNIQUE KEY unique_member_ballot (Member, Ballot) -- Ensures one vote per member per ballot
 );
 
 CREATE TABLE Winner (

@@ -9,10 +9,22 @@ events_bp = Blueprint("events", __name__)
 # GET /events - List all events
 @events_bp.route("/", methods=["GET"])
 def get_events():
-    query = """
-    SELECT * FROM Event;
-    """
-    return execute_query(query)
+    cursor = db.get_db().cursor()
+    cursor.execute("SELECT * FROM Event;")
+    events = cursor.fetchall()
+
+    # Format EventDate for each event
+    formatted_events = []
+    for event in events:
+        event_dict = dict(event)
+        if event_dict.get("EventDate"):
+            try:
+                event_dict["EventDate"] = event_dict["EventDate"].strftime("%Y-%m-%d")
+            except:
+                pass  # Keep original if formatting fails
+        formatted_events.append(event_dict)
+
+    return jsonify(formatted_events), 200
 
 
 # GET /events/<id> - Get specific event
@@ -22,12 +34,28 @@ def get_event(event_id):
 
     # Get event details
     event_query = """
-  SELECT * FROM Event WHERE ID = %s;
-  """
+    SELECT * FROM Event WHERE ID = %s;
+    """
     cursor.execute(event_query, (event_id,))
     event_row = cursor.fetchone()
     if not event_row:
         return jsonify({"error": "Event not found"}), 404
+
+    # Format EventDate as YYYY-MM-DD if present
+    if event_row and "EventDate" in cursor.description:
+        idx = [desc[0] for desc in cursor.description].index("EventDate")
+        event_date = event_row[idx]
+        if event_date:
+            # If it's a datetime/date object, format it
+            try:
+                event_row = dict(
+                    zip([desc[0] for desc in cursor.description], event_row)
+                )
+                event_row["EventDate"] = event_date.strftime("%Y-%m-%d")
+            except Exception:
+                event_row = dict(
+                    zip([desc[0] for desc in cursor.description], event_row)
+                )
 
     # Get roster for the event
     roster_query = """
@@ -75,7 +103,7 @@ def post_event():
         "LeadOrg",
         "EventType",
         "RecItems",
-        "Picture",
+        "EventDate",
     ]
     if not all(field in data for field in required_fields):
         return jsonify({"error": "Missing required fields"}), 400
@@ -83,7 +111,7 @@ def post_event():
     query = """
   INSERT INTO Event (
     Author, PartySize, MaxSize, EventLoc, Randomized,
-    Name, Description, MeetLoc, LeadOrg, EventType, RecItems, Picture
+    Name, Description, MeetLoc, LeadOrg, EventType, RecItems, EventDate
   ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
   """
     values = (
@@ -98,7 +126,7 @@ def post_event():
         data["LeadOrg"],
         data["EventType"],
         data["RecItems"],
-        data["Picture"],
+        data["EventDate"],
     )
     cursor = db.get_db().cursor()
     cursor.execute(query, values)
@@ -143,18 +171,20 @@ def get_event_roster(event_id):
     roster = cursor.fetchall()
     return jsonify({"event_id": event_id, "roster": roster}), 200
 
+
 # GET /events/<id>/rsvp - Get event rsvps
 @events_bp.route("/<int:event_id>/rsvp", methods=["GET"])
 def get_event_rsvp(event_id):
-  cursor = db.get_db().cursor()
-  query = """
+    cursor = db.get_db().cursor()
+    query = """
   SELECT ID, Event, CanBringCar, AvailStart, AvailEnd
   FROM RSVP
   WHERE Event = %s;
   """
-  cursor.execute(query, (event_id,))
-  rsvps = cursor.fetchall()
-  return jsonify({"event_id": event_id, "rsvps": rsvps}), 200
+    cursor.execute(query, (event_id,))
+    rsvps = cursor.fetchall()
+    return jsonify({"event_id": event_id, "rsvps": rsvps}), 200
+
 
 # GET /events/report - Events report
 @events_bp.route("/report", methods=["GET"])
@@ -175,7 +205,8 @@ def events_report():
       WHERE er.Member = 3
       ORDER BY er.DateRegistered DESC;
     """
-    return execute_query(query) 
+    return execute_query(query)
+
 
 # POST /rsvp - RSVP to an event
 @events_bp.route("/rsvp", methods=["POST"])
@@ -185,7 +216,7 @@ def post_rsvp():
         return jsonify({"error": "Invalid data"}), 400
 
     event_id = data["event_id"]
-    member_id = data["member_id"] # TODO: Use member id - need to add to schema
+    member_id = data["member_id"]  # TODO: Use member id - need to add to schema
     can_bring_car = data.get("can_bring_car", False)
     avail_start = data.get("avail_start")
     avail_end = data.get("avail_end")
@@ -201,3 +232,12 @@ def post_rsvp():
     db.get_db().commit()
 
     return jsonify({"message": "RSVP created successfully"}), 201
+
+
+# GET /events/rsvp/<int:member_id> - Get member's RSVPs
+@events_bp.route("/rsvp/<int:member_id>", methods=["GET"])
+def get_member_rsvps(member_id):
+    query = """
+    SELECT * FROM RSVP WHERE Member = %s;
+    """
+    return execute_query(query, (member_id,))

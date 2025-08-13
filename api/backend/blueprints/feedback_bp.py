@@ -32,7 +32,12 @@ def submit_feedback():
     INSERT INTO Feedback (Member, Rating, Description, Anonymous)
     VALUES (%s, %s, %s, %s);
     """
-    params = (data["member_id"], data["rating"], data["feedback_text"], data["anonymous"])
+    params = (
+        data["member_id"],
+        data["rating"],
+        data["feedback_text"],
+        data["anonymous"],
+    )
     execute_update(query, params)
 
     return jsonify({"message": "Feedback submitted successfully"}), 201
