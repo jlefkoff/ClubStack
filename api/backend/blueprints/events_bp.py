@@ -224,26 +224,25 @@ def events_report():
 @events_bp.route("/rsvp", methods=["POST"])
 def post_rsvp():
     data = request.get_json()
+    print(data)
     if not data or "event_id" not in data or "member_id" not in data:
         return jsonify({"error": "Invalid data"}), 400
 
     event_id = data["event_id"]
-    member_id = data["member_id"]  # TODO: Use member id - need to add to schema
+    member_id = data["member_id"]
     can_bring_car = data.get("can_bring_car", False)
     avail_start = data.get("avail_start")
     avail_end = data.get("avail_end")
 
     query = """
-    INSERT INTO RSVP (Event, CanBringCar, AvailStart, AvailEnd)
-    VALUES (%s, %s, %s, %s);
+    INSERT INTO RSVP (Event, Member, CanBringCar, AvailStart, AvailEnd)
+    VALUES (%s, %s, %s, %s, %s);
     """
-    params = (event_id, can_bring_car, avail_start, avail_end)
+    params = (event_id, member_id, can_bring_car, avail_start, avail_end)
 
-    cursor = db.get_db().cursor()
-    cursor.execute(query, params)
-    db.get_db().commit()
+    id = execute_update(query, params)
 
-    return jsonify({"message": "RSVP created successfully"}), 201
+    return jsonify({"message": "RSVP created successfully", "id": id}), 201
 
 
 # GET /events/rsvp/<int:member_id> - Get member's RSVPs

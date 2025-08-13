@@ -239,6 +239,7 @@ CREATE TABLE Reimbursement (
     Total DECIMAL(10,2),
     Type VARCHAR(255),
     Description TEXT,
+    Status ENUM('SUBMITTED', 'APPROVED', 'REJECTED') DEFAULT 'SUBMITTED',
     FOREIGN KEY (MemberID) REFERENCES Member(ID)
 );
 

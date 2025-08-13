@@ -126,7 +126,21 @@ def create_budget():
               type: string
               example: "Database connection failed"
     """
-    return jsonify({"message": "Create new budget proposal (stub)"}), 201
+    data = request.get_json()
+    fiscal_year = data.get("FiscalYear")
+    author = data.get("Author")
+    status = data.get("Status", "SUBMITTED")
+
+    if not fiscal_year or not author:
+        return jsonify({"error": "FiscalYear and Author are required"}), 400
+
+    query = """
+      INSERT INTO Budget (FiscalYear, Author, Status)
+      VALUES (%s, %s, %s);
+    """
+    values = (fiscal_year, author, status)
+    id = execute_update(query, values)
+    return jsonify({"message": "Budget proposal created", "budget_id": id}), 201
 
 
 # GET /budget/<id> - Get existing budget data
@@ -356,10 +370,10 @@ def budget_report(id):
               type: string
               example: "Database connection failed"
     """
-    return (
-        jsonify({"budget_id": id, "report": "Budget + active member analysis (stub)"}),
-        200,
-    )
+    query = """
+    SELECT * FROM Budget WHERE ID = %s;
+    """
+    return execute_query(query, (id,))
 
 
 # PUT /budget/<id>/approve - Approve submitted budget
@@ -431,4 +445,26 @@ def approve_budget(id):
               type: string
               example: "Database connection failed"
     """
-    return jsonify({"budget_id": id, "message": "Budget approved (stub)"}), 200
+    data = request.get_json()
+    approved_by = data.get("ApprovedBy")
+    
+    if not approved_by:
+        return jsonify({"error": "ApprovedBy is required"}), 400
+    
+    # Check if budget exists and is in SUBMITTED status
+    cursor = db.get_db().cursor()
+    cursor.execute("SELECT Status FROM Budget WHERE ID = %s", (id,))
+    row = cursor.fetchone()
+    if not row:
+        return jsonify({"error": "Budget not found"}), 404
+    if row["Status"] != "SUBMITTED":
+        return jsonify({"error": "Budget is not in SUBMITTED status"}), 400
+
+    # Update budget status to APPROVED
+    update_query = """
+      UPDATE Budget
+      SET Status = 'APPROVED', ApprovedBy = %s
+      WHERE ID = %s;
+    """
+    execute_update(update_query, (approved_by, id))
+    return jsonify({"message": "Budget approved successfully", "budget_id": id, "status": "APPROVED"}), 200

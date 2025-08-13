@@ -93,45 +93,67 @@ with col1:
             if rsvp_response.status_code == 200:
                 rsvps = rsvp_response.json()
                 if rsvps:
-                    # Show next 3 upcoming events
-                    upcoming_events = sorted(
-                        [
-                            r
-                            for r in rsvps
-                            if datetime.datetime.strptime(
-                                r["EventDate"], "%Y-%m-%d"
-                            ).date()
-                            >= datetime.date.today()
-                        ],
-                        key=lambda x: x["EventDate"],
-                    )[:3]
+                    # Fetch event details for each RSVP
+                    upcoming_events = []
+                    
+                    for rsvp in rsvps:
+                        try:
+                            # Get event details
+                            event_response = requests.get(f"{BASE_URL}/events/{rsvp['Event']}")
+                            if event_response.status_code == 200:
+                                event = event_response.json()
+                                
+                                # Check if event is upcoming
+                                try:
+                                    event_date = datetime.datetime.strptime(
+                                        event["EventDate"], "%a, %d %b %Y %H:%M:%S %Z"
+                                    ).date()
+                                    if event_date >= datetime.date.today():
+                                        # Add RSVP info to event
+                                        event['rsvp_info'] = rsvp
+                                        upcoming_events.append(event)
+                                except:
+                                    # If date parsing fails, still show the event
+                                    event['rsvp_info'] = rsvp
+                                    upcoming_events.append(event)
+                        except:
+                            continue
+                    
+                    # Sort by date and show top 3
+                    upcoming_events = sorted(upcoming_events, 
+                                           key=lambda x: x.get("EventDate", ""))[:3]
 
                     if upcoming_events:
-                        for rsvp in upcoming_events:
-                            status_icon = (
-                                "✅"
-                                if rsvp["Status"] == "Going"
-                                else "❓" if rsvp["Status"] == "Maybe" else "❌"
-                            )
-                            with st.expander(
-                                f"{status_icon} {rsvp['EventTitle']} - {rsvp['EventDate']}"
-                            ):
-                                st.write(f"**Date:** {rsvp['EventDate']}")
-                                st.write(f"**Status:** {rsvp['Status']}")
-                                st.write(f"**Type:** {rsvp.get('EventType', 'Event')}")
+                        for event in upcoming_events:
+                            rsvp = event['rsvp_info']
+                            # Format the date for display
+                            try:
+                                event_date = datetime.datetime.strptime(
+                                    event["EventDate"], "%a, %d %b %Y %H:%M:%S %Z"
+                                ).strftime("%Y-%m-%d")
+                            except:
+                                event_date = event["EventDate"]
+                            
+                            with st.expander(f"✅ {event['Name']} - {event_date}"):
+                                st.write(f"**Date:** {event_date}")
+                                st.write(f"**Location:** {event['EventLoc']}")
+                                st.write(f"**Meet Location:** {event['MeetLoc']}")
+                                st.write(f"**Type:** {event['EventType']}")
+                                if event.get('RecItems'):
+                                    st.write(f"**Recommended Items:** {event['RecItems']}")
                     else:
                         st.info("No upcoming RSVPs")
 
                     if st.button(
                         "View All Events", key="events_btn", use_container_width=True
                     ):
-                        st.switch_page("pages/05_Events.py")
+                        st.switch_page("pages/Events.py")
                 else:
                     st.info("No event RSVPs")
             else:
                 st.warning("Could not load event RSVPs")
         except Exception as e:
-            st.error(e)
+            logger.error(f"Error loading RSVPs: {e}")
             st.warning("Events service unavailable")
 
 # ==================== COLUMN 2 ====================
@@ -187,31 +209,38 @@ with col2:
                                     st.write(f"{days_until}d")
 
                                 # RSVP Button
-                                if st.button(
-                                    "RSVP",
-                                    key=f"rsvp_{event['ID']}",
-                                    use_container_width=True,
-                                    type="secondary",
-                                ):
-                                    # Quick RSVP - default to "Going"
-                                    rsvp_data = {
-                                        "member_id": member_id,
-                                        "event_id": event["ID"],
-                                        "status": "Going",
-                                    }
-                                    try:
-                                        rsvp_response = requests.post(
-                                            f"{BASE_URL}/events/{event['ID']}/rsvp",
-                                            json=rsvp_data,
-                                        )
-                                        if rsvp_response.status_code in [200, 201]:
-                                            st.success("✅ RSVP'd!")
-                                            st.rerun()
-                                        else:
-                                            st.error("Failed to RSVP")
-                                    except:
-                                        st.error("Could not submit RSVP")
+                                # Check if user already RSVP'd to this event
+                                user_rsvp_key = f"rsvp_success_{event['ID']}"
 
+                                if st.session_state.get(user_rsvp_key, False):
+                                    st.write("✅ **RSVP'd**")
+                                else:
+                                    if st.button(
+                                        "RSVP",
+                                        key=f"rsvp_{event['ID']}",
+                                        use_container_width=True,
+                                        type="secondary",
+                                    ):
+                                        # Quick RSVP - default to "Going"
+                                        rsvp_data = {
+                                            "member_id": member_id,
+                                            "event_id": event["ID"],
+                                            "avail_start": f"{datetime.datetime.now():%Y-%m-%d %H:%M:%S}",
+                                            "avail_end": f"{datetime.datetime.now() + datetime.timedelta(days=7):%Y-%m-%d %H:%M:%S}",
+                                        }
+                                        try:
+                                            rsvp_response = requests.post(
+                                                f"{BASE_URL}/events/rsvp",
+                                                json=rsvp_data,
+                                            )
+                                            if rsvp_response.status_code in [200, 201]:
+                                                st.session_state[user_rsvp_key] = True
+                                                st.rerun()
+                                            else:
+                                                st.error("Failed to RSVP")
+                                        except Exception as ex:
+                                            logger.error(f"Error submitting RSVP: {ex}")
+                                            st.error("Could not submit RSVP")
                         st.write("---")
                 else:
                     st.info("No upcoming events")
@@ -243,7 +272,7 @@ with col2:
                     # Show most recent 2 communications (reduced from 3)
                     for comm in communications["messages"][:2]:
                         comm_date = datetime.datetime.strptime(
-                            comm["SentAt"], "%Y-%m-%d %H:%M:%S"
+                            comm["DateSent"], "%a, %d %b %Y %H:%M:%S %Z"
                         ).strftime("%m/%d")
 
                         # Compact communication display
@@ -276,7 +305,7 @@ with col2:
                 if st.button(
                     "View All Messages", key="comms_btn", use_container_width=True
                 ):
-                    st.switch_page("pages/07_Communications.py")
+                    st.switch_page("pages/Communications.py")
             else:
                 st.warning("Could not load communications")
         except Exception as e:
@@ -359,13 +388,14 @@ with col3:
                             key=f"vote_{ballot['BallotID']}",
                             use_container_width=True,
                         ):
-                            st.switch_page("pages/06_Voting.py")
+                            st.switch_page("pages/Voting.py")
 
             if st.button(
                 "View Elections", key="elections_btn", use_container_width=True
             ):
-                st.switch_page("pages/06_Voting.py")
-        except:
+                st.switch_page("pages/Voting.py")
+        except Exception as e:
+            st.error(f"Error loading nominations: {e}")
             st.warning("Elections service unavailable")
 
     st.write("")
@@ -380,7 +410,7 @@ with col3:
             use_container_width=True,
             type="secondary",
         ):
-            st.switch_page("pages/09_Member_Profile.py")
+            st.switch_page("pages/Member_Profile.py")
 
         if st.button(
             "💰 Submit Reimbursement",
@@ -388,7 +418,7 @@ with col3:
             use_container_width=True,
             type="secondary",
         ):
-            st.switch_page("pages/31_Reimbursed.py")
+            st.switch_page("pages/Submit_Reimbursement.py")
 
 # ==================== BOTTOM SECTION ====================
 st.write("")
@@ -417,9 +447,7 @@ with stat_col2:
 with stat_col3:
     # Count event RSVPs
     try:
-        rsvp_count = len(
-            requests.get(f"{BASE_URL}/events/rsvps/member/{member_id}").json()
-        )
+        rsvp_count = len(requests.get(f"{BASE_URL}/events/rsvp/{member_id}").json())
         st.metric("Event RSVPs", rsvp_count)
     except:
         st.metric("Event RSVPs", "—")
@@ -428,9 +456,9 @@ with stat_col4:
     # Count unread communications
     try:
         comms = requests.get(f"{BASE_URL}/communications/{member_id}").json()
-        unread_count = len(
-            [c for c in comms.get("messages") if not c.get("IsRead", True)]
+        count = len(
+            [msg for msg in comms.get("messages", [])]
         )
-        st.metric("Unread Messages", unread_count)
+        st.metric("Messages", count)
     except:
-        st.metric("Unread Messages", "—")
+        st.metric("Messages", "—")
