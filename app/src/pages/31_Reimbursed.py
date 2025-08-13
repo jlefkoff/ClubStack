@@ -10,7 +10,7 @@ SideBarLinks()
 
 st.title("Submit Reimbursement Request")
 
-API_BASE = os.getenv("API_BASE") or "http://web-api:4000"
+API_BASE = "http://api:4000"
 
 # Get member ID from session state
 member_id = st.session_state.get("member_id")
@@ -100,6 +100,7 @@ if st.button("Submit Reimbursement", use_container_width=True):
     payload = {
         "member_id": member_id,
         "description": description.strip(),
+        "total": total_amount,
         "items": st.session_state.reimbursement_items
     }
 
@@ -115,7 +116,6 @@ if st.button("Submit Reimbursement", use_container_width=True):
         result = response.json()
         st.success(f"✅ Reimbursement submitted successfully!")
         st.info(f"Reimbursement ID: {result.get('reimbursement_id')}")
-        st.info(f"Total Amount: ${result.get('total', 0):.2f}")
         st.info(f"Status: {result.get('status', 'Pending')}")
         
         # Clear items after successful submission

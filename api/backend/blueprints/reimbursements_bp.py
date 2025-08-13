@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 
-from backend.utils.db_utils import execute_query
+from backend.utils.db_utils import execute_query, execute_update
 
 reimbursements_bp = Blueprint("reimbursements", __name__)
 
@@ -23,6 +23,7 @@ def submit_reimbursement():
 
     member_id = data["member_id"]
     description = data["description"]
+    total = data["total"]
     items = data["items"]
 
     if not isinstance(items, list) or not items:
@@ -30,9 +31,9 @@ def submit_reimbursement():
 
     # Prepare SQL for inserting reimbursement
     query = """
-    INSERT INTO Reimbursement (MemberID, Total, Type) VALUES (%s, %s, %s) RETURNING ID;
+    INSERT INTO Reimbursement (MemberID, Total, Type) VALUES (%s, %s, %s);
     """
-    reimbursement_id = execute_query(query, (member_id, sum(item['price'] for item in items), description))[0]["ID"]
+    reimbursement_id = execute_update(query, (member_id, total, description))
 
     # Insert each item into ReimbursementItem
     item_values = ", ".join(
@@ -43,10 +44,8 @@ def submit_reimbursement():
     INSERT INTO ReimbursementItem (Reimbursement, Description, Price)
     VALUES {item_values};
     """
-    execute_query(item_query)
-
-    return jsonify({"reimbursement_id": reimbursement_id}), 201
-
+    execute_update(item_query)
+    return jsonify({"reimbursement_id": reimbursement_id, "status": "Pending"}), 201
 
 # GET /reimbursements/<int:id> - Get a specific reimbursement
 @reimbursements_bp.route("/<int:id>", methods=["GET"])
