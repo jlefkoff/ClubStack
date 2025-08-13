@@ -65,6 +65,8 @@ with col1:
                         st.switch_page("pages/My_Gear.py")
                 else:
                     st.info("No gear reservations")
+                if st.button("Reserve Gear", key="gear_page_btn", use_container_width=True):
+                    st.switch_page("pages/01_Browse_Gear.py")
             else:
                 st.warning("Could not load gear reservations")
         except Exception as e:
@@ -77,7 +79,7 @@ with col1:
         st.subheader("📅 My Event RSVPs")
         try:
             # Get member's event RSVPs
-            rsvp_response = requests.get(f"{BASE_URL}/events/rsvps/member/{member_id}")
+            rsvp_response = requests.get(f"{BASE_URL}/events/rsvp/{member_id}")
             if rsvp_response.status_code == 200:
                 rsvps = rsvp_response.json()
                 if rsvps:
@@ -101,7 +103,8 @@ with col1:
                     st.info("No event RSVPs")
             else:
                 st.warning("Could not load event RSVPs")
-        except:
+        except Exception as e:
+            st.error(e)
             st.warning("Events service unavailable")
 
 # ==================== COLUMN 2 ====================
@@ -187,9 +190,9 @@ with col2:
             comms_response = requests.get(f"{BASE_URL}/communications/{member_id}")
             if comms_response.status_code == 200:
                 communications = comms_response.json()
-                if communications:
+                if communications and "messages" in communications and communications["messages"]:
                     # Show most recent 2 communications (reduced from 3)
-                    for comm in communications[:2]:
+                    for comm in communications["messages"][:2]:
                         comm_date = datetime.datetime.strptime(comm['SentAt'], '%Y-%m-%d %H:%M:%S').strftime('%m/%d')
                         
                         # Compact communication display
@@ -215,8 +218,9 @@ with col2:
                     st.switch_page("pages/07_Communications.py")
             else:
                 st.warning("Could not load communications")
-        except:
+        except Exception as e:
             st.warning("Communications service unavailable")
+            st.error(f"Error: {str(e)}")
 
 # ==================== COLUMN 3 ====================
 with col3:
