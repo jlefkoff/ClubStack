@@ -91,6 +91,7 @@ def get_event(event_id):
 @events_bp.route("/", methods=["POST"])
 def post_event():
     data = request.get_json()
+    print(data)
     required_fields = [
         "Author",
         "PartySize",
@@ -128,11 +129,15 @@ def post_event():
         data["RecItems"],
         data["EventDate"],
     )
-    cursor = db.get_db().cursor()
-    cursor.execute(query, values)
-    db.get_db().commit()
-    event_id = cursor.lastrowid
-    return jsonify({"message": "Event created", "event_id": event_id}), 201
+    try:
+        id = execute_update(query, values)
+
+        print(f"Event created with ID: {id}")
+        return jsonify({"message": "Event created", "event_id": id}), 201
+    except Exception as e:
+        db.get_db().rollback()
+        print(f"Error creating event: {e}")
+        return jsonify({"error": "Failed to create event", "details": str(e)}), 500
 
 
 # PUT /events/<id> - Update event
@@ -155,6 +160,14 @@ def put_event(event_id):
         return jsonify({"error": "Event not found"}), 404
 
     return jsonify({"message": "Event updated successfully"}), 200
+
+
+# DELETE /events/<id> - Delete event
+@events_bp.route("/<int:event_id>", methods=["DELETE"])
+def delete_event(event_id):
+    query = "DELETE FROM Event WHERE ID = %s"
+    execute_update(query, (event_id,))
+    return jsonify({"message": "Event deleted successfully"}), 200
 
 
 # GET /events/<id>/roster - Get event roster

@@ -39,6 +39,7 @@ def view_terms():
     """
     return execute_query(query)
 
+
 # ==================== POSITIONS ====================
 
 

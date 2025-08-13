@@ -37,6 +37,7 @@ def SubmitReimbursementNav():
 def MyGearNav():
     st.sidebar.page_link("pages/My_Gear.py", label="My Gear", icon="⚙️")
 
+
 def CommunicationsNav():
     st.sidebar.page_link("pages/Communications.py", label="Communications", icon="📬")
 
@@ -50,6 +51,10 @@ def TreasurerReimbursementsNav():
     st.sidebar.page_link(
         "pages/Manage_Reimbursements.py", label="Reimbursement Overview", icon="🧾"
     )
+
+
+def Allergies():
+    st.sidebar.page_link("pages/50_Allergies.py", label="Allergies", icon="🍎")
 
 
 # ------------------------ For role of VP ------------------------
@@ -68,6 +73,10 @@ def AdminPageNav():
 
 def AdminElectionsNav():
     st.sidebar.page_link("pages/Admin_Elections.py", label="Elections", icon="🗳️")
+
+
+def AdminEventsNav():
+    st.sidebar.page_link("pages/41_Events.py", label="Event Management", icon="📅")
 
 
 def ViewProfile():
@@ -119,6 +128,7 @@ def SideBarLinks(show_home=False):
             MyGearNav()
             GearBrowseNav()
             SubmitReimbursementNav()
+            Allergies()
             CommunicationsNav()
 
         if st.session_state["role"] == "administrator":
@@ -132,6 +142,7 @@ def SideBarLinks(show_home=False):
             AdminPageNav()
             Permissions()
             AdminElectionsNav()
+            AdminEventsNav()
             ViewProfile()
             CommunicationsNav()
 

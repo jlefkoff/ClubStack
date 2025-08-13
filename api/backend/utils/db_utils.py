@@ -22,6 +22,8 @@ def execute_update(query, params=None):
     cursor.execute(query, params or ())
     conn.commit()
 
+    print(f"Executed query: {query} with params: {params}")
+
     inserted_id = (
         cursor.lastrowid if query.strip().upper().startswith("INSERT") else None
     )
