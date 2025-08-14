@@ -477,3 +477,10 @@ def approve_budget(id):
         ),
         200,
     )
+
+# DELETE /budget/<id> - Delete budget proposal
+@budget_bp.route("/<int:id>", methods=["DELETE"])
+def delete_budget(id):
+    query = "DELETE FROM Budget WHERE ID = %s"
+    execute_update(query, (id,))
+    return jsonify({"message": "Budget deleted successfully"}), 200
