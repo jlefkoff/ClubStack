@@ -73,11 +73,9 @@ def get_communication(communication_id):
 # DELETE /communications/<id> - Delete a communication
 @communications_bp.route("/<int:communication_id>", methods=["DELETE"])
 def delete_communication(communication_id):
-    cursor = db.get_db().cursor()
-    cursor.execute(
+    execute_update(
         "DELETE FROM CommunicationRecipients WHERE Communication = %s",
         (communication_id,),
     )
-    cursor.execute("DELETE FROM Communication WHERE ID = %s", (communication_id,))
-    db.commit()
+    execute_update("DELETE FROM Communication WHERE ID = %s", (communication_id,))
     return jsonify({"message": "Communication deleted"}), 200

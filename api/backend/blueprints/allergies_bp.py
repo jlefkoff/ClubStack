@@ -7,38 +7,6 @@ allergies_bp = Blueprint("allergies", __name__)
 # GET /allergies/report - Get food allergy report
 @allergies_bp.route("/report", methods=["GET"])
 def get_allergy_report():
-    """
-    Get food allergy report with member counts
-    ---
-    tags:
-      - allergies
-    summary: Get allergy report
-    description: Returns a report of all allergies with count of affected members
-    responses:
-      200:
-        description: Allergy report retrieved successfully
-        schema:
-          type: array
-          items:
-            type: object
-            properties:
-              AllergyName:
-                type: string
-                description: Name of the allergy
-                example: "Peanuts"
-              MemberCount:
-                type: integer
-                description: Number of members with this allergy
-                example: 5
-      500:
-        description: Database error
-        schema:
-          type: object
-          properties:
-            error:
-              type: string
-              example: "Database connection failed"
-    """
     query = """
       SELECT DISTINCT a.Name as AllergyName, COUNT(au.UserID) as MemberCount
       FROM Allergy a
@@ -52,52 +20,6 @@ def get_allergy_report():
 # POST /allergies - Create allergy
 @allergies_bp.route("/", methods=["POST"])
 def create_allergy():
-    """
-    Create a new allergy
-    ---
-    tags:
-      - allergies
-    summary: Create new allergy
-    description: Creates a new allergy type in the system
-    parameters:
-      - in: body
-        name: body
-        required: true
-        schema:
-          id: AllergyCreate
-          required:
-            - Name
-          properties:
-            Name:
-              type: string
-              description: Name of the allergy
-              example: "Shellfish"
-    responses:
-      201:
-        description: Allergy created successfully
-        schema:
-          type: object
-          properties:
-            message:
-              type: string
-              example: "Allergy created"
-      400:
-        description: Invalid input
-        schema:
-          type: object
-          properties:
-            error:
-              type: string
-              example: "Name is required"
-      500:
-        description: Database error
-        schema:
-          type: object
-          properties:
-            error:
-              type: string
-              example: "Database connection failed"
-    """
     data = request.get_json()
     name = data.get("Name")
     if not name:
@@ -112,41 +34,22 @@ def create_allergy():
 # GET /allergies - Get existing allergies
 @allergies_bp.route("/", methods=["GET"])
 def get_allergies():
-    """
-    Get all allergies
-    ---
-    tags:
-      - allergies
-    summary: Get all allergies
-    description: Returns a list of all allergy types in the system
-    responses:
-      200:
-        description: Allergies retrieved successfully
-        schema:
-          type: array
-          items:
-            type: object
-            properties:
-              ID:
-                type: integer
-                description: Unique identifier for the allergy
-                example: 1
-              Name:
-                type: string
-                description: Name of the allergy
-                example: "Peanuts"
-      500:
-        description: Database error
-        schema:
-          type: object
-          properties:
-            error:
-              type: string
-              example: "Database connection failed"
-    """
     query = """
         SELECT  ID,
                 Name
         FROM Allergy
     """
     return execute_query(query)
+
+
+# DELETE /allergies/<int:allergy_id> - Delete an allergy
+@allergies_bp.route("/<int:allergy_id>", methods=["DELETE"])
+def delete_allergy(allergy_id):
+    query = """
+    DELETE FROM Allergy WHERE ID = %s;
+    """
+    result = execute_update(query, (allergy_id,))
+    if result:
+        return jsonify({"message": "Allergy deleted successfully"}), 200
+    else:
+        return jsonify({"error": "Allergy not found"}), 404

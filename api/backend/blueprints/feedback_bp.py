@@ -41,3 +41,13 @@ def submit_feedback():
     execute_update(query, params)
 
     return jsonify({"message": "Feedback submitted successfully"}), 201
+
+
+# ------------------------------------------------------------
+# DELETE /<id> delete a feedback
+@feedback_bp.route("/<int:feedback_id>", methods=["DELETE"])
+def delete_feedback(feedback_id):
+    query = """
+    DELETE FROM Feedback WHERE ID = %s;
+    """
+    return execute_update(query, (feedback_id,))

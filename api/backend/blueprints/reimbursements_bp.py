@@ -72,3 +72,13 @@ def approve_reimbursement(id):
     """
     execute_update(query, (id,))
     return jsonify({"message": "Reimbursement approved successfully"}), 200
+
+
+# DELETE /reimbursements/<int:id> - Delete reimbursement
+@reimbursements_bp.route("/<int:id>", methods=["DELETE"])
+def delete_reimbursement(id):
+    query = """
+    DELETE FROM Reimbursement WHERE ID = %s;
+    """
+    execute_update(query, (id,))
+    return jsonify({"message": "Reimbursement deleted successfully"}), 200

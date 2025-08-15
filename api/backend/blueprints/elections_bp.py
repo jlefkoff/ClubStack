@@ -40,6 +40,16 @@ def view_terms():
     return execute_query(query)
 
 
+# DELETE /<term_id> - Delete term
+@elections_bp.route("/terms/<int:term_id>", methods=["DELETE"])
+def delete_term(term_id):
+    query = """
+    DELETE FROM Term WHERE ID = %s;
+    """
+    execute_update(query, (term_id,))
+    return jsonify({"message": "Term deleted successfully"}), 200
+
+
 # ==================== POSITIONS ====================
 
 
@@ -71,6 +81,24 @@ def create_position():
     position_id = execute_update(query, (title, ballot_order))
 
     return jsonify({"message": "Position created", "position_id": position_id}), 201
+
+
+# DELETE /positions/<position_id> - Delete position
+@elections_bp.route("/positions/<int:position_id>", methods=["DELETE"])
+def delete_position(position_id):
+    try:
+        query = """
+    DELETE FROM Position WHERE ID = %s;
+    """
+        execute_update(query, (position_id,))
+        return jsonify({"message": "Position deleted successfully"}), 200
+    except Exception as e:
+        return (
+            jsonify(
+                {"error": "Cannot delete due to existing references to this record"}
+            ),
+            409,
+        )
 
 
 # ==================== ELECTIONS ====================
@@ -116,6 +144,16 @@ def create_election():
         ),
         201,
     )
+
+
+# DELETE /<election_id> - Delete election
+@elections_bp.route("/<int:election_id>", methods=["DELETE"])
+def delete_election(election_id):
+    query = """
+    DELETE FROM Election WHERE ID = %s;
+    """
+    execute_update(query, (election_id,))
+    return jsonify({"message": "Election deleted successfully"}), 200
 
 
 # GET /elections - View all elections

@@ -283,3 +283,13 @@ def activate_member(member_id):
         jsonify({"message": "Member (re)activated successfully", "rows_updated": val}),
         200,
     )
+
+
+# ------------------------------------------------------------
+# DELETE /<id> remove member
+@members_bp.route("/<int:member_id>", methods=["DELETE"])
+def delete_member(member_id):
+    query = """
+    DELETE FROM Member WHERE ID = %s;
+    """
+    return execute_update(query, (member_id,))

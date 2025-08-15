@@ -79,8 +79,8 @@ def AdminEventsNav():
     st.sidebar.page_link("pages/41_Events.py", label="Event Management", icon="📅")
 
 
-def ViewProfile():
-    st.sidebar.page_link("pages/View_Profile.py", label="View Members")
+def ManageMembersNav():
+    st.sidebar.page_link("pages/View_Profile.py", label="Manage Members", icon="👥")
 
 
 # --------------------------------Links Function -------------------------
@@ -130,6 +130,8 @@ def SideBarLinks(show_home=False):
             SubmitReimbursementNav()
             Allergies()
             CommunicationsNav()
+            AdminEventsNav()
+            TreasurerBudgetOverview()
 
         if st.session_state["role"] == "administrator":
             MemberHomeNav()
@@ -143,8 +145,9 @@ def SideBarLinks(show_home=False):
             Permissions()
             AdminElectionsNav()
             AdminEventsNav()
-            ViewProfile()
             CommunicationsNav()
+            ManageMembersNav()
+            Allergies()
 
     # Always show the About page at the bottom of the list of links
     AboutPageNav()

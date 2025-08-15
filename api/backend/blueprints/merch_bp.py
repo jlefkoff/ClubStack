@@ -34,6 +34,16 @@ def get_merch_item(item_id):
 
 
 # ------------------------------------------------------------
+# DELETE /<id> - Remove specific item
+@merch_bp.route("/<int:item_id>", methods=["DELETE"])
+def delete_merch_item(item_id):
+    query = """
+    DELETE FROM MerchItem WHERE ID = %s;
+    """
+    return execute_update(query, (item_id))
+
+
+# ------------------------------------------------------------
 # POST /merch-items - Post new merch item
 @merch_bp.route("/merch-items", methods=["POST"])
 def post_merch_item():
@@ -69,6 +79,16 @@ def post_merch_sale():
     )
 
     return jsonify({"sale_id": sale_id, "status": "success"}), 200
+
+
+# ------------------------------------------------------------
+# DELETE /merch-sales/<id> - Remove merch sale
+@merch_bp.route("/merch-sales/<int:sale_id>", methods=["DELETE"])
+def delete_merch_sale(sale_id):
+    query = """
+    DELETE FROM MerchSale WHERE ID = %s;
+    """
+    return execute_update(query, (sale_id,))
 
 
 # ------------------------------------------------------------
