@@ -202,3 +202,53 @@ with colA:
                 st.error(f"Failed to activate member (status {act.status_code}).")
         except Exception as e:
             st.error(f"Error: {e}")
+
+# ---- Add Member Form
+st.write("---")
+st.subheader("Add New Member")
+
+with st.form("add_member_form"):
+    c1, c2 = st.columns(2)
+    with c1:
+        new_first = st.text_input("First Name")
+        new_last = st.text_input("Last Name")
+        new_preferred = st.text_input("Preferred Name")
+        new_grad_year = st.number_input(
+            "Graduation Year", min_value=1900, max_value=2100, value=2025
+        )
+        new_is_grad = st.checkbox("Graduate Student")
+
+    with c2:
+        new_plate = st.text_input("Car Plate")
+        new_state = st.text_input("Car State")
+        new_passes = st.number_input("Car Pass Count", min_value=0, step=1)
+        new_emer_name = st.text_input("Emergency Contact Name")
+        new_emer_phone = st.text_input("Emergency Contact Phone")
+
+    if st.form_submit_button("Add Member"):
+        if not (new_first and new_last):
+            st.error("First and last name are required")
+        else:
+            payload = {
+                "first_name": new_first,
+                "last_name": new_last,
+                "preferred_name": new_preferred or None,
+                "graduation_year": new_grad_year,
+                "is_grad_student": new_is_grad,
+                "car_plate": new_plate or None,
+                "car_state": new_state or None,
+                "car_pass_count": new_passes,
+                "emer_contact_name": new_emer_name,
+                "emer_contact_phone": new_emer_phone,
+            }
+            try:
+                resp = requests.post(
+                    f"{API_BASE}/members", json=payload, headers=headers, timeout=15
+                )
+                if resp.status_code == 201:
+                    st.success("Member added successfully")
+                    st.rerun()
+                else:
+                    st.error(f"Failed to add member (status {resp.status_code})")
+            except Exception as e:
+                st.error(f"Error adding member: {e}")

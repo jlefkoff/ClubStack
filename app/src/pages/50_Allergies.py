@@ -31,7 +31,7 @@ if st.button("Generate Allergy Report"):
     try:
         response = requests.get("http://api:4000/allergies/report")
         response.raise_for_status()
-        data = response.json()  # Expecting a list of dicts like your example
+        data = response.json()
 
         if data:
             df = pd.DataFrame(data)
@@ -86,3 +86,15 @@ if allergies:
     st.table(df)
 else:
     st.info("No allergies found.")
+
+allergy_id = st.number_input("Enter Allergy ID to delete", min_value=1, step=1)
+if st.button("Delete Allergy"):
+    if allergy_id:
+        try:
+            response = requests.delete(f"http://api:4000/allergies/{allergy_id}")
+            response.raise_for_status()
+            st.success("Allergy deleted successfully!")
+        except requests.exceptions.RequestException as e:
+            st.error(f"Failed to delete allergy: {e}")
+    else:
+        st.warning("Please enter a valid Allergy ID to delete.")

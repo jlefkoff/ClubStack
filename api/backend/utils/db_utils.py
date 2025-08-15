@@ -19,12 +19,17 @@ def execute_update(query, params=None):
     """
     conn = db.get_db()
     cursor = conn.cursor()
-    cursor.execute(query, params or ())
-    conn.commit()
+    try:
+        cursor.execute(query, params or ())
+        conn.commit()
 
-    print(f"Executed query: {query} with params: {params}")
+        print(f"Executed query: {query} with params: {params}")
 
-    inserted_id = (
-        cursor.lastrowid if query.strip().upper().startswith("INSERT") else None
-    )
-    return inserted_id
+        inserted_id = (
+            cursor.lastrowid if query.strip().upper().startswith("INSERT") else None
+        )
+        return inserted_id
+    except Exception as e:
+        if "RESTRICT" in str(e):
+            raise ValueError("Cannot delete due to existing references to this record")
+        raise

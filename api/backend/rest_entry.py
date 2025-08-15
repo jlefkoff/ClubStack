@@ -16,8 +16,6 @@ from backend.blueprints import (
     reimbursements_bp,
 )
 from backend.db_connection import db
-from backend.ngos.ngo_routes import ngos
-from backend.simple.simple_routes import simple_routes
 from dotenv import load_dotenv
 from flask import Flask
 
@@ -59,8 +57,6 @@ def create_app():
     # Register the routes from each Blueprint with the app object
     # and give a url prefix to each
     app.logger.info("create_app(): registering blueprints with Flask app object.")
-    app.register_blueprint(simple_routes)
-    app.register_blueprint(ngos, url_prefix="/ngo")
     app.register_blueprint(allergies_bp.allergies_bp, url_prefix="/allergies")
     app.register_blueprint(budget_bp.budget_bp, url_prefix="/budget")
     app.register_blueprint(

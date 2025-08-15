@@ -90,14 +90,47 @@ with tab2:
                     try:
                         response = requests.post(f"{API_BASE}/terms", json=data)
                         if response.status_code == 201:
-                            st.success("Term created successfully!")
                             st.rerun()
                         else:
                             st.error(
                                 f"Error: {response.json().get('error', 'Unknown error')}"
                             )
-                    except:
-                        st.error("Could not connect to API")
+                    except requests.exceptions.RequestException as e:
+                        st.error(f"Could not connect to API: {e}")
+                    except Exception as e:
+                        st.error(f"Unexpected error: {e}")
+            st.write("***Delete a Term***")
+            with st.form("delete_term"):
+                # Get terms for dropdown
+                try:
+                    terms_response = requests.get(f"{API_BASE}/terms")
+                    terms = (
+                        terms_response.json()
+                        if terms_response.status_code == 200
+                        else []
+                    )
+                    term_options = {term["Name"]: term["ID"] for term in terms}
+                    selected_term = st.selectbox(
+                        "Term", options=list(term_options.keys())
+                    )
+
+                    if st.form_submit_button("Delete Term"):
+                        if selected_term:
+                            try:
+                                term_id = term_options[selected_term]
+                                response = requests.delete(
+                                    f"{API_BASE}/terms/{term_id}"
+                                )
+                                response.raise_for_status()
+                                st.rerun()
+                            except requests.exceptions.RequestException as e:
+                                st.error(f"Failed to delete term: {e}")
+                        else:
+                            st.warning("Please select a valid Term to delete.")
+
+                except Exception as e:
+                    st.error(f"Could not load terms: {e}")
+                    selected_term = None
 
         with col2:
             st.write("**Existing Terms**")
@@ -142,6 +175,41 @@ with tab2:
                             )
                     except requests.exceptions.RequestException as e:
                         st.error(f"Could not connect to API: {e}")
+
+            st.write("***Delete a Position***")
+            with st.form("delete_position"):
+                # Get positions for dropdown
+                try:
+                    positions_response = requests.get(f"{API_BASE}/positions")
+                    positions = (
+                        positions_response.json()
+                        if positions_response.status_code == 200
+                        else []
+                    )
+                    position_options = {
+                        position["Title"]: position["ID"] for position in positions
+                    }
+                    selected_position = st.selectbox(
+                        "position", options=list(position_options.keys())
+                    )
+
+                    if st.form_submit_button("Delete Position"):
+                        if selected_position:
+                            try:
+                                position_id = position_options[selected_position]
+                                response = requests.delete(
+                                    f"{API_BASE}/positions/{position_id}"
+                                )
+                                response.raise_for_status()
+                                st.rerun()
+                            except requests.exceptions.RequestException as e:
+                                st.error(f"Failed to delete position: {e}")
+                        else:
+                            st.warning("Please select a valid position to delete.")
+
+                except Exception as e:
+                    st.error(f"Could not load positions: {e}")
+                    selected_position = None
 
         with col2:
             st.write("**Existing Positions**")
@@ -224,6 +292,41 @@ with tab2:
                         st.error("Could not connect to API")
                 else:
                     st.error("Please select term and positions")
+
+        st.write("***Delete an Election***")
+        with st.form("delete_election"):
+            # Get elections for dropdown
+            try:
+                elections_response = requests.get(f"{API_BASE}/elections")
+                elections = (
+                    elections_response.json()
+                    if elections_response.status_code == 200
+                    else []
+                )
+                election_options = {
+                    election["TermName"]: election["ID"] for election in elections
+                }
+                selected_election = st.selectbox(
+                    "Election", options=list(election_options.keys())
+                )
+
+                if st.form_submit_button("Delete Electon"):
+                    if selected_election:
+                        try:
+                            election_id = election_options[selected_election]
+                            response = requests.delete(
+                                f"{API_BASE}/elections/{election_id}"
+                            )
+                            response.raise_for_status()
+                            st.rerun()
+                        except requests.exceptions.RequestException as e:
+                            st.error(f"Failed to delete election: {e}")
+                    else:
+                        st.warning("Please select a valid election to delete.")
+
+            except Exception as e:
+                st.error(f"Could not load elections: {e}")
+                selected_position = None
 
 # ==================== NOMINATIONS TAB ====================
 with tab3:
