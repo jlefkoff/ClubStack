@@ -21,4 +21,6 @@ This is based on the template repo for the CS 3200 Summer 2 2025 Course Project.
   - `./api` - the Flask REST API
   - `./database-files` - SQL scripts to initialize the MySQL database
 
-- The repo also contains a `docker-compose.yaml` file that is used to set up the Docker containers for the front end app, the REST API, and MySQL database. 
+- The repo also contains a `docker-compose.yaml` file that is used to set up the Docker containers for the front end app, the REST API, and MySQL database.
+
+- Demo Video: https://drive.google.com/file/d/17GzNVGHKVIn1pgBzuTkpCx4aZzuS44fN/view?usp=sharing
